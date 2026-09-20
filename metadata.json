@@ -1,0 +1,6 @@
+{
+  "name": "TechSoftware.digital - Rate Card & Quotation Portal",
+  "description": "Official portal for TechSoftware.digital - complete software development rate card, interactive customer quotation & booking system, WhatsApp & email invoice generator, and developer admin panel.",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
