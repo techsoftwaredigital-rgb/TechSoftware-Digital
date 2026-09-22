@@ -47,10 +47,23 @@ import {
   ClientContactLog,
   ProjectFile,
   ProjectMilestone,
-  MilestoneStatus
+  MilestoneStatus,
+  PaymentStatus
 } from './types';
 
 import { showBrowserNotification, requestPushPermission } from './utils/notifications';
+import { deriveMilestonesFromQuotations } from './utils/milestoneGenerator';
+import {
+  subscribeToQuotations,
+  saveQuotationToFirestore,
+  subscribeToPayments,
+  savePaymentToFirestore,
+  subscribeToClientProfile,
+  saveClientProfileToFirestore,
+  subscribeToMilestones,
+  saveMilestoneToFirestore,
+  testFirestoreConnection
+} from './services/firestoreSync';
 
 export default function App() {
   // Portal mode
@@ -149,6 +162,79 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('tsd_custom_milestones', JSON.stringify(customMilestones));
   }, [customMilestones]);
+
+  const [firebaseConnected, setFirebaseConnected] = useState<boolean>(true);
+
+  // Firestore initialization & real-time synchronization
+  useEffect(() => {
+    testFirestoreConnection().then((connected) => {
+      setFirebaseConnected(connected);
+    });
+
+    const unsubQuotations = subscribeToQuotations((cloudQuotes) => {
+      if (cloudQuotes && cloudQuotes.length > 0) {
+        setQuotations((prev) => {
+          const merged = [...prev];
+          for (const cq of cloudQuotes) {
+            const idx = merged.findIndex((q) => q.id === cq.id);
+            if (idx >= 0) {
+              merged[idx] = cq;
+            } else {
+              merged.unshift(cq);
+            }
+          }
+          return merged;
+        });
+      }
+    });
+
+    const unsubPayments = subscribeToPayments((cloudPayments) => {
+      if (cloudPayments && cloudPayments.length > 0) {
+        setPayments((prev) => {
+          const merged = [...prev];
+          for (const cp of cloudPayments) {
+            const idx = merged.findIndex((p) => p.id === cp.id);
+            if (idx >= 0) {
+              merged[idx] = cp;
+            } else {
+              merged.unshift(cp);
+            }
+          }
+          return merged;
+        });
+      }
+    });
+
+    const unsubProfile = subscribeToClientProfile(clientProfile.id, (cloudProfile) => {
+      if (cloudProfile) {
+        setClientProfile((prev) => ({ ...prev, ...cloudProfile }));
+      }
+    });
+
+    const unsubMilestones = subscribeToMilestones((cloudMilestones) => {
+      if (cloudMilestones && cloudMilestones.length > 0) {
+        setCustomMilestones((prev) => {
+          const merged = [...prev];
+          for (const cm of cloudMilestones) {
+            const idx = merged.findIndex((m) => m.id === cm.id);
+            if (idx >= 0) {
+              merged[idx] = cm;
+            } else {
+              merged.unshift(cm);
+            }
+          }
+          return merged;
+        });
+      }
+    });
+
+    return () => {
+      unsubQuotations();
+      unsubPayments();
+      unsubProfile();
+      unsubMilestones();
+    };
+  }, [clientProfile.id]);
 
   // Request browser push permission
   const handleRequestPush = async () => {
@@ -379,6 +465,7 @@ export default function App() {
       amcAmount: amcDetails?.annualFee ?? amcAmount,
       amcDetails,
       status: 'Booked',
+      paymentStatus: 'Pending',
       notes: `50% Advance ₹${advancePayable50.toLocaleString('en-IN')} due to kickoff. Strictly non-refundable. AMC Plan: ${amcDetails?.tierName || amcOption}.`,
       createdAt: today.toISOString(),
       updatedAt: today.toISOString(),
@@ -388,6 +475,9 @@ export default function App() {
 
     setQuotations((prev) => [newQuotation, ...prev]);
     setRecentlyBookedQuotation(newQuotation);
+    saveQuotationToFirestore(newQuotation).catch((err) => {
+      console.error('Failed to sync quotation to Firestore:', err);
+    });
 
     // Auto-record interaction in Client Profile Contact History
     const quoteContactLog: ClientContactLog = {
@@ -501,6 +591,7 @@ export default function App() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           clientName={clientProfile.name}
+          firebaseConnected={firebaseConnected}
         />
 
         {/* Main Content Area */}
@@ -673,7 +764,12 @@ export default function App() {
               {customerViewMode === 'profile' && (
                 <ClientProfileSection
                   clientProfile={clientProfile}
-                  onUpdateProfile={(updated) => setClientProfile(updated)}
+                  onUpdateProfile={(updated) => {
+                    setClientProfile(updated);
+                    saveClientProfileToFirestore(updated).catch((err) =>
+                      console.error('Failed to sync profile to Firestore:', err)
+                    );
+                  }}
                   quotations={quotations}
                   contactLogs={contactLogs}
                   onAddContactLog={(newLog) => {
@@ -707,16 +803,59 @@ export default function App() {
                   customMilestones={customMilestones}
                   onAddCustomMilestone={(newMilestone) => {
                     setCustomMilestones((prev) => [newMilestone, ...prev]);
+                    saveMilestoneToFirestore(newMilestone).catch((err) =>
+                      console.error('Failed to save milestone to Firestore:', err)
+                    );
                     handlePushNotification(
                       'Milestone Checkpoint Added',
                       `New checkpoint "${newMilestone.title}" set for ${newMilestone.targetDate}`,
                       'booking'
                     );
                   }}
-                  onUpdateMilestoneStatus={(milestoneId, status) => {
-                    setCustomMilestones((prev) =>
-                      prev.map((m) => (m.id === milestoneId ? { ...m, status } : m))
+                  onUpdateMilestone={(updatedMilestone) => {
+                    setCustomMilestones((prev) => {
+                      const idx = prev.findIndex((m) => m.id === updatedMilestone.id);
+                      if (idx >= 0) {
+                        const copy = [...prev];
+                        copy[idx] = updatedMilestone;
+                        return copy;
+                      }
+                      return [updatedMilestone, ...prev];
+                    });
+                    saveMilestoneToFirestore(updatedMilestone).catch((err) =>
+                      console.error('Failed to update milestone in Firestore:', err)
                     );
+                    handlePushNotification(
+                      'Milestone Updated',
+                      `"${updatedMilestone.title}" updated (Est: ${updatedMilestone.estimatedCompletionDate || updatedMilestone.targetDate})`,
+                      'booking'
+                    );
+                  }}
+                  onUpdateMilestoneStatus={(milestoneId, status) => {
+                    setCustomMilestones((prev) => {
+                      const idx = prev.findIndex((m) => m.id === milestoneId);
+                      if (idx >= 0) {
+                        const copy = [...prev];
+                        const updated = { ...copy[idx], status };
+                        copy[idx] = updated;
+                        saveMilestoneToFirestore(updated).catch((err) =>
+                          console.error('Failed to update milestone in Firestore:', err)
+                        );
+                        return copy;
+                      } else {
+                        // If it was a derived milestone not yet in customMilestones, find it and record override
+                        const allMs = deriveMilestonesFromQuotations(quotations, prev);
+                        const match = allMs.find((m) => m.id === milestoneId);
+                        if (match) {
+                          const updated = { ...match, status };
+                          saveMilestoneToFirestore(updated).catch((err) =>
+                            console.error('Failed to save milestone status override to Firestore:', err)
+                          );
+                          return [updated, ...prev];
+                        }
+                        return prev;
+                      }
+                    });
                     handlePushNotification(
                       'Milestone Updated',
                       `Milestone status changed to ${status.toUpperCase()}`,
@@ -748,24 +887,60 @@ export default function App() {
               onUpdateQuotationStatus={(id, status, staffId) => {
                 const assigned = staff.find((s) => s.id === staffId);
                 setQuotations((prev) =>
-                  prev.map((q) =>
-                    q.id === id
-                      ? {
-                          ...q,
-                          status,
-                          assignedStaffId: staffId || q.assignedStaffId,
-                          assignedStaffName: assigned ? assigned.name : q.assignedStaffName,
-                          updatedAt: new Date().toISOString()
-                        }
-                      : q
-                  )
+                  prev.map((q) => {
+                    if (q.id === id) {
+                      const updated: Quotation = {
+                        ...q,
+                        status,
+                        paymentStatus: status === 'Advance Received' && (!q.paymentStatus || q.paymentStatus === 'Pending')
+                          ? 'Partial'
+                          : q.paymentStatus,
+                        assignedStaffId: staffId || q.assignedStaffId,
+                        assignedStaffName: assigned ? assigned.name : q.assignedStaffName,
+                        updatedAt: new Date().toISOString()
+                      };
+                      saveQuotationToFirestore(updated).catch((err) =>
+                        console.error('Failed to sync updated quotation to Firestore:', err)
+                      );
+                      return updated;
+                    }
+                    return q;
+                  })
+                );
+              }}
+              onUpdateQuotationPaymentStatus={(id, paymentStatus) => {
+                setQuotations((prev) =>
+                  prev.map((q) => {
+                    if (q.id === id) {
+                      const updated: Quotation = {
+                        ...q,
+                        paymentStatus,
+                        updatedAt: new Date().toISOString()
+                      };
+                      saveQuotationToFirestore(updated).catch((err) =>
+                        console.error('Failed to sync updated quotation payment status to Firestore:', err)
+                      );
+                      return updated;
+                    }
+                    return q;
+                  })
+                );
+                handlePushNotification(
+                  'Payment Status Updated',
+                  `Quotation payment status updated to ${paymentStatus.toUpperCase()}`,
+                  'payment'
                 );
               }}
               onViewQuotation={(q) => setActiveQuotationForModal(q)}
               staff={staff}
               onAddStaff={(newStaff) => setStaff((prev) => [...prev, newStaff])}
               payments={payments}
-              onAddPayment={(newPayment) => setPayments((prev) => [newPayment, ...prev])}
+              onAddPayment={(newPayment) => {
+                setPayments((prev) => [newPayment, ...prev]);
+                savePaymentToFirestore(newPayment).catch((err) =>
+                  console.error('Failed to sync payment to Firestore:', err)
+                );
+              }}
               onBroadcastPush={(title, message, type) => handlePushNotification(title, message, type)}
               companyInfo={COMPANY_INFO}
             />

@@ -67,6 +67,7 @@ export function deriveMilestonesFromQuotations(
       phase: MilestonePhase;
       title: string;
       description: string;
+      moduleName: string;
       dayOffsetPercent: number;
       deliverables: string[];
       paymentMilestone?: string;
@@ -77,6 +78,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'Kickoff & Advance',
         title: 'Project Kickoff & 50% Advance Verification',
         description: 'Verification of 50% advance payment, initial requirements lock, Git repository setup, and project kickoff call.',
+        moduleName: 'DevOps & Cloud Environment',
         dayOffsetPercent: 0,
         deliverables: [
           '50% Advance Payment Verified & Bank Receipt Issued',
@@ -90,6 +92,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'Wireframe & Architecture',
         title: 'UX/UI Wireframe Sign-off & Database Schema',
         description: 'Interactive wireframes in Figma, database schema modeling, and API endpoints blueprint finalized with client sign-off.',
+        moduleName: 'UI/UX & Database Architecture',
         dayOffsetPercent: 0.18,
         deliverables: [
           'Figma Interactive UI Prototype & Wireframes',
@@ -101,6 +104,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'Sprint 1 Development',
         title: 'Sprint 1 Review & Alpha Staging Demo',
         description: 'Core application layout, authentication, responsive interface, and initial backend business logic ready for client walkthrough.',
+        moduleName: 'Authentication & Core Framework',
         dayOffsetPercent: 0.42,
         deliverables: [
           'Frontend Design System & Navigation Implementation',
@@ -112,6 +116,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'Sprint 2 Core Features',
         title: 'Sprint 2 Feature Complete & Integration',
         description: 'Full scoped functional modules completed including payment gateways, dynamic workflows, and external API connectors.',
+        moduleName: quote.items[0]?.name || 'Core Business Logic & Integrations',
         dayOffsetPercent: 0.70,
         deliverables: [
           `${quote.items.length} Scoped Service Modules Developed`,
@@ -123,6 +128,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'QA Testing & Security',
         title: 'Comprehensive QA, Security & Speed Audit',
         description: 'Rigorous cross-device testing, automated unit tests, OWASP security audit, SSL installation, and performance optimization.',
+        moduleName: 'Security & Performance Audit',
         dayOffsetPercent: 0.82,
         deliverables: [
           'Cross-Browser & Android/iOS Compatibility Test',
@@ -134,6 +140,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'UAT & Client Demo',
         title: 'User Acceptance Testing (UAT) & Balance Payment',
         description: 'Formal client acceptance demo on staging environment, review feedback adjustments, and settlement of final 50% balance.',
+        moduleName: 'Client Acceptance & Demo',
         dayOffsetPercent: 0.92,
         deliverables: [
           'Client Walkthrough & Feedback Resolution',
@@ -146,6 +153,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'Production Launch',
         title: 'Production Deployment & Live Domain Handover',
         description: 'Final production build deployed to cloud server, live custom domain SSL pointed, source code repository and admin credentials delivered.',
+        moduleName: 'Production Deployment & DNS',
         dayOffsetPercent: 1.0,
         deliverables: [
           'Production Cloud Deployment Live & Healthy',
@@ -157,6 +165,7 @@ export function deriveMilestonesFromQuotations(
         phase: 'Warranty & AMC',
         title: '30-Day Warranty & Annual Maintenance (AMC)',
         description: '30-day post-launch bug warranty support wrap-up, followed by optional Annual Maintenance Contract (AMC) support commencement.',
+        moduleName: 'SLA Support & Monitoring',
         dayOffsetPercent: 1.0 + 30 / totalDays, // 30 days after launch
         deliverables: [
           '30-Day Post-Launch Free Bug-fix Warranty Completed',
@@ -169,6 +178,20 @@ export function deriveMilestonesFromQuotations(
     phases.forEach((p, idx) => {
       const offsetDays = Math.round(totalDays * p.dayOffsetPercent);
       const targetDateObj = addDaysToDate(startDate, offsetDays);
+
+      // Determine phase start date
+      let phaseStartDateObj: Date;
+      if (idx === 0) {
+        phaseStartDateObj = new Date(startDate);
+      } else {
+        const prevOffsetDays = Math.round(totalDays * phases[idx - 1].dayOffsetPercent);
+        phaseStartDateObj = addDaysToDate(startDate, prevOffsetDays);
+      }
+      if (targetDateObj <= phaseStartDateObj) {
+        targetDateObj.setDate(phaseStartDateObj.getDate() + 3);
+      }
+
+      const startDateStr = formatDateISO(phaseStartDateObj);
       const targetDateStr = formatDateISO(targetDateObj);
 
       // Determine milestone status
@@ -197,9 +220,20 @@ export function deriveMilestonesFromQuotations(
 
       // Calculate approximate progress
       let progressPercent = 0;
-      if (status === 'completed') progressPercent = 100;
-      else if (status === 'in_progress') progressPercent = 50;
-      else progressPercent = 0;
+      let completedDeliverables: string[] = [];
+      if (status === 'completed') {
+        progressPercent = 100;
+        completedDeliverables = [...p.deliverables];
+      } else if (status === 'in_progress') {
+        progressPercent = 50;
+        completedDeliverables = p.deliverables.slice(0, Math.ceil(p.deliverables.length / 2));
+      } else {
+        progressPercent = 0;
+        completedDeliverables = [];
+      }
+
+      // Sequential dependency: depends on the previous phase milestone in this quote
+      const dependencyIds = idx > 0 ? [`ms-${quote.id}-${idx - 1}`] : [];
 
       derivedMilestones.push({
         id: `ms-${quote.id}-${idx}`,
@@ -209,9 +243,14 @@ export function deriveMilestonesFromQuotations(
         phase: p.phase,
         title: p.title,
         description: p.description,
+        startDate: startDateStr,
         targetDate: targetDateStr,
+        estimatedCompletionDate: targetDateStr,
+        moduleName: p.moduleName,
+        dependencyIds,
         status,
         deliverables: p.deliverables,
+        completedDeliverables,
         assignedLead: techLead,
         paymentMilestone: p.paymentMilestone,
         progressPercent,
@@ -220,13 +259,33 @@ export function deriveMilestonesFromQuotations(
     });
   });
 
-  // Combine with any user-added custom milestones
-  const allMilestones = [...derivedMilestones, ...customMilestones];
+  // Combine with custom milestones and overrides
+  const customMap = new Map(customMilestones.map((m) => [m.id, m]));
+  const mergedMilestones: ProjectMilestone[] = [];
 
-  // Sort by target date ascending
-  allMilestones.sort((a, b) => new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime());
+  for (const dm of derivedMilestones) {
+    if (customMap.has(dm.id)) {
+      // Use the custom/user-edited override
+      mergedMilestones.push(customMap.get(dm.id)!);
+      customMap.delete(dm.id);
+    } else {
+      mergedMilestones.push(dm);
+    }
+  }
 
-  return allMilestones;
+  // Any remaining customMilestones are purely user-created milestones
+  customMap.forEach((cm) => {
+    mergedMilestones.push(cm);
+  });
+
+  // Sort by target date / estimated completion date ascending
+  mergedMilestones.sort((a, b) => {
+    const dateA = a.estimatedCompletionDate || a.targetDate;
+    const dateB = b.estimatedCompletionDate || b.targetDate;
+    return new Date(dateA).getTime() - new Date(dateB).getTime();
+  });
+
+  return mergedMilestones;
 }
 
 /**

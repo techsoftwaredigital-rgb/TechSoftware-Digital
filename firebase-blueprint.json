@@ -1,0 +1,97 @@
+{
+  "entities": {
+    "Quotation": {
+      "title": "Quotation",
+      "description": "Quotation details, customer info, and pricing breakdown",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "quotationNumber": { "type": "string" },
+        "date": { "type": "string" },
+        "validUntil": { "type": "string" },
+        "status": { "type": "string" },
+        "paymentStatus": { "type": "string", "enum": ["Pending", "Partial", "Paid"] },
+        "subtotalTaxable": { "type": "number" },
+        "totalGst": { "type": "number" },
+        "grandTotal": { "type": "number" },
+        "advancePayable50": { "type": "number" },
+        "balancePayable": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "quotationNumber", "grandTotal", "status"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Payment records for projects and quotations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "quotationId": { "type": "string" },
+        "quotationNumber": { "type": "string" },
+        "customerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string" },
+        "paymentMode": { "type": "string" },
+        "transactionReference": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "amount", "status"]
+    },
+    "ClientProfile": {
+      "title": "ClientProfile",
+      "description": "Client profile details and preferences",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "companyName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "joinedDate": { "type": "string" },
+        "clientTier": { "type": "string" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "ProjectMilestone": {
+      "title": "ProjectMilestone",
+      "description": "Timeline milestones and deliverables",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "quotationId": { "type": "string" },
+        "quotationNumber": { "type": "string" },
+        "projectName": { "type": "string" },
+        "phase": { "type": "string" },
+        "title": { "type": "string" },
+        "startDate": { "type": "string" },
+        "targetDate": { "type": "string" },
+        "estimatedCompletionDate": { "type": "string" },
+        "moduleName": { "type": "string" },
+        "dependencyIds": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "title", "status"]
+    }
+  },
+  "firestore": {
+    "/quotations/{quotationId}": {
+      "schema": "Quotation",
+      "description": "Collection of customer quotations"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Collection of project payments"
+    },
+    "/clientProfiles/{profileId}": {
+      "schema": "ClientProfile",
+      "description": "Collection of client profiles"
+    },
+    "/milestones/{milestoneId}": {
+      "schema": "ProjectMilestone",
+      "description": "Collection of project milestones"
+    }
+  }
+}

@@ -65,6 +65,8 @@ export type QuotationStatus =
   | 'Completed'
   | 'Cancelled';
 
+export type PaymentStatus = 'Pending' | 'Partial' | 'Paid';
+
 export type AmcTier = 'none' | 'bronze' | 'silver' | 'gold' | 'standard' | 'premium' | 'custom';
 
 export interface AmcPlanDetails {
@@ -100,6 +102,7 @@ export interface Quotation {
   amcAmount: number;
   amcDetails?: AmcPlanDetails;
   status: QuotationStatus;
+  paymentStatus?: PaymentStatus;
   assignedStaffId?: string;
   assignedStaffName?: string;
   notes?: string;
@@ -223,9 +226,14 @@ export interface ProjectMilestone {
   phase: MilestonePhase;
   title: string;
   description: string;
-  targetDate: string; // YYYY-MM-DD
+  startDate?: string; // YYYY-MM-DD (Milestone start date)
+  targetDate: string; // YYYY-MM-DD (Baseline target)
+  estimatedCompletionDate?: string; // YYYY-MM-DD (Revised / estimated completion)
+  moduleName?: string; // Specific software module
+  dependencyIds?: string[]; // Prerequisite milestone IDs
   status: MilestoneStatus;
   deliverables: string[];
+  completedDeliverables?: string[];
   assignedLead?: string;
   paymentMilestone?: string;
   progressPercent?: number;

@@ -31,7 +31,8 @@ import {
   PaymentRecord,
   CompanyInfo,
   AppNotification,
-  ServiceCategory
+  ServiceCategory,
+  PaymentStatus
 } from '../../types';
 
 interface DeveloperPortalProps {
@@ -41,6 +42,7 @@ interface DeveloperPortalProps {
   onDeleteService: (serviceId: string) => void;
   quotations: Quotation[];
   onUpdateQuotationStatus: (id: string, status: Quotation['status'], staffId?: string) => void;
+  onUpdateQuotationPaymentStatus?: (id: string, paymentStatus: PaymentStatus) => void;
   onViewQuotation: (quotation: Quotation) => void;
   staff: StaffMember[];
   onAddStaff: (newStaff: StaffMember) => void;
@@ -57,6 +59,7 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
   onDeleteService,
   quotations,
   onUpdateQuotationStatus,
+  onUpdateQuotationPaymentStatus,
   onViewQuotation,
   staff,
   onAddStaff,
@@ -90,6 +93,7 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
   // Quotes search
   const [quoteSearch, setQuoteSearch] = useState('');
   const [quoteStatusFilter, setQuoteStatusFilter] = useState<string>('All');
+  const [quotePaymentFilter, setQuotePaymentFilter] = useState<string>('All');
 
   // Staff Modal
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -433,6 +437,17 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                         >
                           {quote.status}
                         </span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            (quote.paymentStatus || 'Pending') === 'Paid'
+                              ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60'
+                              : (quote.paymentStatus || 'Pending') === 'Partial'
+                              ? 'bg-amber-950/80 text-amber-300 border-amber-700/60'
+                              : 'bg-rose-950/80 text-rose-300 border-rose-700/60'
+                          }`}
+                        >
+                          Payment: {quote.paymentStatus || 'Pending'}
+                        </span>
                       </div>
                       <p className="text-[11px] text-slate-400 mt-1">
                         {quote.items.map(i => i.name).join(', ')}
@@ -552,6 +567,20 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                 <option value="Completed">Completed</option>
               </select>
             </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400">Payment:</span>
+              <select
+                value={quotePaymentFilter}
+                onChange={(e) => setQuotePaymentFilter(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200"
+              >
+                <option value="All">All Payments</option>
+                <option value="Pending">Pending</option>
+                <option value="Partial">Partial</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </div>
           </div>
 
           {/* Quotations List */}
@@ -559,6 +588,7 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
             {quotations
               .filter((q) => {
                 if (quoteStatusFilter !== 'All' && q.status !== quoteStatusFilter) return false;
+                if (quotePaymentFilter !== 'All' && (q.paymentStatus || 'Pending') !== quotePaymentFilter) return false;
                 if (!quoteSearch.trim()) return true;
                 const query = quoteSearch.toLowerCase();
                 return (
@@ -566,7 +596,8 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                   q.customer.name.toLowerCase().includes(query) ||
                   q.customer.phone.includes(query) ||
                   q.customer.email.toLowerCase().includes(query) ||
-                  (q.customer.companyName && q.customer.companyName.toLowerCase().includes(query))
+                  (q.customer.companyName && q.customer.companyName.toLowerCase().includes(query)) ||
+                  (q.paymentStatus && q.paymentStatus.toLowerCase().includes(query))
                 );
               })
               .map((quote) => (
@@ -588,6 +619,17 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                         <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/50">
                           {quote.quotationNumber}
                         </span>
+                        <span
+                          className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border ${
+                            (quote.paymentStatus || 'Pending') === 'Paid'
+                              ? 'bg-emerald-950/90 text-emerald-300 border-emerald-600/70'
+                              : (quote.paymentStatus || 'Pending') === 'Partial'
+                              ? 'bg-amber-950/90 text-amber-300 border-amber-600/70'
+                              : 'bg-rose-950/90 text-rose-300 border-rose-600/70'
+                          }`}
+                        >
+                          Payment: {quote.paymentStatus || 'Pending'}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
                         <span className="flex items-center gap-1">
@@ -608,6 +650,7 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                         value={quote.status}
                         onChange={(e) => onUpdateQuotationStatus(quote.id, e.target.value as any, quote.assignedStaffId)}
                         className="bg-slate-950 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none"
+                        title="Quotation Project Status"
                       >
                         <option value="Draft">Draft</option>
                         <option value="Sent">Sent</option>
@@ -617,6 +660,26 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                         <option value="Completed">Completed</option>
                         <option value="Cancelled">Cancelled</option>
                       </select>
+
+                      {/* Admin Payment Status Selector */}
+                      <div className="flex items-center gap-1 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5" title="Update Payment Status ('Pending', 'Partial', 'Paid')">
+                        <span className="text-[10px] text-slate-400 font-medium">Pay:</span>
+                        <select
+                          value={quote.paymentStatus || 'Pending'}
+                          onChange={(e) => onUpdateQuotationPaymentStatus?.(quote.id, e.target.value as PaymentStatus)}
+                          className={`bg-transparent text-xs font-bold focus:outline-none cursor-pointer ${
+                            (quote.paymentStatus || 'Pending') === 'Paid'
+                              ? 'text-emerald-400'
+                              : (quote.paymentStatus || 'Pending') === 'Partial'
+                              ? 'text-amber-400'
+                              : 'text-rose-400'
+                          }`}
+                        >
+                          <option value="Pending" className="bg-slate-900 text-rose-300">Pending</option>
+                          <option value="Partial" className="bg-slate-900 text-amber-300">Partial</option>
+                          <option value="Paid" className="bg-slate-900 text-emerald-300">Paid</option>
+                        </select>
+                      </div>
 
                       <select
                         value={quote.assignedStaffId || ''}
@@ -663,6 +726,20 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                       <div className="flex justify-between text-amber-400 font-bold">
                         <span>50% Advance:</span>
                         <span>₹{quote.advancePayable50.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-slate-400">Payment Status:</span>
+                        <span
+                          className={`font-bold ${
+                            (quote.paymentStatus || 'Pending') === 'Paid'
+                              ? 'text-emerald-400'
+                              : (quote.paymentStatus || 'Pending') === 'Partial'
+                              ? 'text-amber-400'
+                              : 'text-rose-400'
+                          }`}
+                        >
+                          {quote.paymentStatus || 'Pending'}
+                        </span>
                       </div>
                       {quote.amcOption && quote.amcOption !== 'none' && (
                         <div className="flex justify-between text-cyan-300 text-[11px]">

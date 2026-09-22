@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Test connection check
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    // Quotations
+    match /quotations/{quotationId} {
+      allow read, write: if true;
+    }
+
+    // Payments
+    match /payments/{paymentId} {
+      allow read, write: if true;
+    }
+
+    // Client Profiles
+    match /clientProfiles/{profileId} {
+      allow read, write: if true;
+    }
+
+    // Milestones
+    match /milestones/{milestoneId} {
+      allow read, write: if true;
+    }
+  }
+}

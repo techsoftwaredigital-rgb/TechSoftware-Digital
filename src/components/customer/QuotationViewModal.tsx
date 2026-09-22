@@ -73,10 +73,21 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
         
         {/* Top Control Bar (Hidden when printing) */}
         <div className="no-print bg-slate-900 text-white p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-bold text-xs sm:text-sm text-slate-100">
               Official Quotation Preview: {quotation.quotationNumber}
+            </span>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border ${
+                (quotation.paymentStatus || 'Pending') === 'Paid'
+                  ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
+                  : (quotation.paymentStatus || 'Pending') === 'Partial'
+                  ? 'bg-amber-950 text-amber-300 border-amber-600'
+                  : 'bg-rose-950 text-rose-300 border-rose-600'
+              }`}
+            >
+              Payment: {quotation.paymentStatus || 'Pending'}
             </span>
           </div>
 
@@ -249,6 +260,20 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
                 <p><strong>Date Issued:</strong> {quotation.date}</p>
                 <p><strong>Valid Through:</strong> {quotation.validUntil}</p>
                 <p><strong>Project Timeline:</strong> {quotation.customer.projectTimeline}</p>
+                <p className="flex items-center sm:justify-end gap-1.5 pt-0.5">
+                  <strong>Payment Status:</strong>
+                  <span
+                    className={`inline-flex items-center gap-1 font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-wider ${
+                      (quotation.paymentStatus || 'Pending') === 'Paid'
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : (quotation.paymentStatus || 'Pending') === 'Partial'
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                        : 'bg-rose-100 text-rose-800 border border-rose-300'
+                    }`}
+                  >
+                    {quotation.paymentStatus || 'Pending'}
+                  </span>
+                </p>
               </div>
             </div>
           </div>

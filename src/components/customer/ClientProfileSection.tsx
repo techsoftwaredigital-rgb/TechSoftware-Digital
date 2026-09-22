@@ -40,9 +40,11 @@ import {
   Quotation,
   CustomerDetails,
   ProjectMilestone,
-  MilestoneStatus
+  MilestoneStatus,
+  PaymentStatus
 } from '../../types';
 import { ProjectCalendar } from './ProjectCalendar';
+import { MilestoneProgressChart } from './MilestoneProgressChart';
 import { deriveMilestonesFromQuotations } from '../../utils/milestoneGenerator';
 
 interface ClientProfileSectionProps {
@@ -60,6 +62,7 @@ interface ClientProfileSectionProps {
   customMilestones?: ProjectMilestone[];
   onAddCustomMilestone?: (milestone: ProjectMilestone) => void;
   onUpdateMilestoneStatus?: (milestoneId: string, status: MilestoneStatus) => void;
+  onUpdateMilestone?: (milestone: ProjectMilestone) => void;
 }
 
 export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
@@ -76,11 +79,14 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
   onNavigateToBuilder,
   customMilestones = [],
   onAddCustomMilestone,
-  onUpdateMilestoneStatus
+  onUpdateMilestoneStatus,
+  onUpdateMilestone
 }) => {
-  const [activeTab, setActiveTab] = useState<'calendar' | 'quotes' | 'history' | 'files'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'analytics' | 'quotes' | 'history' | 'files'>('calendar');
+  const [showProgressOverview, setShowProgressOverview] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [fileCategoryFilter, setFileCategoryFilter] = useState<string>('All');
+  const [quotePaymentFilter, setQuotePaymentFilter] = useState<'All' | PaymentStatus>('All');
 
   // Modals state
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
@@ -126,12 +132,17 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
 
   // Filtered lists
   const filteredQuotations = quotations.filter((q) => {
+    const qPayment = q.paymentStatus || 'Pending';
+    if (quotePaymentFilter !== 'All' && qPayment !== quotePaymentFilter) {
+      return false;
+    }
     const query = searchQuery.toLowerCase();
     return (
       q.quotationNumber.toLowerCase().includes(query) ||
       q.customer.name.toLowerCase().includes(query) ||
-      q.customer.companyName.toLowerCase().includes(query) ||
-      q.status.toLowerCase().includes(query)
+      (q.customer.companyName && q.customer.companyName.toLowerCase().includes(query)) ||
+      q.status.toLowerCase().includes(query) ||
+      qPayment.toLowerCase().includes(query)
     );
   });
 
@@ -393,7 +404,21 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
-            <span>Project Calendar & Milestones ({totalMilestonesCount})</span>
+            <span>Gantt Chart & Milestones ({totalMilestonesCount})</span>
+          </button>
+
+          <button
+            type="button"
+            id="tab-milestone-analytics"
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'analytics'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>Completion % (Recharts)</span>
           </button>
 
           <button
@@ -460,26 +485,106 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
 
       {/* TAB 0: PROJECT CALENDAR & MILESTONES (Derived from Booked Quotes) */}
       {activeTab === 'calendar' && (
-        <ProjectCalendar
-          quotations={quotations}
-          customMilestones={customMilestones}
-          onAddCustomMilestone={onAddCustomMilestone}
-          onUpdateMilestoneStatus={onUpdateMilestoneStatus}
-          onViewQuotation={onViewQuotation}
-        />
+        <div className="space-y-6">
+          {/* Quick Recharts Completion % Visualizer Banner */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-lg">
+            <div className="px-5 py-3 flex items-center justify-between bg-slate-950/70 border-b border-slate-800/80">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                  Timeline Velocity & Completion % (Recharts)
+                </span>
+              </div>
+              <button
+                type="button"
+                id="toggle-progress-overview-btn"
+                onClick={() => setShowProgressOverview((prev) => !prev)}
+                className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+              >
+                {showProgressOverview ? 'Hide Completion Chart' : 'Show Completion Chart'}
+              </button>
+            </div>
+            {showProgressOverview && (
+              <div className="p-4 sm:p-5">
+                <MilestoneProgressChart
+                  quotations={quotations}
+                  customMilestones={customMilestones}
+                />
+              </div>
+            )}
+          </div>
+
+          <ProjectCalendar
+            quotations={quotations}
+            customMilestones={customMilestones}
+            onAddCustomMilestone={onAddCustomMilestone}
+            onUpdateMilestoneStatus={onUpdateMilestoneStatus}
+            onUpdateMilestone={onUpdateMilestone}
+            onViewQuotation={onViewQuotation}
+          />
+        </div>
+      )}
+
+      {/* TAB 0.5: DEDICATED MILESTONE COMPLETION % VELOCITY (Recharts) */}
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          <MilestoneProgressChart
+            quotations={quotations}
+            customMilestones={customMilestones}
+          />
+
+          {/* Quick Jump to Calendar */}
+          <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center justify-between">
+            <div className="text-xs text-slate-400">
+              Want to see individual sprint deliverables, date adjustments, or D3 Gantt dependency links?
+            </div>
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className="px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md shadow-cyan-600/20"
+            >
+              Open Gantt & Calendar View
+            </button>
+          </div>
+        </div>
       )}
 
       {/* TAB 1: Previous Quotes & Estimates */}
       {activeTab === 'quotes' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400">
             <p>
-              Review your historical quotations, 50% non-refundable advance allocations, and download
+              Review your historical quotations, payment status, 50% advance allocations, and download
               PDF invoices anytime.
             </p>
-            <span className="font-semibold text-slate-300">
-              Showing {filteredQuotations.length} of {quotations.length} quotes
-            </span>
+            <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+              <span className="text-[11px] text-slate-400 font-semibold mr-0.5">Payment:</span>
+              {(['All', 'Pending', 'Partial', 'Paid'] as const).map((filter) => {
+                const count = filter === 'All' 
+                  ? quotations.length 
+                  : quotations.filter(q => (q.paymentStatus || 'Pending') === filter).length;
+                return (
+                  <button
+                    key={filter}
+                    type="button"
+                    onClick={() => setQuotePaymentFilter(filter)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      quotePaymentFilter === filter
+                        ? filter === 'Paid'
+                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-600'
+                          : filter === 'Partial'
+                          ? 'bg-amber-950 text-amber-300 border border-amber-600'
+                          : filter === 'Pending'
+                          ? 'bg-rose-950 text-rose-300 border border-rose-600'
+                          : 'bg-cyan-950 text-cyan-300 border border-cyan-600'
+                        : 'bg-slate-900 text-slate-400 border border-slate-800 hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{filter}</span>
+                    <span className="ml-1 opacity-75">({count})</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {filteredQuotations.length === 0 ? (
@@ -487,7 +592,7 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
               <FileCheck className="w-10 h-10 text-slate-600 mx-auto mb-2" />
               <h4 className="text-sm font-bold text-slate-300">No Quotations Found</h4>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                No previous quotes match your search. Generate a new quotation using the rate card!
+                No quotations match the active search and payment filters. Generate a new quotation using the rate card!
               </p>
               <button
                 type="button"
@@ -506,6 +611,8 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
                   quote.status === 'Advance Received' ||
                   quote.status === 'In Progress' ||
                   quote.status === 'Completed';
+
+                const pStatus = quote.paymentStatus || 'Pending';
 
                 return (
                   <div
@@ -529,6 +636,30 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
                         >
                           {quote.status}
                         </span>
+
+                        {/* Payment Status Indicator */}
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border shadow-sm ${
+                            pStatus === 'Paid'
+                              ? 'bg-emerald-950/90 text-emerald-300 border-emerald-600/70'
+                              : pStatus === 'Partial'
+                              ? 'bg-amber-950/90 text-amber-300 border-amber-600/70'
+                              : 'bg-rose-950/90 text-rose-300 border-rose-600/70'
+                          }`}
+                          title={`Payment Status: ${pStatus}`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              pStatus === 'Paid'
+                                ? 'bg-emerald-400'
+                                : pStatus === 'Partial'
+                                ? 'bg-amber-400'
+                                : 'bg-rose-400'
+                            }`}
+                          />
+                          <span>Payment: {pStatus}</span>
+                        </span>
+
                         <span className="text-xs text-slate-500">• Issued: {quote.date}</span>
                         <span className="text-xs text-slate-500">
                           • Valid until: {quote.validUntil}
@@ -567,9 +698,22 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
                         <span className="text-base sm:text-lg font-black text-white font-mono block">
                           ₹{quote.grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </span>
-                        <span className="text-[11px] text-amber-400 font-semibold block">
-                          50% Advance: ₹{quote.advancePayable50.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                        </span>
+                        <div className="flex items-center md:justify-end gap-1.5 mt-0.5">
+                          <span className="text-[11px] text-amber-400 font-semibold">
+                            50% Advance: ₹{quote.advancePayable50.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                          </span>
+                          <span
+                            className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wide border ${
+                              pStatus === 'Paid'
+                                ? 'bg-emerald-950/90 text-emerald-300 border-emerald-600/60'
+                                : pStatus === 'Partial'
+                                ? 'bg-amber-950/90 text-amber-300 border-amber-600/60'
+                                : 'bg-rose-950/90 text-rose-300 border-rose-600/60'
+                            }`}
+                          >
+                            {pStatus}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-2">

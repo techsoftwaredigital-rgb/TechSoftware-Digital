@@ -30,6 +30,7 @@ interface NavbarProps {
   onOpenQuotationDrawer?: () => void;
   onNavigateToProfile?: () => void;
   clientName?: string;
+  firebaseConnected?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -46,7 +47,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleMobileDeviceView,
   onOpenQuotationDrawer,
   onNavigateToProfile,
-  clientName
+  clientName,
+  firebaseConnected = true
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -75,6 +77,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
+            <span
+              className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-full border ${
+                firebaseConnected
+                  ? 'text-amber-400 bg-amber-950/50 border-amber-800/40'
+                  : 'text-slate-400 bg-slate-900/60 border-slate-700/50'
+              }`}
+              title={
+                firebaseConnected
+                  ? 'Firebase Firestore Cloud Synced: TS Digital'
+                  : 'Firebase Offline Cache Active'
+              }
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  firebaseConnected ? 'bg-amber-400 animate-pulse' : 'bg-slate-400'
+                }`}
+              />
+              <span>{firebaseConnected ? 'Firebase: TS Digital' : 'Firebase: Offline Sync'}</span>
+            </span>
+
             <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/50">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Live GST Rate Card 2026
