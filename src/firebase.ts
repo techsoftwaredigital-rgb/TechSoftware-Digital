@@ -12,11 +12,28 @@ import {
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
-// Initialize Firebase App
-const app = initializeApp(firebaseConfig);
+// Configuration supporting Vite environment variables with fallback to firebase-applet-config.json
+const env = (import.meta as any).env || {};
 
-// Initialize Firestore with custom database ID from config
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const activeFirebaseConfig = {
+  apiKey: env.VITE_FIREBASE_API_KEY || (firebaseConfig as any)?.apiKey || '',
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || (firebaseConfig as any)?.authDomain || 'ts-devloper.firebaseapp.com',
+  projectId: env.VITE_FIREBASE_PROJECT_ID || (firebaseConfig as any)?.projectId || 'ts-devloper',
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || (firebaseConfig as any)?.storageBucket || 'ts-devloper.firebasestorage.app',
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || (firebaseConfig as any)?.messagingSenderId || '731050932011',
+  appId: env.VITE_FIREBASE_APP_ID || (firebaseConfig as any)?.appId || '',
+  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID || (firebaseConfig as any)?.measurementId || '',
+};
+
+// Initialize Firebase App
+const app = initializeApp(activeFirebaseConfig);
+
+// Initialize Firestore (supports custom named database or standard default database)
+const customDbId = env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || (firebaseConfig as any)?.firestoreDatabaseId;
+export const db = (customDbId && customDbId !== '(default)' && customDbId !== '')
+  ? getFirestore(app, customDbId)
+  : getFirestore(app);
+
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Quotation, ProjectMilestone, MilestoneStatus, PaymentStatus } from '../../types';
 import { deriveMilestonesFromQuotations, generateGoogleCalendarUrl } from '../../utils/milestoneGenerator';
+import { MilestoneProgressBar } from './MilestoneProgressBar';
 
 export type CalendarEventType = 'milestone' | 'payment';
 
@@ -650,6 +651,20 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                     <h6 className="text-xs font-bold text-white mb-1 leading-snug">{ev.title}</h6>
                     <p className="text-[11px] text-slate-400">Quote #{ev.quotationNumber} • {ev.projectName}</p>
 
+                    {ev.type === 'milestone' && (
+                      <div className="mt-2 pt-2 border-t border-slate-800">
+                        <MilestoneProgressBar
+                          progress={ev.milestone?.progressPercent ?? (ev.status === 'completed' ? 100 : ev.status === 'in_progress' ? 50 : 0)}
+                          status={(ev.milestone?.status || (ev.status === 'completed' ? 'completed' : ev.status === 'delayed' ? 'delayed' : ev.status === 'in_progress' ? 'in_progress' : 'upcoming')) as MilestoneStatus}
+                          milestone={ev.milestone}
+                          size="sm"
+                          showLabel={true}
+                          showCheckpoints={false}
+                          interactive={false}
+                        />
+                      </div>
+                    )}
+
                     {ev.amount && (
                       <div className="mt-2 text-sm font-extrabold font-mono text-amber-400">
                         ₹{ev.amount.toLocaleString('en-IN')}
@@ -771,6 +786,20 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                           </div>
                         )}
                       </div>
+
+                      {item.type === 'milestone' && (
+                        <div className="mt-3 pt-3 border-t border-slate-800/80">
+                          <MilestoneProgressBar
+                            progress={item.milestone?.progressPercent ?? (item.status === 'completed' ? 100 : item.status === 'in_progress' ? 50 : 0)}
+                            status={(item.milestone?.status || (item.status === 'completed' ? 'completed' : item.status === 'delayed' ? 'delayed' : item.status === 'in_progress' ? 'in_progress' : 'upcoming')) as MilestoneStatus}
+                            milestone={item.milestone}
+                            size="sm"
+                            showLabel={true}
+                            showCheckpoints={true}
+                            interactive={false}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -989,6 +1018,21 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                 </div>
               )}
             </div>
+
+            {/* Visual Progress Bar if event is a milestone */}
+            {activeModalEvent.type === 'milestone' && (
+              <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                <MilestoneProgressBar
+                  progress={activeModalEvent.milestone?.progressPercent ?? (activeModalEvent.status === 'completed' ? 100 : activeModalEvent.status === 'in_progress' ? 50 : 0)}
+                  status={(activeModalEvent.milestone?.status || (activeModalEvent.status === 'completed' ? 'completed' : activeModalEvent.status === 'delayed' ? 'delayed' : activeModalEvent.status === 'in_progress' ? 'in_progress' : 'upcoming')) as MilestoneStatus}
+                  milestone={activeModalEvent.milestone}
+                  size="md"
+                  showLabel={true}
+                  showCheckpoints={true}
+                  interactive={false}
+                />
+              </div>
+            )}
 
             {/* Deliverables or Payment Instructions */}
             {activeModalEvent.type === 'milestone' && activeModalEvent.deliverables && (

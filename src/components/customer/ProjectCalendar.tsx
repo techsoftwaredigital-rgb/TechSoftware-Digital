@@ -45,6 +45,7 @@ import { MilestoneProgressChart } from './MilestoneProgressChart';
 import { ProjectHealthWidget } from './ProjectHealthWidget';
 import { MilestonePaymentCalendar } from './MilestonePaymentCalendar';
 import { MiniProgressRing } from './MiniProgressRing';
+import { MilestoneProgressBar } from './MilestoneProgressBar';
 
 interface ProjectCalendarProps {
   quotations: Quotation[];
@@ -998,6 +999,24 @@ export const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
                         </div>
                       </div>
 
+                      {/* Visual Progress Bar beneath milestone header */}
+                      <div className="mt-4 pt-3 border-t border-slate-800/80 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+                        <MilestoneProgressBar
+                          progress={milestoneProgress}
+                          status={milestone.status}
+                          milestone={milestone}
+                          size="md"
+                          showLabel={true}
+                          showCheckpoints={true}
+                          interactive={true}
+                          onUpdateProgress={(pct) => handleSetMilestoneProgress(milestone, pct)}
+                          onUpdateStatus={(newStatus) => {
+                            if (onUpdateMilestoneStatus) onUpdateMilestoneStatus(milestone.id, newStatus);
+                            if (onUpdateMilestone) onUpdateMilestone({ ...milestone, status: newStatus });
+                          }}
+                        />
+                      </div>
+
                       {/* Dependency Link Badges */}
                       <div className="mt-3.5 pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
                         {/* Dependency Status Indicator */}
@@ -1327,6 +1346,19 @@ export const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
                     </h4>
 
                     <p className="text-xs text-slate-400 line-clamp-1">{m.description}</p>
+
+                    {/* Visual Progress Bar beneath milestone in deadlines view */}
+                    <div className="pt-2 w-full max-w-md">
+                      <MilestoneProgressBar
+                        progress={mProgress}
+                        status={m.status}
+                        milestone={m}
+                        size="sm"
+                        showLabel={true}
+                        showCheckpoints={false}
+                        interactive={false}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -1493,6 +1525,24 @@ export const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
                 <p className="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 leading-relaxed">
                   {activeMilestoneForModal.description}
                 </p>
+
+                {/* Visual Progress Bar beneath milestone description in modal */}
+                <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
+                  <MilestoneProgressBar
+                    progress={calculateMilestoneProgress(activeMilestoneForModal)}
+                    status={activeMilestoneForModal.status}
+                    milestone={activeMilestoneForModal}
+                    size="lg"
+                    showLabel={true}
+                    showCheckpoints={true}
+                    interactive={true}
+                    onUpdateProgress={(pct) => handleSetMilestoneProgress(activeMilestoneForModal, pct)}
+                    onUpdateStatus={(newStatus) => {
+                      if (onUpdateMilestoneStatus) onUpdateMilestoneStatus(activeMilestoneForModal.id, newStatus);
+                      if (onUpdateMilestone) onUpdateMilestone({ ...activeMilestoneForModal, status: newStatus });
+                    }}
+                  />
+                </div>
 
                 {/* Target vs Estimated Completion Box */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Quotation, ProjectMilestone, MilestoneStatus } from '../../types';
 import { deriveMilestonesFromQuotations } from '../../utils/milestoneGenerator';
+import { MilestoneProgressBar } from './MilestoneProgressBar';
 
 interface ProjectHealthWidgetProps {
   quotations: Quotation[];
@@ -868,6 +869,19 @@ export const ProjectHealthWidget: React.FC<ProjectHealthWidgetProps> = ({
                         {item.estimatedCompletionDate}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Visual Progress Bar beneath milestone in health widget */}
+                  <div className="mt-2.5 pt-2 border-t border-slate-800/80">
+                    <MilestoneProgressBar
+                      progress={item.actualProgress}
+                      status={item.isDelayed ? 'delayed' : item.status}
+                      milestone={item.rawMilestone}
+                      size="sm"
+                      showLabel={true}
+                      showCheckpoints={false}
+                      interactive={false}
+                    />
                   </div>
                 </div>
               );
