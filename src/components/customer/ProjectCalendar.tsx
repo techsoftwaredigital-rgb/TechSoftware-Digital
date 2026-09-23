@@ -31,7 +31,8 @@ import {
   ArrowUpRight,
   RefreshCw,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Activity
 } from 'lucide-react';
 import { Quotation, ProjectMilestone, MilestonePhase, MilestoneStatus } from '../../types';
 import {
@@ -41,6 +42,8 @@ import {
 } from '../../utils/milestoneGenerator';
 import { ProjectGanttChart } from './ProjectGanttChart';
 import { MilestoneProgressChart } from './MilestoneProgressChart';
+import { ProjectHealthWidget } from './ProjectHealthWidget';
+import { MilestonePaymentCalendar } from './MilestonePaymentCalendar';
 import { MiniProgressRing } from './MiniProgressRing';
 
 interface ProjectCalendarProps {
@@ -75,8 +78,8 @@ export const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
   onUpdateMilestone,
   onViewQuotation
 }) => {
-  // Calendar View Mode: 'gantt' | 'progress' | 'roadmap' | 'month' | 'deadlines'
-  const [viewMode, setViewMode] = useState<'gantt' | 'progress' | 'roadmap' | 'month' | 'deadlines'>('gantt');
+  // Calendar View Mode: 'gantt' | 'health' | 'payments' | 'progress' | 'roadmap' | 'month' | 'deadlines'
+  const [viewMode, setViewMode] = useState<'gantt' | 'health' | 'payments' | 'progress' | 'roadmap' | 'month' | 'deadlines'>('gantt');
 
   // Filters
   const [selectedQuoteFilter, setSelectedQuoteFilter] = useState<string>('all');
@@ -613,6 +616,32 @@ export const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
           </button>
 
           <button
+            id="view-mode-health-tab"
+            onClick={() => setViewMode('health')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              viewMode === 'health'
+                ? 'bg-rose-500 text-slate-950 font-bold shadow-md shadow-rose-500/20'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5 text-rose-400" />
+            <span>Project Health (Area Chart)</span>
+          </button>
+
+          <button
+            id="view-mode-payments-tab"
+            onClick={() => setViewMode('payments')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              viewMode === 'payments'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+            <span>Milestones & Payments</span>
+          </button>
+
+          <button
             id="view-mode-progress-tab"
             onClick={() => setViewMode('progress')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
@@ -743,6 +772,26 @@ export const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
           milestones={filteredMilestones}
           onSelectMilestone={(m, inEdit) => handleOpenMilestoneModal(m, inEdit)}
           onUpdateMilestoneStatus={onUpdateMilestoneStatus}
+        />
+      )}
+
+      {/* VIEW 0.2: RECHARTS PROJECT HEALTH AREA CHART (PREDICTED VS ACTUAL & RED DELAYS) */}
+      {viewMode === 'health' && (
+        <ProjectHealthWidget
+          quotations={quotations}
+          customMilestones={customMilestones}
+          onSelectMilestone={(m) => handleOpenMilestoneModal(m, false)}
+          onNavigateToCalendar={() => setViewMode('gantt')}
+        />
+      )}
+
+      {/* VIEW 0.3: MILESTONE & PAYMENT DUE DATES CALENDAR VIEW */}
+      {viewMode === 'payments' && (
+        <MilestonePaymentCalendar
+          quotations={quotations}
+          customMilestones={customMilestones}
+          onSelectMilestone={(m) => handleOpenMilestoneModal(m, false)}
+          onViewQuotation={onViewQuotation}
         />
       )}
 

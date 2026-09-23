@@ -30,7 +30,9 @@ import {
   Layers,
   HelpCircle,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Activity,
+  CreditCard
 } from 'lucide-react';
 
 import {
@@ -45,6 +47,8 @@ import {
 } from '../../types';
 import { ProjectCalendar } from './ProjectCalendar';
 import { MilestoneProgressChart } from './MilestoneProgressChart';
+import { ProjectHealthWidget } from './ProjectHealthWidget';
+import { MilestonePaymentCalendar } from './MilestonePaymentCalendar';
 import { deriveMilestonesFromQuotations } from '../../utils/milestoneGenerator';
 
 interface ClientProfileSectionProps {
@@ -82,7 +86,8 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
   onUpdateMilestoneStatus,
   onUpdateMilestone
 }) => {
-  const [activeTab, setActiveTab] = useState<'calendar' | 'analytics' | 'quotes' | 'history' | 'files'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'schedule' | 'health' | 'analytics' | 'quotes' | 'history' | 'files'>('calendar');
+  const [overviewChartMode, setOverviewChartMode] = useState<'health' | 'completion'>('health');
   const [showProgressOverview, setShowProgressOverview] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [fileCategoryFilter, setFileCategoryFilter] = useState<string>('All');
@@ -343,8 +348,8 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
           </div>
         </div>
 
-        {/* 4 Key Engagement Metrics Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-800/80">
+        {/* 5 Key Engagement Metrics Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6 pt-5 border-t border-slate-800/80">
           <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
             <span className="text-[11px] text-slate-400 font-medium block">Total Quotations</span>
             <div className="flex items-center justify-between mt-1">
@@ -386,6 +391,25 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
             </div>
             <span className="text-[10px] text-slate-500">Documents & links stored</span>
           </div>
+
+          {/* Project Health Quick Card */}
+          <div
+            onClick={() => setActiveTab('health')}
+            className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 hover:border-rose-500/60 cursor-pointer transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-slate-400 font-medium block">Project Health</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-lg sm:text-xl font-black text-rose-400 font-mono flex items-center gap-1.5">
+                <Activity className="w-4 h-4 text-rose-400" />
+                <span>Area Chart</span>
+              </span>
+              <ArrowRight className="w-4 h-4 text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <span className="text-[10px] text-slate-500">Predicted vs actual timelines</span>
+          </div>
         </div>
       </div>
 
@@ -393,6 +417,35 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-800">
         {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-slate-900 border border-slate-800">
+          <button
+            type="button"
+            id="tab-milestones-and-payments"
+            onClick={() => setActiveTab('schedule')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'schedule'
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+            <span>Milestones & Payment Due Dates</span>
+          </button>
+
+          <button
+            type="button"
+            id="tab-project-health"
+            onClick={() => setActiveTab('health')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'health'
+                ? 'bg-rose-500 text-slate-950 shadow-md shadow-rose-500/20'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5 text-rose-400" />
+            <span>Project Health (Area Chart)</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
+
           <button
             type="button"
             id="tab-project-calendar"
@@ -483,33 +536,118 @@ export const ClientProfileSection: React.FC<ClientProfileSectionProps> = ({
         </div>
       </div>
 
+      {/* TAB 0.3: NEW CALENDAR VIEW - UPCOMING PROJECT MILESTONES & PAYMENT DUE DATES */}
+      {activeTab === 'schedule' && (
+        <div className="space-y-6">
+          <MilestonePaymentCalendar
+            quotations={quotations}
+            customMilestones={customMilestones}
+            onSelectMilestone={(m) => {
+              setActiveTab('calendar');
+            }}
+            onViewQuotation={onViewQuotation}
+          />
+        </div>
+      )}
+
+      {/* TAB 0.4: DEDICATED PROJECT HEALTH WIDGET (Predicted Timelines vs Actual Milestones with Red Delays) */}
+      {activeTab === 'health' && (
+        <div className="space-y-6">
+          <ProjectHealthWidget
+            quotations={quotations}
+            customMilestones={customMilestones}
+            onNavigateToCalendar={() => setActiveTab('calendar')}
+            onSelectMilestone={(m) => {
+              setActiveTab('calendar');
+            }}
+          />
+
+          {/* Quick Jump Panels */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center justify-between">
+              <div className="text-xs text-slate-400">
+                Want to examine Gantt dependencies, date variance adjustments, or sprint deliverables?
+              </div>
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md shadow-cyan-600/20 shrink-0 ml-3"
+              >
+                Open Gantt Tracker
+              </button>
+            </div>
+
+            <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center justify-between">
+              <div className="text-xs text-slate-400">
+                Want to view the sprint velocity and completion percentage Recharts bar visualizer?
+              </div>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold transition-all shrink-0 ml-3"
+              >
+                Open Completion %
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* TAB 0: PROJECT CALENDAR & MILESTONES (Derived from Booked Quotes) */}
       {activeTab === 'calendar' && (
         <div className="space-y-6">
-          {/* Quick Recharts Completion % Visualizer Banner */}
+          {/* Quick Recharts Completion % & Project Health Visualizer Banner */}
           <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-lg">
-            <div className="px-5 py-3 flex items-center justify-between bg-slate-950/70 border-b border-slate-800/80">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
-                  Timeline Velocity & Completion % (Recharts)
-                </span>
+            <div className="px-5 py-3 flex flex-wrap items-center justify-between gap-3 bg-slate-950/70 border-b border-slate-800/80">
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setOverviewChartMode('health')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+                    overviewChartMode === 'health'
+                      ? 'bg-rose-500 text-slate-950 shadow-md shadow-rose-500/20'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>Project Health (Area Chart)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setOverviewChartMode('completion')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+                    overviewChartMode === 'completion'
+                      ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Completion % (Velocity)</span>
+                </button>
               </div>
+
               <button
                 type="button"
                 id="toggle-progress-overview-btn"
                 onClick={() => setShowProgressOverview((prev) => !prev)}
                 className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
               >
-                {showProgressOverview ? 'Hide Completion Chart' : 'Show Completion Chart'}
+                {showProgressOverview ? 'Hide Analytics Banner' : 'Show Analytics Banner'}
               </button>
             </div>
             {showProgressOverview && (
               <div className="p-4 sm:p-5">
-                <MilestoneProgressChart
-                  quotations={quotations}
-                  customMilestones={customMilestones}
-                />
+                {overviewChartMode === 'health' ? (
+                  <ProjectHealthWidget
+                    quotations={quotations}
+                    customMilestones={customMilestones}
+                    onNavigateToCalendar={() => setActiveTab('calendar')}
+                  />
+                ) : (
+                  <MilestoneProgressChart
+                    quotations={quotations}
+                    customMilestones={customMilestones}
+                  />
+                )}
               </div>
             )}
           </div>
