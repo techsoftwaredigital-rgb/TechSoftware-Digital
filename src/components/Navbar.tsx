@@ -11,9 +11,11 @@ import {
   CheckCircle2,
   X,
   CreditCard,
-  User
+  User,
+  LogOut,
+  LogIn
 } from 'lucide-react';
-import { AppNotification, CompanyInfo } from '../types';
+import { AppNotification, CompanyInfo, UserAccount } from '../types';
 
 interface NavbarProps {
   currentPortal: 'customer' | 'admin';
@@ -31,6 +33,9 @@ interface NavbarProps {
   onNavigateToProfile?: () => void;
   clientName?: string;
   firebaseConnected?: boolean;
+  currentUser?: UserAccount | null;
+  onOpenAuthModal?: () => void;
+  onLogout?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -48,7 +53,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenQuotationDrawer,
   onNavigateToProfile,
   clientName,
-  firebaseConnected = true
+  firebaseConnected = true,
+  currentUser,
+  onOpenAuthModal,
+  onLogout
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -192,6 +200,38 @@ export const Navbar: React.FC<NavbarProps> = ({
               <User className="w-3.5 h-3.5 text-cyan-400" />
               <span className="hidden sm:inline">{clientName || 'My Profile'}</span>
             </button>
+          )}
+
+          {/* User Account / Auth Button */}
+          {currentUser ? (
+            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="font-semibold text-white max-w-[100px] truncate hidden sm:inline">
+                {currentUser.displayName || currentUser.email.split('@')[0]}
+              </span>
+              <span className="text-[10px] uppercase font-bold text-cyan-400 px-1 py-0.2 bg-cyan-950 rounded border border-cyan-800/40">
+                {currentUser.role}
+              </span>
+              {onLogout && (
+                <button
+                  onClick={onLogout}
+                  className="text-slate-400 hover:text-rose-400 ml-1"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          ) : (
+            onOpenAuthModal && (
+              <button
+                onClick={onOpenAuthModal}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-white text-xs font-bold shadow-md shadow-cyan-500/20 transition-all"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Login</span>
+              </button>
+            )
           )}
 
           {/* Notifications button */}

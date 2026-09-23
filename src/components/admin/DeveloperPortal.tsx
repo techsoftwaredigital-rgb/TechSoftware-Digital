@@ -22,7 +22,11 @@ import {
   Mail,
   UserCheck,
   Shield,
-  Layers
+  Layers,
+  LogOut,
+  MessageSquare,
+  Building,
+  CheckCircle2
 } from 'lucide-react';
 import {
   ServiceItem,
@@ -32,8 +36,17 @@ import {
   CompanyInfo,
   AppNotification,
   ServiceCategory,
-  PaymentStatus
+  PaymentStatus,
+  QuotationRequest,
+  Project,
+  ChatMessage,
+  ClientProfile
 } from '../../types';
+import { QuotationRequestsTab } from './QuotationRequestsTab';
+import { ProjectsTab } from './ProjectsTab';
+import { AdminMessagesTab } from './AdminMessagesTab';
+import { CompanySettingsTab } from './CompanySettingsTab';
+import { CustomersTab } from './CustomersTab';
 
 interface DeveloperPortalProps {
   services: ServiceItem[];
@@ -50,6 +63,18 @@ interface DeveloperPortalProps {
   onAddPayment: (newPayment: PaymentRecord) => void;
   onBroadcastPush: (title: string, message: string, type: AppNotification['type']) => void;
   companyInfo: CompanyInfo;
+  onSaveCompanySettings?: (settings: CompanyInfo) => Promise<void>;
+  quotationRequests?: QuotationRequest[];
+  onUpdateQuotationRequestStatus?: (id: string, status: QuotationRequest['status']) => void;
+  onConvertRequestToQuotation?: (req: QuotationRequest) => void;
+  projects?: Project[];
+  onCreateProject?: (project: Project) => void;
+  onUpdateProject?: (project: Project) => void;
+  messages?: ChatMessage[];
+  onSendMessage?: (customerId: string, text: string) => Promise<void>;
+  clientProfiles?: ClientProfile[];
+  onAdminLogout?: () => void;
+  onNavigateToBuilder?: () => void;
 }
 
 export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
@@ -66,9 +91,33 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
   payments,
   onAddPayment,
   onBroadcastPush,
-  companyInfo
+  companyInfo,
+  onSaveCompanySettings,
+  quotationRequests = [],
+  onUpdateQuotationRequestStatus,
+  onConvertRequestToQuotation,
+  projects = [],
+  onCreateProject,
+  onUpdateProject,
+  messages = [],
+  onSendMessage,
+  clientProfiles = [],
+  onAdminLogout,
+  onNavigateToBuilder
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'quotes' | 'rate-card' | 'staff' | 'payments' | 'broadcast'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    | 'overview'
+    | 'requests'
+    | 'quotes'
+    | 'projects'
+    | 'messages'
+    | 'customers'
+    | 'rate-card'
+    | 'staff'
+    | 'payments'
+    | 'settings'
+    | 'broadcast'
+  >('overview');
 
   // Rate Card search & filter
   const [rateCardSearch, setRateCardSearch] = useState('');
@@ -248,98 +297,257 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
     <div className="space-y-6">
       {/* Sub-navigation bar for Developer / Admin Portal */}
       <div className="flex items-center justify-between gap-3 flex-wrap bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 shadow-xl">
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'overview'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="w-3.5 h-3.5" />
             <span>Dashboard</span>
           </button>
 
           <button
+            onClick={() => setActiveTab('requests')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'requests'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5 text-amber-400" />
+            <span>New Requests</span>
+            {quotationRequests.filter((r) => r.status === 'Pending').length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-[10px] text-slate-950 font-black animate-pulse">
+                {quotationRequests.filter((r) => r.status === 'Pending').length}
+              </span>
+            )}
+          </button>
+
+          <button
             onClick={() => setActiveTab('quotes')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'quotes'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <FileText className="w-4 h-4" />
-            <span>Client Quotes & CRM</span>
+            <FileText className="w-3.5 h-3.5" />
+            <span>Quotations & CRM</span>
             <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px] text-slate-300">
               {quotations.length}
             </span>
           </button>
 
           <button
+            onClick={() => setActiveTab('projects')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'projects'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Projects</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px] text-slate-300">
+              {projects.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('messages')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'messages'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Live Chat</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-indigo-950 text-indigo-300 text-[10px] border border-indigo-800/50">
+              {messages.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('customers')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'customers'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Customers</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px]">
+              {clientProfiles.length}
+            </span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('rate-card')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'rate-card'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Settings className="w-4 h-4" />
-            <span>Rate Card Manager (Live)</span>
+            <Settings className="w-3.5 h-3.5" />
+            <span>Rate Card (Live)</span>
             <span className="px-1.5 py-0.2 rounded-full bg-cyan-950 text-cyan-300 text-[10px] border border-cyan-800/50">
               {services.length}
             </span>
           </button>
 
           <button
-            onClick={() => setActiveTab('staff')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-              activeTab === 'staff'
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Dev Team & Staff</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px]">
-              {staff.length}
-            </span>
-          </button>
-
-          <button
             onClick={() => setActiveTab('payments')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'payments'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <CreditCard className="w-4 h-4" />
-            <span>50% Advance & Payments</span>
+            <CreditCard className="w-3.5 h-3.5" />
+            <span>50% Advance</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'settings'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <Building className="w-3.5 h-3.5" />
+            <span>Company Info</span>
           </button>
 
           <button
             onClick={() => setActiveTab('broadcast')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'broadcast'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Bell className="w-4 h-4" />
-            <span>Push Broadcast</span>
+            <Bell className="w-3.5 h-3.5" />
+            <span>Broadcast</span>
           </button>
         </div>
 
-        <div className="text-[11px] text-slate-400 flex items-center gap-2 px-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-semibold text-slate-300">Admin Mode Active</span>
+        <div className="flex items-center gap-2 px-2 shrink-0">
+          <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold text-slate-300 hidden sm:inline">Admin Mode</span>
+          </div>
+
+          {onAdminLogout && (
+            <button
+              onClick={onAdminLogout}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 border border-slate-700/60 transition-colors text-xs flex items-center gap-1"
+              title="Exit Admin Panel"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* TAB 1: OVERVIEW & DASHBOARD */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
+          {/* Executive Real-Time Operations Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+            <div
+              onClick={() => setActiveTab('customers')}
+              className="p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-slate-400 font-bold block uppercase">Customers</span>
+              <span className="text-lg font-black text-white">{clientProfiles.length}</span>
+            </div>
+
+            <div
+              onClick={() => setActiveTab('requests')}
+              className="p-3 rounded-xl bg-slate-900 border border-amber-800/40 hover:border-amber-600/60 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-amber-400 font-bold block uppercase">New Requests</span>
+              <span className="text-lg font-black text-amber-400">
+                {quotationRequests.filter((r) => r.status === 'Pending').length}
+              </span>
+            </div>
+
+            <div
+              onClick={() => setActiveTab('quotes')}
+              className="p-3 rounded-xl bg-slate-900 border border-cyan-800/40 hover:border-cyan-600/60 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-cyan-400 font-bold block uppercase">Pending Quotes</span>
+              <span className="text-lg font-black text-cyan-300">
+                {
+                  quotations.filter(
+                    (q) => q.status === 'Quotation Sent' || q.status === 'Sent' || q.status === 'Pending'
+                  ).length
+                }
+              </span>
+            </div>
+
+            <div
+              onClick={() => setActiveTab('quotes')}
+              className="p-3 rounded-xl bg-slate-900 border border-emerald-800/40 hover:border-emerald-600/60 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-emerald-400 font-bold block uppercase">Accepted Quotes</span>
+              <span className="text-lg font-black text-emerald-400">
+                {
+                  quotations.filter(
+                    (q) => q.status === 'Customer Accepted' || q.status === 'Advance Received'
+                  ).length
+                }
+              </span>
+            </div>
+
+            <div
+              onClick={() => setActiveTab('quotes')}
+              className="p-3 rounded-xl bg-slate-900 border border-rose-800/40 hover:border-rose-600/60 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-rose-400 font-bold block uppercase">Rejected</span>
+              <span className="text-lg font-black text-rose-400">
+                {quotations.filter((q) => q.status === 'Customer Rejected').length}
+              </span>
+            </div>
+
+            <div
+              onClick={() => setActiveTab('projects')}
+              className="p-3 rounded-xl bg-slate-900 border border-indigo-800/40 hover:border-indigo-600/60 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-indigo-400 font-bold block uppercase">Active Projects</span>
+              <span className="text-lg font-black text-indigo-300">
+                {projects.filter((p) => p.status !== 'Completed' && p.status !== 'Cancelled').length}
+              </span>
+            </div>
+
+            <div
+              onClick={() => setActiveTab('projects')}
+              className="p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-slate-400 font-bold block uppercase">Completed</span>
+              <span className="text-lg font-black text-white">
+                {projects.filter((p) => p.status === 'Completed').length}
+              </span>
+            </div>
+
+            <div
+              onClick={() => setActiveTab('messages')}
+              className="p-3 rounded-xl bg-slate-900 border border-blue-800/40 hover:border-blue-600/60 cursor-pointer text-center space-y-1 transition-all"
+            >
+              <span className="text-[10px] text-blue-400 font-bold block uppercase">Messages</span>
+              <span className="text-lg font-black text-blue-300">{messages.length}</span>
+            </div>
+          </div>
+
           {/* Key Metric Blocks */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 shadow-xl">
@@ -1106,6 +1314,52 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
             </button>
           </form>
         </div>
+      )}
+
+      {/* TAB: REQUESTS */}
+      {activeTab === 'requests' && (
+        <QuotationRequestsTab
+          requests={quotationRequests}
+          onUpdateStatus={onUpdateQuotationRequestStatus || (() => {})}
+          onConvertRequestToQuotation={onConvertRequestToQuotation || (() => {})}
+        />
+      )}
+
+      {/* TAB: PROJECTS */}
+      {activeTab === 'projects' && (
+        <ProjectsTab
+          projects={projects}
+          onCreateProject={onCreateProject || (() => {})}
+          onUpdateProject={onUpdateProject || (() => {})}
+        />
+      )}
+
+      {/* TAB: LIVE CHAT & MESSAGES */}
+      {activeTab === 'messages' && (
+        <AdminMessagesTab
+          messages={messages}
+          onSendMessage={onSendMessage || (async () => {})}
+        />
+      )}
+
+      {/* TAB: CUSTOMERS CRM */}
+      {activeTab === 'customers' && (
+        <CustomersTab
+          clients={clientProfiles}
+          quotations={quotations}
+          projects={projects}
+          onSelectCustomerToMessage={() => {
+            setActiveTab('messages');
+          }}
+        />
+      )}
+
+      {/* TAB: COMPANY SETTINGS */}
+      {activeTab === 'settings' && (
+        <CompanySettingsTab
+          companyInfo={companyInfo}
+          onSaveSettings={onSaveCompanySettings || (async () => {})}
+        />
       )}
 
       {/* MODAL: Edit Service Price & Scope */}

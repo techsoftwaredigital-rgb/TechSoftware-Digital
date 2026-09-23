@@ -1,0 +1,22 @@
+{
+  "short_name": "TS Developer",
+  "name": "TechSoftware.digital - Developer Portal & Customer Workspace",
+  "icons": [
+    {
+      "src": "/assets/aistudio/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/aistudio/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#06b6d4",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/"
+}

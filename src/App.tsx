@@ -20,6 +20,12 @@ import { BookingSuccessModal } from './components/customer/BookingSuccessModal';
 import { FaqAndTerms } from './components/customer/FaqAndTerms';
 import { ClientProfileSection } from './components/customer/ClientProfileSection';
 import { DeveloperPortal } from './components/admin/DeveloperPortal';
+import { AuthModal } from './components/auth/AuthModal';
+import { CustomerRequestQuotationView } from './components/customer/CustomerRequestQuotationView';
+import { MyQuotationsView } from './components/customer/MyQuotationsView';
+import { CustomerProjectsView } from './components/customer/CustomerProjectsView';
+import { CustomerMessagesView } from './components/customer/CustomerMessagesView';
+import { CustomerDashboardView } from './components/customer/CustomerDashboardView';
 
 import { INITIAL_SERVICES } from './data/initialServices';
 import {
@@ -30,7 +36,10 @@ import {
   INITIAL_NOTIFICATIONS,
   INITIAL_CLIENT_PROFILE,
   INITIAL_CONTACT_LOGS,
-  INITIAL_PROJECT_FILES
+  INITIAL_PROJECT_FILES,
+  INITIAL_QUOTATION_REQUESTS,
+  INITIAL_PROJECTS,
+  INITIAL_MESSAGES
 } from './data/initialData';
 
 import {
@@ -48,7 +57,12 @@ import {
   ProjectFile,
   ProjectMilestone,
   MilestoneStatus,
-  PaymentStatus
+  PaymentStatus,
+  UserAccount,
+  QuotationRequest,
+  Project,
+  ChatMessage,
+  CompanyInfo
 } from './types';
 
 import { showBrowserNotification, requestPushPermission } from './utils/notifications';
@@ -62,17 +76,49 @@ import {
   saveClientProfileToFirestore,
   subscribeToMilestones,
   saveMilestoneToFirestore,
-  testFirestoreConnection
+  testFirestoreConnection,
+  subscribeToQuotationRequests,
+  saveQuotationRequestToFirestore,
+  subscribeToProjects,
+  saveProjectToFirestore,
+  subscribeToMessages,
+  saveMessageToFirestore,
+  subscribeToCompanySettings,
+  saveCompanySettingsToFirestore,
+  subscribeToServices,
+  saveServiceToFirestore,
+  subscribeToClientProfiles,
+  saveUserToFirestore
 } from './services/firestoreSync';
 
 export default function App() {
-  // Portal mode
+  // Portal mode and customer tab navigation
   const [currentPortal, setCurrentPortal] = useState<'customer' | 'admin'>('customer');
-  const [customerViewMode, setCustomerViewMode] = useState<'catalog' | 'builder' | 'profile'>('catalog');
+  const [customerTab, setCustomerTab] = useState<
+    'dashboard' | 'services' | 'rateCard' | 'requestQuote' | 'myQuotes' | 'projects' | 'messages' | 'profile' | 'builder'
+  >('dashboard');
   const [isMobileDeviceView, setIsMobileDeviceView] = useState<boolean>(false);
   const [pushEnabled, setPushEnabled] = useState<boolean>(false);
 
-  // Data states with localStorage persistence
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+    const saved = localStorage.getItem('tsd_current_user');
+    return saved
+      ? JSON.parse(saved)
+      : {
+          id: 'user-demo-client',
+          email: 'vikram.singhania@apexretail.in',
+          displayName: 'Vikram Singhania',
+          companyName: 'Apex Retail Stores Pvt Ltd',
+          phone: '+91 9819203948',
+          role: 'customer' as const,
+          createdAt: new Date().toISOString()
+        };
+  });
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+
+  // Core Data States with localStorage persistence
   const [services, setServices] = useState<ServiceItem[]>(() => {
     const saved = localStorage.getItem('tsd_services');
     return saved ? JSON.parse(saved) : INITIAL_SERVICES;
@@ -104,6 +150,8 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_CLIENT_PROFILE;
   });
 
+  const [clientProfiles, setClientProfiles] = useState<ClientProfile[]>([INITIAL_CLIENT_PROFILE]);
+
   const [contactLogs, setContactLogs] = useState<ClientContactLog[]>(() => {
     const saved = localStorage.getItem('tsd_contact_logs');
     return saved ? JSON.parse(saved) : INITIAL_CONTACT_LOGS;
@@ -119,6 +167,30 @@ export default function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Quotation Requests State (Customer submitted -> Admin receives)
+  const [quotationRequests, setQuotationRequests] = useState<QuotationRequest[]>(() => {
+    const saved = localStorage.getItem('tsd_quotation_requests');
+    return saved ? JSON.parse(saved) : INITIAL_QUOTATION_REQUESTS;
+  });
+
+  // Projects State (Active delivery)
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const saved = localStorage.getItem('tsd_projects');
+    return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
+  });
+
+  // Chat Messages State (Live customer - developer communication)
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem('tsd_messages');
+    return saved ? JSON.parse(saved) : INITIAL_MESSAGES;
+  });
+
+  // Company Information & Settings
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(() => {
+    const saved = localStorage.getItem('tsd_company_info');
+    return saved ? JSON.parse(saved) : COMPANY_INFO;
+  });
+
   // Current Quotation basket
   const [selectedServices, setSelectedServices] = useState<QuotationSelectedService[]>([]);
 
@@ -127,6 +199,14 @@ export default function App() {
   const [recentlyBookedQuotation, setRecentlyBookedQuotation] = useState<Quotation | null>(null);
 
   // Sync to local storage
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('tsd_current_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('tsd_current_user');
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     localStorage.setItem('tsd_services', JSON.stringify(services));
   }, [services]);
@@ -163,9 +243,25 @@ export default function App() {
     localStorage.setItem('tsd_custom_milestones', JSON.stringify(customMilestones));
   }, [customMilestones]);
 
+  useEffect(() => {
+    localStorage.setItem('tsd_quotation_requests', JSON.stringify(quotationRequests));
+  }, [quotationRequests]);
+
+  useEffect(() => {
+    localStorage.setItem('tsd_projects', JSON.stringify(projects));
+  }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('tsd_messages', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('tsd_company_info', JSON.stringify(companyInfo));
+  }, [companyInfo]);
+
   const [firebaseConnected, setFirebaseConnected] = useState<boolean>(true);
 
-  // Firestore initialization & real-time synchronization
+  // Firestore initialization & real-time bidirectional synchronization
   useEffect(() => {
     testFirestoreConnection().then((connected) => {
       setFirebaseConnected(connected);
@@ -228,11 +324,53 @@ export default function App() {
       }
     });
 
+    const unsubRequests = subscribeToQuotationRequests((cloudRequests) => {
+      if (cloudRequests && cloudRequests.length > 0) {
+        setQuotationRequests(cloudRequests);
+      }
+    });
+
+    const unsubProjects = subscribeToProjects((cloudProjects) => {
+      if (cloudProjects && cloudProjects.length > 0) {
+        setProjects(cloudProjects);
+      }
+    });
+
+    const unsubMessages = subscribeToMessages((cloudMsgs) => {
+      if (cloudMsgs && cloudMsgs.length > 0) {
+        setMessages(cloudMsgs);
+      }
+    });
+
+    const unsubSettings = subscribeToCompanySettings((cloudSettings) => {
+      if (cloudSettings) {
+        setCompanyInfo((prev: CompanyInfo) => ({ ...prev, ...cloudSettings }));
+      }
+    });
+
+    const unsubServices = subscribeToServices((cloudServices) => {
+      if (cloudServices && cloudServices.length > 0) {
+        setServices(cloudServices);
+      }
+    });
+
+    const unsubProfiles = subscribeToClientProfiles((cloudProfiles) => {
+      if (cloudProfiles && cloudProfiles.length > 0) {
+        setClientProfiles(cloudProfiles);
+      }
+    });
+
     return () => {
       unsubQuotations();
       unsubPayments();
       unsubProfile();
       unsubMilestones();
+      unsubRequests();
+      unsubProjects();
+      unsubMessages();
+      unsubSettings();
+      unsubServices();
+      unsubProfiles();
     };
   }, [clientProfile.id]);
 
@@ -269,6 +407,230 @@ export default function App() {
 
   const handleClearNotification = (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  // Quotation Request Submission from Customer
+  const handleSubmitQuotationRequest = async (
+    requestData: Omit<QuotationRequest, 'id' | 'createdAt' | 'updatedAt' | 'status'>
+  ) => {
+    const newReq: QuotationRequest = {
+      ...requestData,
+      id: `req-${Date.now()}`,
+      status: 'Pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    setQuotationRequests((prev) => [newReq, ...prev]);
+    try {
+      await saveQuotationRequestToFirestore(newReq);
+    } catch (err) {
+      console.error('Failed to save quotation request to Firestore:', err);
+    }
+    handlePushNotification(
+      'Quotation Request Submitted',
+      `Your request for "${newReq.service}" was sent to our developers. We will prepare your official quote shortly.`,
+      'quote'
+    );
+    setCustomerTab('dashboard');
+  };
+
+  // Customer Accepts Quotation
+  const handleAcceptQuotation = async (quotationId: string) => {
+    const target = quotations.find((q) => q.id === quotationId);
+    if (!target) return;
+
+    const updated: Quotation = {
+      ...target,
+      status: 'Customer Accepted',
+      updatedAt: new Date().toISOString()
+    };
+
+    setQuotations((prev) => prev.map((q) => (q.id === quotationId ? updated : q)));
+    try {
+      await saveQuotationToFirestore(updated);
+    } catch (err) {
+      console.error('Failed to sync accepted quote to Firestore:', err);
+    }
+
+    // Auto-create / link project in Firestore
+    const existingProject = projects.find((p) => p.quotationId === quotationId);
+    if (!existingProject) {
+      const newProj: Project = {
+        id: `proj-${Date.now()}`,
+        quotationId: target.id,
+        customerId: target.customer.email,
+        customerName: target.customer.name,
+        customerEmail: target.customer.email,
+        title: target.customer.companyName
+          ? `${target.customer.companyName} System Build`
+          : `${target.customer.name} Software Project`,
+        description: target.items.map((i) => i.name).join(', '),
+        status: 'Planning',
+        startDate: new Date().toISOString().split('T')[0],
+        expectedCompletionDate: target.validUntil,
+        amount: target.grandTotal,
+        progressPercent: 10,
+        notes: 'Quotation accepted by client. Awaiting 50% advance to initiate Sprint 1.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      setProjects((prev) => [newProj, ...prev]);
+      try {
+        await saveProjectToFirestore(newProj);
+      } catch (err) {
+        console.error('Failed to save auto-project to Firestore:', err);
+      }
+    }
+
+    handlePushNotification(
+      'Quotation Accepted! 🎉',
+      `Quotation ${target.quotationNumber} accepted. 50% Advance (₹${target.advancePayable50.toLocaleString('en-IN')}) is now due to kickoff development.`,
+      'payment'
+    );
+  };
+
+  // Customer Rejects Quotation
+  const handleRejectQuotation = async (quotationId: string, reason?: string) => {
+    const target = quotations.find((q) => q.id === quotationId);
+    if (!target) return;
+
+    const updated: Quotation = {
+      ...target,
+      status: 'Customer Rejected',
+      notes: reason ? `${target.notes || ''} | Rejection feedback: ${reason}` : target.notes,
+      updatedAt: new Date().toISOString()
+    };
+
+    setQuotations((prev) => prev.map((q) => (q.id === quotationId ? updated : q)));
+    try {
+      await saveQuotationToFirestore(updated);
+    } catch (err) {
+      console.error('Failed to sync rejected quotation to Firestore:', err);
+    }
+
+    handlePushNotification(
+      'Quotation Response Recorded',
+      `Feedback saved for quote ${target.quotationNumber}. Our team will contact you to revise the scope.`,
+      'quote'
+    );
+  };
+
+  // Chat message send (Customer or Admin)
+  const handleSendChatMessage = async (
+    senderRole: 'customer' | 'admin',
+    text: string,
+    recipientEmail?: string
+  ) => {
+    const customerEmail = recipientEmail || currentUser?.email || clientProfile.email;
+    const customerName = currentUser?.displayName || clientProfile.name;
+    const newMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      customerId: customerEmail,
+      customerName,
+      customerEmail,
+      senderId: senderRole === 'admin' ? 'admin' : (currentUser?.uid || 'customer'),
+      senderName: senderRole === 'admin' ? 'TechSoftware Architect' : customerName,
+      senderRole,
+      text,
+      read: false,
+      createdAt: new Date().toISOString()
+    };
+
+    setMessages((prev) => [...prev, newMsg]);
+    try {
+      await saveMessageToFirestore(newMsg);
+    } catch (err) {
+      console.error('Failed to save chat message to Firestore:', err);
+    }
+  };
+
+  // Create Project (from Admin)
+  const handleCreateProject = async (newProjData: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newProj: Project = {
+      ...newProjData,
+      id: `proj-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    setProjects((prev) => [newProj, ...prev]);
+    try {
+      await saveProjectToFirestore(newProj);
+    } catch (err) {
+      console.error('Failed to save project to Firestore:', err);
+    }
+  };
+
+  // Update Project (from Admin)
+  const handleUpdateProject = async (updatedProject: Project) => {
+    setProjects((prev) => prev.map((p) => (p.id === updatedProject.id ? updatedProject : p)));
+    try {
+      await saveProjectToFirestore(updatedProject);
+    } catch (err) {
+      console.error('Failed to update project in Firestore:', err);
+    }
+  };
+
+  // Convert Quotation Request to Quotation (from Admin)
+  const handleConvertRequestToQuotation = (request: QuotationRequest) => {
+    setClientProfile((prev) => ({
+      ...prev,
+      name: request.customerName,
+      email: request.customerEmail,
+      phone: request.customerPhone,
+      companyName: request.companyName || prev.companyName
+    }));
+
+    // Auto-select matching service if exists
+    const matching = services.find(
+      (s) =>
+        s.name.toLowerCase().includes(request.service.toLowerCase()) ||
+        request.service.toLowerCase().includes(s.name.toLowerCase())
+    );
+    if (matching) {
+      handleToggleService(matching);
+    }
+
+    setCustomerTab('builder');
+    setCurrentPortal('customer');
+  };
+
+  // Save Company Settings from Admin
+  const handleSaveCompanySettings = async (updatedSettings: CompanyInfo) => {
+    setCompanyInfo(updatedSettings);
+    try {
+      await saveCompanySettingsToFirestore(updatedSettings);
+    } catch (err) {
+      console.error('Failed to save company settings to Firestore:', err);
+    }
+    handlePushNotification('Company Profile Updated', 'Invoice letterhead & bank details updated in Firestore.', 'system');
+  };
+
+  // User Authentication Handlers
+  const handleLogin = (account: UserAccount) => {
+    setCurrentUser(account);
+    if (account.role === 'admin') {
+      setCurrentPortal('admin');
+    } else {
+      setCurrentPortal('customer');
+    }
+    handlePushNotification('Welcome Back!', `Signed in as ${account.displayName || account.email}`, 'system');
+  };
+
+  const handleRegister = async (account: UserAccount) => {
+    setCurrentUser(account);
+    try {
+      await saveUserToFirestore(account);
+    } catch (err) {
+      console.error('Failed to register user in Firestore:', err);
+    }
+    handlePushNotification('Registration Complete', `Welcome to TechSoftware.digital, ${account.displayName}!`, 'system');
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setCurrentPortal('customer');
+    setCustomerTab('dashboard');
+    handlePushNotification('Signed Out', 'You have been safely signed out.', 'system');
   };
 
   // Service Basket Handlers
@@ -333,7 +695,7 @@ export default function App() {
     }
 
     // Immediately switch view to Quotation Builder
-    setCustomerViewMode('builder');
+    setCustomerTab('builder');
 
     // Scroll to the top of the builder view
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -413,7 +775,7 @@ export default function App() {
       };
     });
     setSelectedServices(formatted);
-    setCustomerViewMode('builder');
+    setCustomerTab('builder');
   };
 
   // Generate Formal Quotation and Trigger Automated Invoicing
@@ -574,24 +936,37 @@ export default function App() {
         {/* Global Navigation Bar */}
         <Navbar
           currentPortal={currentPortal}
-          onPortalChange={setCurrentPortal}
+          onPortalChange={(portal) => {
+            if (portal === 'admin' && (!currentUser || currentUser.role !== 'admin')) {
+              setAuthModalMode('login');
+              setShowAuthModal(true);
+            } else {
+              setCurrentPortal(portal);
+            }
+          }}
           selectedItemsCount={selectedServices.length}
           totalTaxable={totalTaxable}
           notifications={notifications}
           onClearNotification={handleClearNotification}
           onRequestPush={handleRequestPush}
           pushEnabled={pushEnabled}
-          companyInfo={COMPANY_INFO}
+          companyInfo={companyInfo}
           isMobileDeviceView={isMobileDeviceView}
           onToggleMobileDeviceView={() => setIsMobileDeviceView(!isMobileDeviceView)}
-          onOpenQuotationDrawer={() => setCustomerViewMode('builder')}
+          onOpenQuotationDrawer={() => setCustomerTab('builder')}
           onNavigateToProfile={() => {
             setCurrentPortal('customer');
-            setCustomerViewMode('profile');
+            setCustomerTab('profile');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          clientName={clientProfile.name}
+          clientName={currentUser?.displayName || clientProfile.name}
           firebaseConnected={firebaseConnected}
+          currentUser={currentUser}
+          onOpenAuthModal={() => {
+            setAuthModalMode('login');
+            setShowAuthModal(true);
+          }}
+          onLogout={handleLogout}
         />
 
         {/* Main Content Area */}
@@ -666,69 +1041,173 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Customer Portal Stage Switcher */}
+              {/* Customer Portal Navigation Tabs */}
               <div className="flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-2">
-                <div className="flex items-center flex-wrap gap-2">
+                <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
                   <button
-                    id="stage-catalog-btn"
-                    onClick={() => setCustomerViewMode('catalog')}
-                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                      customerViewMode === 'catalog'
+                    id="tab-dashboard-btn"
+                    onClick={() => setCustomerTab('dashboard')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                      customerTab === 'dashboard'
                         ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
                         : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
                     }`}
                   >
-                    <Layers className="w-4 h-4" />
-                    <span>1. Browse Services</span>
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Dashboard</span>
                   </button>
 
                   <button
-                    id="stage-builder-btn"
-                    onClick={() => setCustomerViewMode('builder')}
-                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                      customerViewMode === 'builder'
+                    id="tab-services-btn"
+                    onClick={() => setCustomerTab('services')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                      customerTab === 'services'
                         ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
                         : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
                     }`}
                   >
-                    <FileCheck className="w-4 h-4" />
-                    <span>2. Review Scope & Quote</span>
-                    {selectedServices.length > 0 && (
-                      <span className="ml-1 w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center">
-                        {selectedServices.length}
+                    <span>💼 Services</span>
+                  </button>
+
+                  <button
+                    id="tab-rate-card-btn"
+                    onClick={() => setCustomerTab('rateCard')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                      customerTab === 'rateCard'
+                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>📊 Rate Card</span>
+                  </button>
+
+                  <button
+                    id="tab-request-quote-btn"
+                    onClick={() => setCustomerTab('requestQuote')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                      customerTab === 'requestQuote'
+                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>📝 Request Quote</span>
+                  </button>
+
+                  <button
+                    id="tab-my-quotes-btn"
+                    onClick={() => setCustomerTab('myQuotes')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                      customerTab === 'myQuotes'
+                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>📑 My Quotes</span>
+                    {quotations.length > 0 && (
+                      <span className="w-4 h-4 rounded-full bg-cyan-900 text-cyan-300 text-[10px] font-black flex items-center justify-center border border-cyan-700">
+                        {quotations.length}
                       </span>
                     )}
                   </button>
 
                   <button
-                    id="stage-profile-btn"
-                    onClick={() => setCustomerViewMode('profile')}
-                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                      customerViewMode === 'profile'
+                    id="tab-projects-btn"
+                    onClick={() => setCustomerTab('projects')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                      customerTab === 'projects'
                         ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
                         : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
                     }`}
                   >
-                    <User className="w-4 h-4" />
-                    <span>3. Client Profile & Track Engagement</span>
-                    <span className="ml-1 px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px] font-bold">
-                      {quotations.length} quotes • {projectFiles.length} files
-                    </span>
+                    <span>🚀 Live Projects</span>
+                    {projects.length > 0 && (
+                      <span className="w-4 h-4 rounded-full bg-emerald-900 text-emerald-300 text-[10px] font-black flex items-center justify-center border border-emerald-700">
+                        {projects.length}
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    id="tab-messages-btn"
+                    onClick={() => setCustomerTab('messages')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                      customerTab === 'messages'
+                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>💬 Support Chat</span>
+                    {messages.length > 0 && (
+                      <span className="w-4 h-4 rounded-full bg-indigo-900 text-indigo-300 text-[10px] font-black flex items-center justify-center border border-indigo-700">
+                        {messages.length}
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    id="tab-profile-btn"
+                    onClick={() => setCustomerTab('profile')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                      customerTab === 'profile'
+                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>Profile & Docs</span>
+                  </button>
+
+                  <button
+                    id="tab-builder-btn"
+                    onClick={() => setCustomerTab('builder')}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                      customerTab === 'builder'
+                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <FileCheck className="w-3.5 h-3.5" />
+                    <span>Quotation Builder</span>
+                    {selectedServices.length > 0 && (
+                      <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center">
+                        {selectedServices.length}
+                      </span>
+                    )}
                   </button>
                 </div>
 
-                {selectedServices.length > 0 && customerViewMode !== 'profile' && (
+                {selectedServices.length > 0 && customerTab !== 'builder' && (
                   <div className="text-xs text-slate-400 flex items-center gap-2">
-                    <span>Estimated Total:</span>
+                    <span>Basket:</span>
                     <span className="font-extrabold text-cyan-400">
                       ₹{totalBasketAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
+                    <button
+                      onClick={() => setCustomerTab('builder')}
+                      className="px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-[11px]"
+                    >
+                      Review
+                    </button>
                   </div>
                 )}
               </div>
 
-              {/* STAGE 1: Service Catalog */}
-              {customerViewMode === 'catalog' && (
+              {/* TAB 1: Customer Executive Dashboard */}
+              {customerTab === 'dashboard' && (
+                <CustomerDashboardView
+                  currentUser={currentUser}
+                  quotations={quotations}
+                  quotationRequests={quotationRequests}
+                  projects={projects}
+                  messages={messages}
+                  companyInfo={companyInfo}
+                  onNavigateTab={(tab) => setCustomerTab(tab)}
+                  onViewQuotationModal={(q: Quotation) => setActiveQuotationForModal(q)}
+                />
+              )}
+
+              {/* TAB 2: Services Catalog */}
+              {customerTab === 'services' && (
                 <ServiceSelector
                   services={services}
                   selectedServices={selectedServices}
@@ -739,29 +1218,130 @@ export default function App() {
                 />
               )}
 
-              {/* STAGE 2: Quotation Builder & Customer Form */}
-              {customerViewMode === 'builder' && (
-                <QuotationBuilder
-                  selectedServices={selectedServices}
-                  defaultCustomer={{
-                    name: clientProfile.name,
-                    email: clientProfile.email,
-                    phone: clientProfile.phone,
-                    companyName: clientProfile.companyName,
-                    address: clientProfile.address,
-                    projectTimeline: '3-4 Weeks'
-                  }}
-                  onRemoveService={handleRemoveService}
-                  onUpdateQty={handleUpdateQty}
-                  onUpdateDiscount={handleUpdateDiscount}
-                  onClearAll={() => setSelectedServices([])}
-                  onGenerateQuotation={handleGenerateQuotation}
-                  onQuickWhatsApp={handleQuickWhatsApp}
+              {/* TAB 3: Transparent Rate Card Table */}
+              {customerTab === 'rateCard' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-white">Transparent Standard Development Rate Card</h2>
+                      <p className="text-xs text-slate-400">
+                        Compare standard Mumbai tech developer rates vs market averages with full 18% GST breakdown.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setCustomerTab('requestQuote')}
+                      className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold rounded-xl hover:brightness-110 shadow"
+                    >
+                      Request Custom Quote
+                    </button>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60 shadow">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-900 text-slate-300 font-semibold border-b border-slate-800">
+                        <tr>
+                          <th className="p-3.5">Category</th>
+                          <th className="p-3.5">Service Module</th>
+                          <th className="p-3.5">Market Range</th>
+                          <th className="p-3.5">TSD Rate (Base)</th>
+                          <th className="p-3.5">GST (18%)</th>
+                          <th className="p-3.5">Total (Inc. GST)</th>
+                          <th className="p-3.5 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800 text-slate-300">
+                        {services.map((s) => {
+                          const isSelected = selectedServices.some((i) => i.serviceId === s.id);
+                          const gst = s.suggestedQuote * 0.18;
+                          const total = s.suggestedQuote + gst;
+                          return (
+                            <tr key={s.id} className="hover:bg-slate-800/40 transition-colors">
+                              <td className="p-3.5">
+                                <span className="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] text-cyan-400 font-bold uppercase">
+                                  {s.category}
+                                </span>
+                              </td>
+                              <td className="p-3.5">
+                                <p className="font-bold text-white">{s.name}</p>
+                                <p className="text-[11px] text-slate-400 truncate max-w-xs">{s.description}</p>
+                              </td>
+                              <td className="p-3.5 font-mono text-slate-400">
+                                ₹{s.marketMin.toLocaleString('en-IN')} – ₹{s.marketMax.toLocaleString('en-IN')}
+                              </td>
+                              <td className="p-3.5 font-bold font-mono text-white">
+                                ₹{s.suggestedQuote.toLocaleString('en-IN')}
+                              </td>
+                              <td className="p-3.5 font-mono text-slate-400">
+                                ₹{gst.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                              </td>
+                              <td className="p-3.5 font-extrabold font-mono text-cyan-400">
+                                ₹{total.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                              </td>
+                              <td className="p-3.5 text-right">
+                                <button
+                                  onClick={() => handleToggleService(s)}
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                    isSelected
+                                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30'
+                                      : 'bg-cyan-500 text-slate-950 hover:bg-cyan-400 shadow-sm'
+                                  }`}
+                                >
+                                  {isSelected ? 'Remove' : '+ Add to Quote'}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: Request Quotation View */}
+              {customerTab === 'requestQuote' && (
+                <CustomerRequestQuotationView
+                  currentUser={currentUser}
+                  services={services}
+                  onSubmitRequest={handleSubmitQuotationRequest}
+                  onNavigateToMyQuotations={() => setCustomerTab('myQuotes')}
                 />
               )}
 
-              {/* STAGE 3: Client Profile, Contact History & Project Files */}
-              {customerViewMode === 'profile' && (
+              {/* TAB 5: My Quotations View */}
+              {customerTab === 'myQuotes' && (
+                <MyQuotationsView
+                  currentUser={currentUser}
+                  quotations={quotations}
+                  quotationRequests={quotationRequests}
+                  onAcceptQuotation={handleAcceptQuotation}
+                  onRejectQuotation={handleRejectQuotation}
+                  onViewQuotationModal={(q: Quotation) => setActiveQuotationForModal(q)}
+                  onNavigateToRequest={() => setCustomerTab('requestQuote')}
+                />
+              )}
+
+              {/* TAB 6: Active Customer Projects */}
+              {customerTab === 'projects' && (
+                <CustomerProjectsView
+                  currentUser={currentUser}
+                  projects={projects}
+                  milestones={deriveMilestonesFromQuotations(quotations, customMilestones)}
+                  onNavigateToMessages={() => setCustomerTab('messages')}
+                />
+              )}
+
+              {/* TAB 7: Live Helpdesk & Messages */}
+              {customerTab === 'messages' && (
+                <CustomerMessagesView
+                  messages={messages}
+                  currentUser={currentUser}
+                  onSendMessage={(text) => handleSendChatMessage('customer', text)}
+                />
+              )}
+
+              {/* TAB 8: Client Profile, Contact History & Project Files */}
+              {customerTab === 'profile' && (
                 <ClientProfileSection
                   clientProfile={clientProfile}
                   onUpdateProfile={(updated) => {
@@ -793,11 +1373,11 @@ export default function App() {
                   onViewQuotation={(quotation) => setActiveQuotationForModal(quotation)}
                   onReorderQuotation={(quotation) => {
                     setSelectedServices(quotation.items);
-                    setCustomerViewMode('builder');
+                    setCustomerTab('builder');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   onNavigateToBuilder={() => {
-                    setCustomerViewMode('builder');
+                    setCustomerTab('builder');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   customMilestones={customMilestones}
@@ -843,7 +1423,6 @@ export default function App() {
                         );
                         return copy;
                       } else {
-                        // If it was a derived milestone not yet in customMilestones, find it and record override
                         const allMs = deriveMilestonesFromQuotations(quotations, prev);
                         const match = allMs.find((m) => m.id === milestoneId);
                         if (match) {
@@ -865,6 +1444,27 @@ export default function App() {
                 />
               )}
 
+              {/* TAB 9: Quotation Builder & Customer Form */}
+              {customerTab === 'builder' && (
+                <QuotationBuilder
+                  selectedServices={selectedServices}
+                  defaultCustomer={{
+                    name: currentUser?.displayName || clientProfile.name,
+                    email: currentUser?.email || clientProfile.email,
+                    phone: currentUser?.phone || clientProfile.phone,
+                    companyName: currentUser?.companyName || clientProfile.companyName,
+                    address: clientProfile.address,
+                    projectTimeline: '3-4 Weeks'
+                  }}
+                  onRemoveService={handleRemoveService}
+                  onUpdateQty={handleUpdateQty}
+                  onUpdateDiscount={handleUpdateDiscount}
+                  onClearAll={() => setSelectedServices([])}
+                  onGenerateQuotation={handleGenerateQuotation}
+                  onQuickWhatsApp={handleQuickWhatsApp}
+                />
+              )}
+
               {/* Expandable FAQ & Terms Section */}
               <FaqAndTerms />
             </div>
@@ -876,9 +1476,15 @@ export default function App() {
               services={services}
               onUpdateService={(updated) => {
                 setServices((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+                saveServiceToFirestore(updated).catch((err) =>
+                  console.error('Failed to update service in Firestore:', err)
+                );
               }}
               onAddService={(created) => {
                 setServices((prev) => [created, ...prev]);
+                saveServiceToFirestore(created).catch((err) =>
+                  console.error('Failed to save service to Firestore:', err)
+                );
               }}
               onDeleteService={(id) => {
                 setServices((prev) => prev.filter((s) => s.id !== id));
@@ -892,9 +1498,10 @@ export default function App() {
                       const updated: Quotation = {
                         ...q,
                         status,
-                        paymentStatus: status === 'Advance Received' && (!q.paymentStatus || q.paymentStatus === 'Pending')
-                          ? 'Partial'
-                          : q.paymentStatus,
+                        paymentStatus:
+                          status === 'Advance Received' && (!q.paymentStatus || q.paymentStatus === 'Pending')
+                            ? 'Partial'
+                            : q.paymentStatus,
                         assignedStaffId: staffId || q.assignedStaffId,
                         assignedStaffName: assigned ? assigned.name : q.assignedStaffName,
                         updatedAt: new Date().toISOString()
@@ -942,14 +1549,43 @@ export default function App() {
                 );
               }}
               onBroadcastPush={(title, message, type) => handlePushNotification(title, message, type)}
-              companyInfo={COMPANY_INFO}
+              companyInfo={companyInfo}
+              onSaveCompanySettings={handleSaveCompanySettings}
+              quotationRequests={quotationRequests}
+              onUpdateQuotationRequestStatus={async (id, status) => {
+                setQuotationRequests((prev) =>
+                  prev.map((r) => (r.id === id ? { ...r, status, updatedAt: new Date().toISOString() } : r))
+                );
+                const found = quotationRequests.find((r) => r.id === id);
+                if (found) {
+                  await saveQuotationRequestToFirestore({
+                    ...found,
+                    status,
+                    updatedAt: new Date().toISOString()
+                  });
+                }
+              }}
+              onConvertRequestToQuotation={handleConvertRequestToQuotation}
+              projects={projects}
+              onCreateProject={handleCreateProject}
+              onUpdateProject={handleUpdateProject}
+              messages={messages}
+              onSendMessage={async (text, recipient) => handleSendChatMessage('admin', text, recipient)}
+              clientProfiles={clientProfiles}
+              onAdminLogout={() => {
+                setCurrentPortal('customer');
+              }}
+              onNavigateToBuilder={() => {
+                setCurrentPortal('customer');
+                setCustomerTab('builder');
+              }}
             />
           )}
         </main>
 
-        {/* Floating Quotation Bar when in Catalog mode and items selected */}
+        {/* Floating Quotation Bar when in Catalog/Rate Card mode and items selected */}
         {currentPortal === 'customer' &&
-          customerViewMode === 'catalog' &&
+          (customerTab === 'services' || customerTab === 'rateCard') &&
           selectedServices.length > 0 && (
             <div className="no-print sticky bottom-3 z-40 max-w-4xl mx-auto px-4 w-full animate-in slide-in-from-bottom-4 duration-300">
               <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-900/95 border border-cyan-500/50 shadow-2xl backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
@@ -972,7 +1608,7 @@ export default function App() {
 
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button
-                    onClick={() => setCustomerViewMode('builder')}
+                    onClick={() => setCustomerTab('builder')}
                     className="flex-1 sm:flex-initial py-2.5 px-5 rounded-xl font-bold text-xs bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-white shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-1.5 transition-all"
                   >
                     <span>Proceed to Official Quotation & Invoice</span>
@@ -1006,7 +1642,7 @@ export default function App() {
         {activeQuotationForModal && (
           <QuotationViewModal
             quotation={activeQuotationForModal}
-            companyInfo={COMPANY_INFO}
+            companyInfo={companyInfo}
             onClose={() => setActiveQuotationForModal(null)}
             onSendEmailSimulation={() => {
               handlePushNotification(
@@ -1022,7 +1658,7 @@ export default function App() {
         {recentlyBookedQuotation && (
           <BookingSuccessModal
             quotation={recentlyBookedQuotation}
-            companyInfo={COMPANY_INFO}
+            companyInfo={companyInfo}
             onClose={() => setRecentlyBookedQuotation(null)}
             onViewQuotation={() => {
               const q = recentlyBookedQuotation;
@@ -1031,8 +1667,21 @@ export default function App() {
             }}
             onViewClientProfile={() => {
               setRecentlyBookedQuotation(null);
-              setCustomerViewMode('profile');
+              setCustomerTab('profile');
               window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {/* MODAL 3: Authentication Modal (Login / Register / Portal Switch) */}
+        {showAuthModal && (
+          <AuthModal
+            isOpen={showAuthModal}
+            initialMode={authModalMode}
+            onClose={() => setShowAuthModal(false)}
+            onLoginSuccess={(user) => {
+              handleLogin(user);
+              setShowAuthModal(false);
             }}
           />
         )}

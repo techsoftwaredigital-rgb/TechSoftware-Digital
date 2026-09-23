@@ -1,11 +1,51 @@
 {
   "entities": {
-    "Quotation": {
-      "title": "Quotation",
-      "description": "Quotation details, customer info, and pricing breakdown",
+    "User": {
+      "title": "User",
+      "description": "User profile with role-based access for customer and admin",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["customer", "admin"] },
+        "phone": { "type": "string" },
+        "companyName": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "QuotationRequest": {
+      "title": "QuotationRequest",
+      "description": "Project quotation request submitted by customer",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "companyName": { "type": "string" },
+        "service": { "type": "string" },
+        "category": { "type": "string" },
+        "requirements": { "type": "string" },
+        "budget": { "type": "string" },
+        "projectTimeline": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Under Review", "Quotation Sent", "Cancelled"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "customerName", "customerEmail", "service", "requirements", "budget", "status"]
+    },
+    "Quotation": {
+      "title": "Quotation",
+      "description": "Formal quotation details, items, tax, and customer status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "requestId": { "type": "string" },
+        "customerId": { "type": "string" },
         "quotationNumber": { "type": "string" },
         "date": { "type": "string" },
         "validUntil": { "type": "string" },
@@ -16,10 +56,83 @@
         "grandTotal": { "type": "number" },
         "advancePayable50": { "type": "number" },
         "balancePayable": { "type": "number" },
+        "notes": { "type": "string" },
         "createdAt": { "type": "string" },
         "updatedAt": { "type": "string" }
       },
       "required": ["id", "quotationNumber", "grandTotal", "status"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Software development project assigned to customer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "quotationId": { "type": "string" },
+        "quotationNumber": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Planning", "Development", "Testing", "Live", "Completed", "On Hold", "Cancelled"] },
+        "startDate": { "type": "string" },
+        "expectedCompletionDate": { "type": "string" },
+        "amount": { "type": "number" },
+        "progressPercent": { "type": "number" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "status", "customerName"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Real-time communication message between customer and developer admin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderRole": { "type": "string", "enum": ["customer", "admin"] },
+        "text": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "customerId", "senderRole", "text", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app alerts and activity notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recipientId": { "type": "string" },
+        "recipientRole": { "type": "string", "enum": ["customer", "admin", "all"] },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "message", "recipientRole"]
+    },
+    "ServiceItem": {
+      "title": "ServiceItem",
+      "description": "Rate card catalog service items",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "category": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "marketMin": { "type": "number" },
+        "marketMax": { "type": "number" },
+        "suggestedQuote": { "type": "number" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["id", "name", "category", "suggestedQuote"]
     },
     "Payment": {
       "title": "Payment",
@@ -70,16 +183,39 @@
         "targetDate": { "type": "string" },
         "estimatedCompletionDate": { "type": "string" },
         "moduleName": { "type": "string" },
-        "dependencyIds": { "type": "array", "items": { "type": "string" } },
         "status": { "type": "string" }
       },
       "required": ["id", "title", "status"]
     }
   },
   "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and credentials"
+    },
+    "/quotationRequests/{requestId}": {
+      "schema": "QuotationRequest",
+      "description": "Customer project quotation requests"
+    },
     "/quotations/{quotationId}": {
       "schema": "Quotation",
       "description": "Collection of customer quotations"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Active and completed client software projects"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Realtime chat messages between customer and developer admin"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Realtime notification alerts"
+    },
+    "/services/{serviceId}": {
+      "schema": "ServiceItem",
+      "description": "Catalog rate card services"
     },
     "/payments/{paymentId}": {
       "schema": "Payment",
@@ -92,6 +228,10 @@
     "/milestones/{milestoneId}": {
       "schema": "ProjectMilestone",
       "description": "Collection of project milestones"
+    },
+    "/settings/{settingId}": {
+      "schema": "CompanyInfo",
+      "description": "Company profile and business settings"
     }
   }
 }

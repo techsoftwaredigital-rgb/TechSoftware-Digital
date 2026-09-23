@@ -1,14 +1,64 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Test connection check
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'techsoftware.digital@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Health check test connection
     match /test/{docId} {
       allow read, write: if true;
     }
 
-    // Quotations
+    // User accounts
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Quotation Requests
+    match /quotationRequests/{requestId} {
+      allow read, write: if true;
+    }
+
+    // Formal Quotations
     match /quotations/{quotationId} {
       allow read, write: if true;
+    }
+
+    // Projects
+    match /projects/{projectId} {
+      allow read, write: if true;
+    }
+
+    // Real-time Messages
+    match /messages/{messageId} {
+      allow read, write: if true;
+    }
+
+    // Real-time Notifications
+    match /notifications/{notificationId} {
+      allow read, write: if true;
+    }
+
+    // Services Catalog
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Company Settings
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if true;
     }
 
     // Payments

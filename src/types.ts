@@ -57,15 +57,95 @@ export interface CustomerDetails {
 }
 
 export type QuotationStatus =
+  | 'Pending'
+  | 'Under Review'
+  | 'Quotation Sent'
+  | 'Customer Accepted'
+  | 'Customer Rejected'
+  | 'In Progress'
+  | 'Completed'
+  | 'Cancelled'
   | 'Draft'
   | 'Sent'
   | 'Booked'
-  | 'Advance Received'
-  | 'In Progress'
-  | 'Completed'
-  | 'Cancelled';
+  | 'Advance Received';
 
 export type PaymentStatus = 'Pending' | 'Partial' | 'Paid';
+
+export type UserRole = 'customer' | 'admin';
+
+export interface UserAccount {
+  uid: string;
+  id?: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  phone?: string;
+  companyName?: string;
+  address?: string;
+  createdAt: string;
+}
+
+export interface QuotationRequest {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  companyName?: string;
+  service: string;
+  category?: string;
+  requirements: string;
+  budget: string;
+  projectTimeline: string;
+  filesInfo?: string;
+  status: 'Pending' | 'Under Review' | 'Quotation Sent' | 'Cancelled';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ProjectStatus =
+  | 'Pending'
+  | 'Planning'
+  | 'Development'
+  | 'Testing'
+  | 'Live'
+  | 'Completed'
+  | 'On Hold'
+  | 'Cancelled';
+
+export interface Project {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail?: string;
+  quotationId?: string;
+  quotationNumber?: string;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  startDate: string;
+  expectedCompletionDate: string;
+  amount: number;
+  progressPercent: number;
+  notes?: string;
+  milestones?: ProjectMilestone[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail?: string;
+  senderId: string;
+  senderName: string;
+  senderRole: 'customer' | 'admin';
+  text: string;
+  read: boolean;
+  createdAt: string;
+}
 
 export type AmcTier = 'none' | 'bronze' | 'silver' | 'gold' | 'standard' | 'premium' | 'custom';
 

@@ -382,3 +382,86 @@ export const INITIAL_PROJECT_FILES: ProjectFile[] = [
   }
 ];
 
+export const INITIAL_QUOTATION_REQUESTS = [
+  {
+    id: 'req-1',
+    customerId: 'cust-101',
+    customerName: 'Vikram Singhania',
+    customerEmail: 'vikram.singhania@apexretail.in',
+    customerPhone: '+91 9819203948',
+    companyName: 'Apex Retail Stores Pvt Ltd',
+    service: 'E-commerce Website + POS Sync',
+    category: 'Website',
+    requirements:
+      'Multi-branch retail inventory synchronization, fast bar-code billing, customer loyalty points, and WhatsApp automated order confirmation.',
+    budget: '₹1,50,000 - ₹2,50,000',
+    projectTimeline: '4-6 Weeks',
+    filesInfo: 'Figma mockups uploaded to company drive',
+    status: 'Pending' as const,
+    createdAt: '2026-09-20T10:30:00Z',
+    updatedAt: '2026-09-20T10:30:00Z'
+  },
+  {
+    id: 'req-2',
+    customerId: 'cust-102',
+    customerName: 'Ananya Deshmukh',
+    customerEmail: 'ananya@zenithclinics.com',
+    customerPhone: '+91 9833445566',
+    companyName: 'Zenith Healthcare Clinics',
+    service: 'Doctor Appointment & Patient Record Mobile App',
+    category: 'Mobile App',
+    requirements:
+      'Native Android & iOS app for patient booking, prescription PDF downloads, automated doctor SMS reminders, and Razorpay tele-consultation payments.',
+    budget: '₹2,00,000 - ₹3,50,000',
+    projectTimeline: '6-8 Weeks',
+    filesInfo: 'Existing clinic patient workflow specification',
+    status: 'Under Review' as const,
+    createdAt: '2026-09-21T14:15:00Z',
+    updatedAt: '2026-09-21T14:15:00Z'
+  }
+];
+
+export const INITIAL_PROJECTS = [
+  {
+    id: 'proj-1',
+    customerId: 'cust-101',
+    customerName: 'Vikram Singhania',
+    customerEmail: 'vikram.singhania@apexretail.in',
+    quotationId: 'quote-1001',
+    title: 'Apex Retail Omnichannel Web & POS System',
+    description: 'Full-stack enterprise e-commerce platform with real-time barcode inventory syncing.',
+    status: 'Development' as const,
+    startDate: '2026-09-18',
+    expectedCompletionDate: '2026-10-25',
+    amount: 247796,
+    progressPercent: 55,
+    notes: 'Sprint 2 in progress: payment gateway and customer loyalty database integration.',
+    createdAt: '2026-09-18T12:00:00Z',
+    updatedAt: '2026-09-22T16:00:00Z'
+  }
+];
+
+export const INITIAL_MESSAGES = [
+  {
+    id: 'msg-1',
+    customerId: 'cust-101',
+    customerName: 'Vikram Singhania',
+    customerEmail: 'vikram.singhania@apexretail.in',
+    senderRole: 'customer' as const,
+    senderName: 'Vikram Singhania',
+    text: 'Hello team TechSoftware, when can we test the barcode scanner integration on our local thermal printer?',
+    createdAt: '2026-09-21T11:20:00Z'
+  },
+  {
+    id: 'msg-2',
+    customerId: 'cust-101',
+    customerName: 'Vikram Singhania',
+    customerEmail: 'vikram.singhania@apexretail.in',
+    senderRole: 'admin' as const,
+    senderName: 'Aman Sharma (Lead Architect)',
+    text: 'Hi Vikram, the POS USB/Bluetooth WebHID module is ready in staging. We will deploy the demo build to your preview link this evening.',
+    createdAt: '2026-09-21T11:45:00Z'
+  }
+];
+
+
