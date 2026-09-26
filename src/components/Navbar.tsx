@@ -13,7 +13,8 @@ import {
   CreditCard,
   User,
   LogOut,
-  LogIn
+  LogIn,
+  Menu
 } from 'lucide-react';
 import { AppNotification, CompanyInfo, UserAccount } from '../types';
 
@@ -31,6 +32,8 @@ interface NavbarProps {
   onToggleMobileDeviceView: () => void;
   onOpenQuotationDrawer?: () => void;
   onNavigateToProfile?: () => void;
+  onToggleSideMenu?: () => void;
+  isSideMenuOpen?: boolean;
   clientName?: string;
   firebaseConnected?: boolean;
   currentUser?: UserAccount | null;
@@ -52,6 +55,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleMobileDeviceView,
   onOpenQuotationDrawer,
   onNavigateToProfile,
+  onToggleSideMenu,
+  isSideMenuOpen,
   clientName,
   firebaseConnected = true,
   currentUser,
@@ -127,9 +132,31 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Main navigation row */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        {/* Left: Brand Logo */}
-        <div className="cursor-pointer" onClick={() => onPortalChange('customer')}>
-          <Logo size="md" />
+        {/* Left: Brand Logo & Side Menu Toggle */}
+        <div className="flex items-center gap-3">
+          {onToggleSideMenu && (
+            <button
+              onClick={onToggleSideMenu}
+              id="navbar-side-menu-toggle-btn"
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all shadow-sm cursor-pointer select-none ${
+                isSideMenuOpen
+                  ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-cyan-500/25'
+                  : 'bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border-slate-800 hover:border-cyan-500/50'
+              }`}
+              title="Toggle Side Menu (Quick Navigation & Jump)"
+              aria-label="Toggle Side Menu"
+            >
+              <Menu className={`w-4 h-4 ${isSideMenuOpen ? 'text-slate-950' : 'text-cyan-400'}`} />
+              <span className="hidden sm:inline">Side Menu</span>
+              {selectedItemsCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              )}
+            </button>
+          )}
+
+          <div className="cursor-pointer" onClick={() => onPortalChange('customer')}>
+            <Logo size="md" />
+          </div>
         </div>
 
         {/* Center: Portal Switcher (User prompt: "customer portel and devloper portel aaisa rahega") */}

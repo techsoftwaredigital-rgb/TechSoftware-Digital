@@ -13,8 +13,12 @@ import {
   CreditCard,
   Send,
   FileText,
-  Check
+  Check,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { Logo } from '../Logo';
 import { Quotation, CompanyInfo } from '../../types';
 
@@ -34,11 +38,150 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
   const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [copiedLink, setCopiedLink] = useState(false);
   const [isPrintFriendly, setIsPrintFriendly] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   if (!quotation) return null;
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadPDF = async () => {
+    const printArea = document.getElementById('quotation-print-area');
+    if (!printArea || isGeneratingPdf) return;
+
+    setIsGeneratingPdf(true);
+    setPdfError(null);
+
+    try {
+      // Capture element with html2canvas adhering strictly to formal print specifications
+      const canvas = await html2canvas(printArea, {
+        scale: 2, // High resolution (300 DPI equivalent) for razor-sharp typography
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 1024,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('quotation-print-area');
+          if (clonedElement) {
+            // Apply standard clean print layout styling
+            clonedElement.style.padding = '32px 36px';
+            clonedElement.style.margin = '0 auto';
+            clonedElement.style.width = '820px';
+            clonedElement.style.maxWidth = '820px';
+            clonedElement.style.backgroundColor = '#ffffff';
+            clonedElement.style.color = '#0f172a';
+            clonedElement.style.boxSizing = 'border-box';
+            clonedElement.style.borderRadius = '0';
+            clonedElement.style.boxShadow = 'none';
+
+            // Ensure table styling is crisp
+            const tables = clonedElement.getElementsByTagName('table');
+            for (let i = 0; i < tables.length; i++) {
+              tables[i].style.width = '100%';
+              tables[i].style.borderCollapse = 'collapse';
+            }
+          }
+        }
+      });
+
+      // Initialize jsPDF in A4 portrait matching print CSS (@page { size: A4 portrait; margin: 10mm 12mm 12mm 12mm; })
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const marginSide = 12; // 12mm left/right margins matching @page CSS
+      const marginTop = 12;  // 12mm top margin
+      const marginBottom = 14; // 14mm bottom margin
+      const contentWidth = pageWidth - (marginSide * 2); // 186mm
+      const usablePageHeight = pageHeight - marginTop - marginBottom; // 271mm
+      const contentHeight = (canvas.height * contentWidth) / canvas.width;
+
+      if (contentHeight <= usablePageHeight) {
+        // Fits on a single A4 page
+        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        pdf.addImage(imgData, 'JPEG', marginSide, marginTop, contentWidth, contentHeight, undefined, 'FAST');
+        
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(140, 140, 140);
+        pdf.text(
+          `TechSoftware.digital • Formal Quotation ${quotation.quotationNumber} • Single Page Document`,
+          pageWidth / 2,
+          pageHeight - 6,
+          { align: 'center' }
+        );
+      } else {
+        // Multi-page slicing for longer quotations
+        const sliceCanvasHeight = (usablePageHeight * canvas.width) / contentWidth;
+        const totalPages = Math.ceil(canvas.height / sliceCanvasHeight);
+
+        for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+          if (pageIdx > 0) {
+            pdf.addPage();
+          }
+
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          const currentSliceHeight = Math.min(sliceCanvasHeight, canvas.height - (pageIdx * sliceCanvasHeight));
+          pageCanvas.height = currentSliceHeight;
+
+          const ctx = pageCanvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+            ctx.drawImage(
+              canvas,
+              0, pageIdx * sliceCanvasHeight, canvas.width, currentSliceHeight,
+              0, 0, canvas.width, currentSliceHeight
+            );
+
+            const sliceImgData = pageCanvas.toDataURL('image/jpeg', 0.98);
+            const sliceRenderHeight = (currentSliceHeight * contentWidth) / canvas.width;
+            pdf.addImage(sliceImgData, 'JPEG', marginSide, marginTop, contentWidth, sliceRenderHeight, undefined, 'FAST');
+
+            // Running Page Footer
+            pdf.setFontSize(7.5);
+            pdf.setTextColor(140, 140, 140);
+            pdf.text(
+              `TechSoftware.digital • Formal Quotation ${quotation.quotationNumber} • Page ${pageIdx + 1} of ${totalPages}`,
+              pageWidth / 2,
+              pageHeight - 6,
+              { align: 'center' }
+            );
+          }
+        }
+      }
+
+      // Metadata
+      pdf.setProperties({
+        title: `Quotation ${quotation.quotationNumber} - ${quotation.customer.name}`,
+        subject: `TechSoftware.digital Formal Quotation & Estimate ${quotation.quotationNumber}`,
+        author: 'TechSoftware.digital',
+        keywords: 'quotation, tax invoice, techsoftware, digital',
+        creator: 'TechSoftware.digital Quotation Engine'
+      });
+
+      // Filename
+      const cleanQuote = quotation.quotationNumber.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const cleanCustomer = quotation.customer.name.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
+      const filename = `Quotation_${cleanQuote}_${cleanCustomer || 'Client'}.pdf`;
+
+      pdf.save(filename);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 3500);
+    } catch (err: any) {
+      console.error('jsPDF generation failed:', err);
+      setPdfError(err?.message || 'Failed to generate PDF. You can also use the Print button.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handleSendEmail = () => {
@@ -128,14 +271,40 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
               </span>
             </div>
 
+            {/* One-Click PDF Download (jsPDF) */}
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPdf}
+              id="download-pdf-button"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 disabled:opacity-75 text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              title="One-click PDF download formatted consistently with official print specifications"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Generating PDF...</span>
+                </>
+              ) : downloadSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                  <span>PDF Downloaded!</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download PDF</span>
+                </>
+              )}
+            </button>
+
             <button
               onClick={handlePrint}
               id="print-pdf-button"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition-colors shadow-sm"
-              title="Print or export as clean PDF"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold transition-colors border border-slate-700 shadow-sm"
+              title="Open browser print dialog / Save as PDF"
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Print / Save PDF</span>
+              <Printer className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Print Dialog</span>
             </button>
 
             <button
@@ -179,6 +348,22 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Error Alert Banner if PDF generation fails */}
+        {pdfError && (
+          <div className="no-print bg-rose-950/90 border-b border-rose-800 px-4 py-2 flex items-center justify-between text-xs text-rose-200">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>{pdfError}</span>
+            </div>
+            <button
+              onClick={() => setPdfError(null)}
+              className="text-rose-400 hover:text-white font-bold ml-2 text-[11px] underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Informational banner when Print-Friendly mode is active (Hidden when printing) */}
         {isPrintFriendly && (
@@ -581,12 +766,47 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
         </div>
 
         {/* Footer info bar */}
-        <div className="no-print bg-slate-100 p-3 text-center text-xs text-slate-500 border-t border-slate-200 flex items-center justify-center gap-2">
-          <span>Need custom changes or technical consultation? Call</span>
-          <a href="tel:8169401877" className="font-bold text-cyan-700 hover:underline">
-            +91 8169401877
-          </a>
-          <span>or WhatsApp us directly.</span>
+        <div className="no-print bg-slate-100 p-3 text-xs text-slate-600 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span>Need custom changes or technical consultation? Call</span>
+            <a href="tel:8169401877" className="font-bold text-cyan-700 hover:underline">
+              +91 8169401877
+            </a>
+            <span className="hidden sm:inline">or WhatsApp us directly.</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPdf}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-75 text-white font-bold text-xs transition-colors shadow-xs cursor-pointer"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Generating PDF...</span>
+                </>
+              ) : downloadSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>PDF Downloaded!</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download PDF</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold text-xs transition-colors"
+            >
+              <Printer className="w-3.5 h-3.5 text-slate-600" />
+              <span>Print</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

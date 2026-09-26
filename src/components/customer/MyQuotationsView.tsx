@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   FileText,
   Clock,
@@ -12,7 +12,11 @@ import {
   Send,
   Building,
   User,
-  ArrowRight
+  ArrowRight,
+  Search,
+  X,
+  Filter,
+  RotateCcw
 } from 'lucide-react';
 import { Quotation, QuotationRequest, UserAccount } from '../../types';
 
@@ -38,6 +42,10 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
   const [activeTab, setActiveTab] = useState<'formal' | 'requests'>('formal');
   const [processingId, setProcessingId] = useState<string | null>(null);
 
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+
   // Filter for current user if applicable
   const userQuotations = quotations.filter((q) => {
     if (!currentUser) return true;
@@ -54,6 +62,76 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
       r.customerId === currentUser.uid
     );
   });
+
+  // Real-time filtered formal quotations (filters by quotation number, service name, or status)
+  const filteredFormalQuotations = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return userQuotations.filter((q) => {
+      // 1. Status Filter Pills
+      if (statusFilter !== 'All') {
+        if (statusFilter === 'Action Required') {
+          const isAction =
+            q.status === 'Quotation Sent' ||
+            q.status === 'Sent' ||
+            q.status === 'Draft' ||
+            q.status === 'Pending' ||
+            q.status === 'Booked';
+          if (!isAction) return false;
+        } else if (statusFilter === 'Accepted') {
+          const isAccepted =
+            q.status === 'Customer Accepted' ||
+            q.status === 'Advance Received' ||
+            q.status === 'Completed';
+          if (!isAccepted) return false;
+        } else if (statusFilter === 'Rejected') {
+          const isRejected =
+            q.status === 'Customer Rejected' ||
+            q.status === 'Cancelled';
+          if (!isRejected) return false;
+        } else if (statusFilter === 'Paid') {
+          if (q.paymentStatus !== 'Paid') return false;
+        }
+      }
+
+      // 2. Real-time Search by quotation number, service name, or status
+      if (!query) return true;
+
+      // Match quotation number
+      const matchQuoteNumber =
+        q.quotationNumber.toLowerCase().includes(query) ||
+        q.id.toLowerCase().includes(query);
+
+      // Match service name (from items list)
+      const matchServiceName = q.items.some(
+        (item) =>
+          item.name.toLowerCase().includes(query) ||
+          (item.description && item.description.toLowerCase().includes(query)) ||
+          item.serviceId.toLowerCase().includes(query)
+      );
+
+      // Match status
+      const matchStatus =
+        q.status.toLowerCase().includes(query) ||
+        (q.paymentStatus && q.paymentStatus.toLowerCase().includes(query));
+
+      return matchQuoteNumber || matchServiceName || matchStatus;
+    });
+  }, [userQuotations, searchQuery, statusFilter]);
+
+  // Real-time filtered requests
+  const filteredRequests = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return userRequests;
+
+    return userRequests.filter((r) => {
+      const matchService = r.service.toLowerCase().includes(query);
+      const matchCategory = (r.category || '').toLowerCase().includes(query);
+      const matchStatus = r.status.toLowerCase().includes(query);
+      const matchRequirements = r.requirements.toLowerCase().includes(query);
+      return matchService || matchCategory || matchStatus || matchRequirements;
+    });
+  }, [userRequests, searchQuery]);
 
   const handleAccept = async (q: Quotation) => {
     setProcessingId(q.id);
@@ -76,37 +154,60 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
 
   const getStatusBadge = (status: Quotation['status']) => {
     switch (status) {
+      // 1. Accepted / Confirmed Statuses -> Vivid Green
       case 'Customer Accepted':
-      case 'Booked':
       case 'Advance Received':
       case 'Completed':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 text-[11px] font-bold">
-            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-            <span>{status}</span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-500/60 text-xs font-bold shadow-sm shadow-emerald-950/50">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>Accepted</span>
           </span>
         );
+
+      case 'Booked':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-600/50 text-xs font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>Booked</span>
+          </span>
+        );
+
+      // 2. Rejected / Cancelled Statuses -> Vivid Red
       case 'Customer Rejected':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-950/90 text-rose-300 border border-rose-500/60 text-xs font-bold shadow-sm shadow-rose-950/50">
+            <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+            <span>Rejected</span>
+          </span>
+        );
+
       case 'Cancelled':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-950 text-red-300 border border-red-800 text-[11px] font-bold">
-            <XCircle className="w-3 h-3 text-red-400" />
-            <span>{status}</span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-950/80 text-rose-300 border border-rose-600/50 text-xs font-bold">
+            <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+            <span>Cancelled</span>
           </span>
         );
+
+      // 3. Pending Action / Review Statuses -> Vivid Amber / Cyan Pulse
       case 'Quotation Sent':
       case 'Sent':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-[11px] font-bold animate-pulse">
-            <Clock className="w-3 h-3 text-cyan-400" />
-            <span>Action Required: Review & Decide</span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/90 text-amber-300 border border-amber-500/60 text-xs font-bold shadow-sm shadow-amber-950/50 animate-pulse">
+            <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>Pending Decision</span>
           </span>
         );
+
+      case 'Draft':
+      case 'Pending':
+      case 'Under Review':
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800 text-[11px] font-bold">
-            <Clock className="w-3 h-3 text-amber-400" />
-            <span>{status}</span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 border border-amber-600/50 text-xs font-bold">
+            <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>{status || 'Pending'}</span>
           </span>
         );
     }
@@ -183,8 +284,114 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {userQuotations.map((q) => {
+            <>
+              {/* Real-time Search & Status Filter Toolbar */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+                <div className="flex flex-col md:flex-row md:items-center gap-3">
+                  {/* Search Bar Input */}
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-cyan-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search quotes by number (e.g. TSD-2026-1001), service name (e.g. Web, ERP), or status..."
+                      className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-cyan-500 transition-colors shadow-inner"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                        title="Clear search text"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Status Filter Pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                    <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1 pl-1 pr-1 shrink-0">
+                      <Filter className="w-3 h-3 text-cyan-400" />
+                      Status:
+                    </span>
+                    {(['All', 'Action Required', 'Accepted', 'Rejected', 'Paid'] as const).map((tab) => {
+                      const isSelected = statusFilter === tab;
+                      return (
+                        <button
+                          key={tab}
+                          onClick={() => setStatusFilter(tab)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                            isSelected
+                              ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                              : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                          }`}
+                        >
+                          {tab}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Active search results indicators */}
+                {(searchQuery || statusFilter !== 'All') && (
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px]">
+                    <div className="flex items-center gap-2 text-slate-400 flex-wrap">
+                      <span>
+                        Showing <strong className="text-white">{filteredFormalQuotations.length}</strong> of{' '}
+                        <strong className="text-slate-300">{userQuotations.length}</strong> quotes
+                      </span>
+                      {searchQuery && (
+                        <span className="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-mono text-[10px]">
+                          Keyword: "{searchQuery}"
+                        </span>
+                      )}
+                      {statusFilter !== 'All' && (
+                        <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[10px]">
+                          Status: {statusFilter}
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        setStatusFilter('All');
+                      }}
+                      className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold transition-colors shrink-0"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>Reset Filters</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* No Results from Filter State */}
+              {filteredFormalQuotations.length === 0 ? (
+                <div className="p-10 text-center rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+                  <Search className="w-10 h-10 text-slate-600 mx-auto" />
+                  <h3 className="text-base font-bold text-slate-300">No Quotations Found</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    No quotations matched your search
+                    {searchQuery ? <span> for keyword <strong className="text-slate-300">"{searchQuery}"</strong></span> : ''}
+                    {statusFilter !== 'All' ? <span> with status <strong className="text-slate-300">"{statusFilter}"</strong></span> : ''}.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setStatusFilter('All');
+                    }}
+                    className="mt-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold transition-all inline-flex items-center gap-1.5"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Clear Search & Show All Quotes</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {filteredFormalQuotations.map((q) => {
                 const canDecide =
                   q.status === 'Quotation Sent' ||
                   q.status === 'Sent' ||
@@ -310,8 +517,10 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
               })}
             </div>
           )}
-        </div>
+        </>
       )}
+    </div>
+  )}
 
       {/* Tab 2: Submitted Requests */}
       {activeTab === 'requests' && (
@@ -331,12 +540,48 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {userRequests.map((r) => (
-                <div
-                  key={r.id}
-                  className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 text-xs"
-                >
+            <>
+              {userRequests.length > 3 && (
+                <div className="relative">
+                  <Search className="w-4 h-4 text-cyan-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search requests by service, category, or status..."
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-cyan-500 transition-colors shadow-inner"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                      title="Clear search text"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {filteredRequests.length === 0 ? (
+                <div className="p-8 text-center rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+                  <Search className="w-8 h-8 text-slate-600 mx-auto" />
+                  <h4 className="text-sm font-bold text-slate-300">No Requests Found</h4>
+                  <p className="text-xs text-slate-500">No requests match "{searchQuery}"</p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="mt-1 px-3 py-1.5 rounded-lg bg-slate-800 text-cyan-400 text-xs font-semibold"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {filteredRequests.map((r) => (
+                    <div
+                      key={r.id}
+                      className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 text-xs"
+                    >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
                     <div>
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
@@ -351,8 +596,23 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="px-2.5 py-1 rounded-full bg-amber-950 text-amber-300 border border-amber-800 text-[11px] font-bold">
-                        Status: {r.status}
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${
+                          r.status.toLowerCase().includes('accept') || r.status.toLowerCase().includes('complet')
+                            ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/60 shadow-emerald-950/50'
+                            : r.status.toLowerCase().includes('reject') || r.status.toLowerCase().includes('cancel')
+                            ? 'bg-rose-950/90 text-rose-300 border-rose-500/60 shadow-rose-950/50'
+                            : 'bg-amber-950/90 text-amber-300 border-amber-500/60 shadow-amber-950/50'
+                        }`}
+                      >
+                        {r.status.toLowerCase().includes('accept') || r.status.toLowerCase().includes('complet') ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        ) : r.status.toLowerCase().includes('reject') || r.status.toLowerCase().includes('cancel') ? (
+                          <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                        ) : (
+                          <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        )}
+                        <span>{r.status}</span>
                       </span>
                       <span className="text-xs font-bold text-cyan-400">
                         Budget: {r.budget}
@@ -376,8 +636,10 @@ export const MyQuotationsView: React.FC<MyQuotationsViewProps> = ({
               ))}
             </div>
           )}
-        </div>
+        </>
       )}
+    </div>
+  )}
     </div>
   );
 };

@@ -478,3 +478,5 @@ export async function saveUserToFirestore(user: UserAccount): Promise<void> {
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 }
+
+

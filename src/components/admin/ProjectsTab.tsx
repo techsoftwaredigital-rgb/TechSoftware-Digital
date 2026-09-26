@@ -15,10 +15,12 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react';
-import { Project, ProjectStatus } from '../../types';
+import { Project, ProjectMilestone, ProjectStatus } from '../../types';
+import { ProjectWeeklySummaryModal } from '../common/ProjectWeeklySummaryModal';
 
 interface ProjectsTabProps {
   projects: Project[];
+  milestones?: ProjectMilestone[];
   onCreateProject: (project: Project) => void;
   onUpdateProject: (project: Project) => void;
 }
@@ -36,6 +38,7 @@ const STATUS_OPTIONS: ProjectStatus[] = [
 
 export const ProjectsTab: React.FC<ProjectsTabProps> = ({
   projects,
+  milestones = [],
   onCreateProject,
   onUpdateProject
 }) => {
@@ -43,6 +46,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [selectedProjectForSummary, setSelectedProjectForSummary] = useState<Project | null>(null);
 
   // New project state
   const [newTitle, setNewTitle] = useState('');
@@ -275,18 +279,43 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setEditingProject(project)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                >
-                  <Edit2 className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Full Edit</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedProjectForSummary(project)}
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500/15 to-blue-500/15 hover:from-cyan-500/25 hover:to-blue-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Weekly AI Summary</span>
+                  </button>
+
+                  <button
+                    onClick={() => setEditingProject(project)}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Full Edit</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Weekly Project Summary Modal Powered by Gemini 3.8 Flash */}
+      <ProjectWeeklySummaryModal
+        isOpen={!!selectedProjectForSummary}
+        project={selectedProjectForSummary}
+        milestones={milestones}
+        onClose={() => setSelectedProjectForSummary(null)}
+        onSaveToProjectNotes={async (p, notes) => {
+          onUpdateProject({
+            ...p,
+            notes,
+            updatedAt: new Date().toISOString()
+          });
+        }}
+      />
 
       {/* Modal: Create Project */}
       {showCreateModal && (

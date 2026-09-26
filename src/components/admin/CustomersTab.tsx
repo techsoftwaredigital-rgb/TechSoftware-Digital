@@ -10,6 +10,7 @@ import {
   Layers,
   ArrowRight,
   MessageCircle,
+  MessageSquare,
   ExternalLink
 } from 'lucide-react';
 import { ClientProfile, Quotation, Project } from '../../types';
@@ -19,13 +20,15 @@ interface CustomersTabProps {
   quotations: Quotation[];
   projects: Project[];
   onSelectCustomerToMessage?: (customerName: string) => void;
+  onOpenPaymentReminder?: (quotation: Quotation) => void;
 }
 
 export const CustomersTab: React.FC<CustomersTabProps> = ({
   clients,
   quotations,
   projects,
-  onSelectCustomerToMessage
+  onSelectCustomerToMessage,
+  onOpenPaymentReminder
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClient, setSelectedClient] = useState<ClientProfile | null>(null);
@@ -147,15 +150,41 @@ export const CustomersTab: React.FC<CustomersTabProps> = ({
                 </div>
               </div>
 
-              {onSelectCustomerToMessage && (
-                <button
-                  onClick={() => onSelectCustomerToMessage(client.name)}
-                  className="w-full mt-2 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Open Customer Chat</span>
-                </button>
-              )}
+              {/* Actions */}
+              <div className="space-y-1.5 mt-2">
+                {(() => {
+                  const unpaidQuote = clientQuotes.find(
+                    (q) => (q.paymentStatus || 'Pending') !== 'Paid'
+                  );
+                  if (unpaidQuote && onOpenPaymentReminder) {
+                    const due = unpaidQuote.paymentStatus === 'Partial'
+                      ? (unpaidQuote.balancePayable || Math.max(0, unpaidQuote.grandTotal - unpaidQuote.advancePayable50))
+                      : unpaidQuote.advancePayable50;
+
+                    return (
+                      <button
+                        onClick={() => onOpenPaymentReminder(unpaidQuote)}
+                        className="w-full py-1.5 px-3 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/60 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm shadow-emerald-950/40"
+                        title="Send pre-formatted WhatsApp payment reminder"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Payment Reminder (₹{due.toLocaleString('en-IN')})</span>
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {onSelectCustomerToMessage && (
+                  <button
+                    onClick={() => onSelectCustomerToMessage(client.name)}
+                    className="w-full py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Open Customer Chat</span>
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}

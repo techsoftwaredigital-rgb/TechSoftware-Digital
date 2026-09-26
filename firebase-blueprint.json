@@ -225,6 +225,10 @@
       "schema": "ClientProfile",
       "description": "Collection of client profiles"
     },
+    "/clients/{clientId}": {
+      "schema": "ClientProfile",
+      "description": "Collection of client account profiles"
+    },
     "/milestones/{milestoneId}": {
       "schema": "ProjectMilestone",
       "description": "Collection of project milestones"

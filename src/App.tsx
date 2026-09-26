@@ -6,13 +6,18 @@ import {
   Phone,
   Mail,
   ArrowRight,
+  ArrowLeft,
   Layers,
   MessageCircle,
   User,
-  FolderArchive
+  FolderArchive,
+  Menu
 } from 'lucide-react';
 
-import { Navbar } from './components/Navbar';
+import { CustomerSideMenu, CustomerTabType } from './components/customer/CustomerSideMenu';
+import { FloatingSideMenuTrigger } from './components/customer/FloatingSideMenuTrigger';
+import { Logo } from './components/Logo';
+import { CustomerHomeShowcase } from './components/customer/CustomerHomeShowcase';
 import { ServiceSelector } from './components/customer/ServiceSelector';
 import { QuotationBuilder } from './components/customer/QuotationBuilder';
 import { QuotationViewModal } from './components/customer/QuotationViewModal';
@@ -94,11 +99,51 @@ import {
 export default function App() {
   // Portal mode and customer tab navigation
   const [currentPortal, setCurrentPortal] = useState<'customer' | 'admin'>('customer');
-  const [customerTab, setCustomerTab] = useState<
-    'dashboard' | 'services' | 'rateCard' | 'requestQuote' | 'myQuotes' | 'projects' | 'messages' | 'profile' | 'builder'
-  >('dashboard');
+  const [customerTab, setCustomerTab] = useState<CustomerTabType>('home');
   const [isMobileDeviceView, setIsMobileDeviceView] = useState<boolean>(false);
   const [pushEnabled, setPushEnabled] = useState<boolean>(false);
+
+  // Side Menu & Navigation Drawer State
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState<boolean>(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('tsd_sidebar_collapsed') === 'true';
+    }
+    return false;
+  });
+
+  const handleToggleSidebarCollapse = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('tsd_sidebar_collapsed', String(next));
+      }
+      return next;
+    });
+  };
+
+  const handleNavigateTab = (
+    tab: CustomerTabType,
+    targetElementId?: string
+  ) => {
+    setCurrentPortal('customer');
+    setCustomerTab(tab);
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsSideMenuOpen(false);
+    }
+    if (targetElementId) {
+      setTimeout(() => {
+        const el = document.getElementById(targetElementId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 120);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Authentication State
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
@@ -373,6 +418,45 @@ export default function App() {
       unsubProfiles();
     };
   }, [clientProfile.id]);
+
+  // Deep link handler for direct quotation links (e.g. /?quote=TSD-2026-1002 or ?quoteId=quote-1002 or #quote=TSD-2026-1002)
+  useEffect(() => {
+    const handleDirectQuotationLink = () => {
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        let quoteQuery = searchParams.get('quote') || searchParams.get('quoteId') || searchParams.get('quotation');
+
+        if (!quoteQuery && window.location.hash.includes('quote=')) {
+          const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+          quoteQuery = hashParams.get('quote') || hashParams.get('quoteId');
+        }
+
+        if (quoteQuery && quotations.length > 0) {
+          const cleanQuery = quoteQuery.trim().toLowerCase();
+          const targetQuote = quotations.find(
+            (q) =>
+              q.quotationNumber.toLowerCase() === cleanQuery ||
+              q.id.toLowerCase() === cleanQuery
+          );
+
+          if (targetQuote) {
+            setActiveQuotationForModal(targetQuote);
+          }
+        }
+      } catch (err) {
+        console.warn('Error reading quotation URL parameter:', err);
+      }
+    };
+
+    handleDirectQuotationLink();
+    window.addEventListener('popstate', handleDirectQuotationLink);
+    window.addEventListener('hashchange', handleDirectQuotationLink);
+
+    return () => {
+      window.removeEventListener('popstate', handleDirectQuotationLink);
+      window.removeEventListener('hashchange', handleDirectQuotationLink);
+    };
+  }, [quotations]);
 
   // Request browser push permission
   const handleRequestPush = async () => {
@@ -933,264 +1017,162 @@ export default function App() {
           </div>
         )}
 
-        {/* Global Navigation Bar */}
-        <Navbar
-          currentPortal={currentPortal}
-          onPortalChange={(portal) => {
-            if (portal === 'admin' && (!currentUser || currentUser.role !== 'admin')) {
-              setAuthModalMode('login');
-              setShowAuthModal(true);
-            } else {
-              setCurrentPortal(portal);
-            }
-          }}
-          selectedItemsCount={selectedServices.length}
-          totalTaxable={totalTaxable}
-          notifications={notifications}
-          onClearNotification={handleClearNotification}
-          onRequestPush={handleRequestPush}
-          pushEnabled={pushEnabled}
-          companyInfo={companyInfo}
-          isMobileDeviceView={isMobileDeviceView}
-          onToggleMobileDeviceView={() => setIsMobileDeviceView(!isMobileDeviceView)}
-          onOpenQuotationDrawer={() => setCustomerTab('builder')}
-          onNavigateToProfile={() => {
-            setCurrentPortal('customer');
-            setCustomerTab('profile');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          clientName={currentUser?.displayName || clientProfile.name}
-          firebaseConnected={firebaseConnected}
-          currentUser={currentUser}
-          onOpenAuthModal={() => {
-            setAuthModalMode('login');
-            setShowAuthModal(true);
-          }}
-          onLogout={handleLogout}
-        />
+        {/* Floating Side Menu Trigger Button (Visible on mobile screens) */}
+        {currentPortal === 'customer' && (
+          <div className="md:hidden">
+            <FloatingSideMenuTrigger
+              onOpenSideMenu={() => setIsSideMenuOpen(true)}
+              selectedServicesCount={selectedServices.length}
+              isSideMenuOpen={isSideMenuOpen}
+            />
+          </div>
+        )}
 
-        {/* Main Content Area */}
-        <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5">
-          {/* CUSTOMER PORTAL */}
+        {/* Fixed Left-Hand Side Menu (Fixed on desktop left edge, drawer on mobile) */}
+        {currentPortal === 'customer' && (
+          <CustomerSideMenu
+            isOpen={isSideMenuOpen}
+            onClose={() => setIsSideMenuOpen(false)}
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={handleToggleSidebarCollapse}
+            currentTab={customerTab}
+            onSelectTab={handleNavigateTab}
+            selectedServicesCount={selectedServices.length}
+            totalBasketAmount={totalBasketAmount}
+            quotationsCount={quotations.length}
+            projectsCount={projects.length}
+            unreadMessagesCount={messages.filter((m) => m.senderRole === 'admin' && !m.read).length}
+            clientName={currentUser?.displayName || clientProfile.name}
+            companyName={currentUser?.companyName || clientProfile.companyName}
+            onSwitchPortal={(portal) => {
+              if (portal === 'admin' && (!currentUser || currentUser.role !== 'admin')) {
+                setAuthModalMode('login');
+                setShowAuthModal(true);
+              } else {
+                setCurrentPortal(portal);
+              }
+            }}
+            onOpenQuotationModal={() => {
+              if (quotations.length > 0) {
+                setActiveQuotationForModal(quotations[0]);
+              }
+            }}
+          />
+        )}
+
+        {/* Content Wrapper: offset smoothly by fixed left-hand side menu on desktop */}
+        <div
+          className={`flex-1 min-w-0 w-full min-h-screen flex flex-col transition-[padding] duration-300 ${
+            currentPortal === 'customer'
+              ? isSidebarCollapsed
+                ? 'md:pl-20'
+                : 'md:pl-72 lg:pl-80'
+              : ''
+          }`}
+        >
+          {/* Mobile Top Bar (Quick brand & Side Menu button on mobile) */}
           {currentPortal === 'customer' && (
-            <div className="space-y-6">
-              {/* Promotional & Commercial Banner */}
-              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/60 border border-slate-800 p-5 sm:p-7 shadow-2xl">
-                <div className="absolute -right-10 -bottom-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-                  <div className="space-y-2 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-700/40 text-cyan-300 text-xs font-semibold">
-                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Official Development Rate Card & Instant Estimator</span>
-                    </div>
-
-                    <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-snug">
-                      Transform Your Vision Into High-Impact Software
-                    </h1>
-
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Select tailored websites, mobile apps, ERPs, SaaS suites or AI modules. Get transparent market ranges, instant 18% GST calculation, and an automated formal quotation.
-                    </p>
-
-                    {/* Crucial Commercial Terms Pill */}
-                    <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-950/70 text-amber-300 border border-amber-600/40 font-bold">
-                        <ShieldAlert className="w-3.5 h-3.5" />
-                        <span>50% Advance Required to Kickoff</span>
-                      </span>
-
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800">
-                        ⚡ Non-Refundable Policy
-                      </span>
-
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800">
-                        🛠️ AMC Billed Separately
-                      </span>
-
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
-                        ✉️ Automated Email & WhatsApp Invoices
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Right Contact Quick-Card */}
-                  <div className="shrink-0 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2 text-xs">
-                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                      Technical Sales Desk
-                    </p>
-                    <a
-                      href="tel:8169401877"
-                      className="text-base font-extrabold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5"
-                    >
-                      <Phone className="w-4 h-4" />
-                      <span>+91 8169401877</span>
-                    </a>
-                    <a
-                      href={`https://wa.me/918169401877?text=${encodeURIComponent(
-                        'Hi TechSoftware.digital team, I want to discuss a new software project.'
-                      )}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-colors shadow"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5 fill-white" />
-                      <span>Chat on WhatsApp</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Customer Portal Navigation Tabs */}
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-2">
-                <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
-                  <button
-                    id="tab-dashboard-btn"
-                    onClick={() => setCustomerTab('dashboard')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                      customerTab === 'dashboard'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>Dashboard</span>
-                  </button>
-
-                  <button
-                    id="tab-services-btn"
-                    onClick={() => setCustomerTab('services')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                      customerTab === 'services'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>💼 Services</span>
-                  </button>
-
-                  <button
-                    id="tab-rate-card-btn"
-                    onClick={() => setCustomerTab('rateCard')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                      customerTab === 'rateCard'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>📊 Rate Card</span>
-                  </button>
-
-                  <button
-                    id="tab-request-quote-btn"
-                    onClick={() => setCustomerTab('requestQuote')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                      customerTab === 'requestQuote'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>📝 Request Quote</span>
-                  </button>
-
-                  <button
-                    id="tab-my-quotes-btn"
-                    onClick={() => setCustomerTab('myQuotes')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                      customerTab === 'myQuotes'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>📑 My Quotes</span>
-                    {quotations.length > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-cyan-900 text-cyan-300 text-[10px] font-black flex items-center justify-center border border-cyan-700">
-                        {quotations.length}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    id="tab-projects-btn"
-                    onClick={() => setCustomerTab('projects')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                      customerTab === 'projects'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>🚀 Live Projects</span>
-                    {projects.length > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-emerald-900 text-emerald-300 text-[10px] font-black flex items-center justify-center border border-emerald-700">
-                        {projects.length}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    id="tab-messages-btn"
-                    onClick={() => setCustomerTab('messages')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                      customerTab === 'messages'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>💬 Support Chat</span>
-                    {messages.length > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-indigo-900 text-indigo-300 text-[10px] font-black flex items-center justify-center border border-indigo-700">
-                        {messages.length}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    id="tab-profile-btn"
-                    onClick={() => setCustomerTab('profile')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                      customerTab === 'profile'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <User className="w-3.5 h-3.5" />
-                    <span>Profile & Docs</span>
-                  </button>
-
-                  <button
-                    id="tab-builder-btn"
-                    onClick={() => setCustomerTab('builder')}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                      customerTab === 'builder'
-                        ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <FileCheck className="w-3.5 h-3.5" />
-                    <span>Quotation Builder</span>
-                    {selectedServices.length > 0 && (
-                      <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center">
-                        {selectedServices.length}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
-                {selectedServices.length > 0 && customerTab !== 'builder' && (
-                  <div className="text-xs text-slate-400 flex items-center gap-2">
-                    <span>Basket:</span>
-                    <span className="font-extrabold text-cyan-400">
-                      ₹{totalBasketAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                    </span>
-                    <button
-                      onClick={() => setCustomerTab('builder')}
-                      className="px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-[11px]"
-                    >
-                      Review
-                    </button>
-                  </div>
+            <div className="md:hidden sticky top-0 z-30 bg-slate-950/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-2.5 flex items-center justify-between shrink-0">
+              <button
+                onClick={() => setIsSideMenuOpen(true)}
+                id="mobile-header-menu-btn"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:border-cyan-500 hover:text-cyan-400 transition-colors cursor-pointer"
+                aria-label="Open Side Menu"
+              >
+                <Menu className="w-4 h-4 text-cyan-400" />
+                <span>Side Menu</span>
+                {selectedServices.length > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                 )}
+              </button>
+              <div
+                className="flex items-center gap-1.5 cursor-pointer"
+                onClick={() => handleNavigateTab('home')}
+              >
+                <Logo size="sm" showText={false} />
+                <span className="font-extrabold text-xs text-white tracking-wide">TS.DIGITAL</span>
               </div>
+            </div>
+          )}
+
+          {/* Main Content Area */}
+          <main className="flex-1 min-w-0 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-12">
+            {/* CUSTOMER PORTAL */}
+            {currentPortal === 'customer' && (
+              <div className="space-y-6">
+              {/* HOME VIEW: Clean Showcase with Portfolio & Core Services */}
+              {customerTab === 'home' && (
+                <CustomerHomeShowcase
+                  services={services}
+                  selectedServices={selectedServices}
+                  onToggleService={handleToggleService}
+                  onUpdateQuantity={handleUpdateQuantityDelta}
+                  onOpenSideMenu={() => setIsSideMenuOpen(true)}
+                  onNavigateToBuilder={() => handleNavigateTab('builder')}
+                  onNavigateToTab={handleNavigateTab}
+                />
+              )}
+
+              {/* CONTEXTUAL TOP BAR (When accessing secondary tools from Side Menu) */}
+              {customerTab !== 'home' && (
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3 gap-3 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleNavigateTab('home')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 border border-slate-800 text-xs font-bold transition-all shadow-xs cursor-pointer"
+                      title="Return to Home (Portfolio & Core Services)"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Back to Home (Portfolio & Services)</span>
+                    </button>
+
+                    <div className="h-4 w-[1px] bg-slate-800 hidden sm:block" />
+
+                    <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                      <span className="text-slate-500 font-normal">Active Section:</span>
+                      <span className="text-white">
+                        {customerTab === 'dashboard'
+                          ? 'Executive Dashboard'
+                          : customerTab === 'services'
+                          ? 'Full Services Catalogue'
+                          : customerTab === 'rateCard'
+                          ? 'GST 2026 Rate Card'
+                          : customerTab === 'requestQuote'
+                          ? 'Request Custom Quote'
+                          : customerTab === 'myQuotes'
+                          ? 'My Quotations & Invoices'
+                          : customerTab === 'projects'
+                          ? 'Live Projects & Milestones'
+                          : customerTab === 'messages'
+                          ? 'Support & Live Chat'
+                          : customerTab === 'profile'
+                          ? 'Client Profile & Documents'
+                          : 'Quotation Builder & Terms'}
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsSideMenuOpen(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 text-xs font-bold transition-all cursor-pointer"
+                    >
+                      <Menu className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Side Menu</span>
+                    </button>
+
+                    {selectedServices.length > 0 && customerTab !== 'builder' && (
+                      <button
+                        onClick={() => handleNavigateTab('builder')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <FileCheck className="w-3.5 h-3.5" />
+                        <span>Basket ({selectedServices.length})</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* TAB 1: Customer Executive Dashboard */}
               {customerTab === 'dashboard' && (
@@ -1327,6 +1309,7 @@ export default function App() {
                   currentUser={currentUser}
                   projects={projects}
                   milestones={deriveMilestonesFromQuotations(quotations, customMilestones)}
+                  isMobileDeviceView={isMobileDeviceView}
                   onNavigateToMessages={() => setCustomerTab('messages')}
                 />
               )}
@@ -1567,6 +1550,7 @@ export default function App() {
               }}
               onConvertRequestToQuotation={handleConvertRequestToQuotation}
               projects={projects}
+              milestones={deriveMilestonesFromQuotations(quotations, customMilestones)}
               onCreateProject={handleCreateProject}
               onUpdateProject={handleUpdateProject}
               messages={messages}
@@ -1582,6 +1566,7 @@ export default function App() {
             />
           )}
         </main>
+        </div>
 
         {/* Floating Quotation Bar when in Catalog/Rate Card mode and items selected */}
         {currentPortal === 'customer' &&
@@ -1643,7 +1628,23 @@ export default function App() {
           <QuotationViewModal
             quotation={activeQuotationForModal}
             companyInfo={companyInfo}
-            onClose={() => setActiveQuotationForModal(null)}
+            onClose={() => {
+              setActiveQuotationForModal(null);
+              try {
+                if (typeof window !== 'undefined' && (window.location.search.includes('quote') || window.location.hash.includes('quote'))) {
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete('quote');
+                  url.searchParams.delete('quoteId');
+                  url.searchParams.delete('quotation');
+                  if (url.hash.includes('quote=')) {
+                    url.hash = '';
+                  }
+                  window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : '') + (url.hash ? url.hash : ''));
+                }
+              } catch (e) {
+                // ignore
+              }
+            }}
             onSendEmailSimulation={() => {
               handlePushNotification(
                 'Automated Email Invoice Dispatched',

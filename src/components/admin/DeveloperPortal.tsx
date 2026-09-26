@@ -39,6 +39,7 @@ import {
   PaymentStatus,
   QuotationRequest,
   Project,
+  ProjectMilestone,
   ChatMessage,
   ClientProfile
 } from '../../types';
@@ -47,6 +48,7 @@ import { ProjectsTab } from './ProjectsTab';
 import { AdminMessagesTab } from './AdminMessagesTab';
 import { CompanySettingsTab } from './CompanySettingsTab';
 import { CustomersTab } from './CustomersTab';
+import { PaymentReminderModal } from './PaymentReminderModal';
 
 interface DeveloperPortalProps {
   services: ServiceItem[];
@@ -68,6 +70,7 @@ interface DeveloperPortalProps {
   onUpdateQuotationRequestStatus?: (id: string, status: QuotationRequest['status']) => void;
   onConvertRequestToQuotation?: (req: QuotationRequest) => void;
   projects?: Project[];
+  milestones?: ProjectMilestone[];
   onCreateProject?: (project: Project) => void;
   onUpdateProject?: (project: Project) => void;
   messages?: ChatMessage[];
@@ -97,6 +100,7 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
   onUpdateQuotationRequestStatus,
   onConvertRequestToQuotation,
   projects = [],
+  milestones = [],
   onCreateProject,
   onUpdateProject,
   messages = [],
@@ -143,6 +147,9 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
   const [quoteSearch, setQuoteSearch] = useState('');
   const [quoteStatusFilter, setQuoteStatusFilter] = useState<string>('All');
   const [quotePaymentFilter, setQuotePaymentFilter] = useState<string>('All');
+
+  // WhatsApp Payment Reminder Modal
+  const [reminderQuotation, setReminderQuotation] = useState<Quotation | null>(null);
 
   // Staff Modal
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -710,6 +717,24 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                 </button>
 
                 <button
+                  onClick={() => {
+                    const firstUnpaid = quotations.find((q) => (q.paymentStatus || 'Pending') !== 'Paid');
+                    if (firstUnpaid) {
+                      setReminderQuotation(firstUnpaid);
+                    } else {
+                      setActiveTab('quotes');
+                    }
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-emerald-900/60 hover:border-emerald-500/80 hover:bg-emerald-950/30 transition-all text-emerald-300 font-semibold"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <MessageSquare className="w-4 h-4 text-emerald-400" />
+                    <span>Send WhatsApp Payment Reminder</span>
+                  </div>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+                </button>
+
+                <button
                   onClick={() => setShowAddStaffModal(true)}
                   className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900 transition-all text-slate-200"
                 >
@@ -747,6 +772,58 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
       {/* TAB 2: CLIENT QUOTATIONS & CRM */}
       {activeTab === 'quotes' && (
         <div className="space-y-4">
+          {/* Outstanding Balances Alert Banner */}
+          {(() => {
+            const outstandingList = quotations.filter((q) => (q.paymentStatus || 'Pending') !== 'Paid');
+            const totalPendingDue = outstandingList.reduce((sum, q) => {
+              const due = q.paymentStatus === 'Partial'
+                ? (q.balancePayable || Math.max(0, q.grandTotal - q.advancePayable50))
+                : q.advancePayable50;
+              return sum + due;
+            }, 0);
+
+            if (outstandingList.length === 0) return null;
+
+            return (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/70 via-slate-900 to-emerald-900/20 border border-emerald-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                    <MessageSquare className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-bold text-white text-sm">
+                        {outstandingList.length} Client{outstandingList.length > 1 ? 's' : ''} with Outstanding Balances
+                      </h4>
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        ₹{totalPendingDue.toLocaleString('en-IN', { maximumFractionDigits: 0 })} Total Due
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400">
+                      Send pre-formatted WhatsApp payment reminders with automatic direct links to official quotations & invoices.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    onClick={() => setQuotePaymentFilter(quotePaymentFilter === 'Pending' ? 'All' : 'Pending')}
+                    className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-semibold"
+                  >
+                    {quotePaymentFilter === 'Pending' ? 'Show All' : 'Filter Pending'}
+                  </button>
+                  <button
+                    onClick={() => setReminderQuotation(outstandingList[0])}
+                    className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition-all"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Send Reminder</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -906,6 +983,23 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
                       >
                         <FileText className="w-3.5 h-3.5" />
                         <span>View Invoice</span>
+                      </button>
+
+                      {/* PAYMENT REMINDER BUTTON */}
+                      <button
+                        onClick={() => setReminderQuotation(quote)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm ${
+                          (quote.paymentStatus || 'Pending') === 'Paid'
+                            ? 'bg-slate-950 hover:bg-slate-900 text-slate-400 border border-slate-800'
+                            : 'bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/80 shadow-emerald-950/40 hover:border-emerald-400 hover:text-emerald-200'
+                        }`}
+                        title="Send pre-formatted WhatsApp payment reminder with direct quotation link"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Payment Reminder</span>
+                        {(quote.paymentStatus || 'Pending') !== 'Paid' && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1183,6 +1277,113 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
             </button>
           </div>
 
+          {/* OUTSTANDING BALANCES & PAYMENT REMINDERS SECTION */}
+          {(() => {
+            const unpaidQuotes = quotations.filter((q) => (q.paymentStatus || 'Pending') !== 'Paid');
+            if (unpaidQuotes.length === 0) return null;
+
+            return (
+              <div className="bg-slate-900/80 rounded-2xl border border-emerald-500/40 overflow-hidden shadow-xl space-y-3 p-4 sm:p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                        <span>Outstanding Client Balances & WhatsApp Reminders</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          Action Required
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Clients with pending 50% advance or milestone balance. Click "Send Reminder" to trigger pre-formatted WhatsApp message with direct quotation link.
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 self-start sm:self-auto">
+                    {unpaidQuotes.length} Unpaid Quotes
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                      <tr>
+                        <th className="py-2.5 px-3">Quotation</th>
+                        <th className="py-2.5 px-3">Client & Contact</th>
+                        <th className="py-2.5 px-2">Total Value</th>
+                        <th className="py-2.5 px-2">Due Amount</th>
+                        <th className="py-2.5 px-2 text-center">Status</th>
+                        <th className="py-2.5 px-3 text-right">Payment Reminder</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {unpaidQuotes.map((q) => {
+                        const due = q.paymentStatus === 'Partial'
+                          ? (q.balancePayable || Math.max(0, q.grandTotal - q.advancePayable50))
+                          : q.advancePayable50;
+                        const dueLabel = q.paymentStatus === 'Partial' ? 'Milestone Balance' : '50% Advance Due';
+
+                        return (
+                          <tr key={q.id} className="hover:bg-slate-800/40 transition-colors">
+                            <td className="py-3 px-3">
+                              <span className="font-mono font-bold text-cyan-400 block">{q.quotationNumber}</span>
+                              <span className="text-[10px] text-slate-400">{q.date}</span>
+                            </td>
+
+                            <td className="py-3 px-3">
+                              <strong className="text-white block">{q.customer.name}</strong>
+                              <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                                <Phone className="w-3 h-3 text-emerald-400" />
+                                {q.customer.phone}
+                              </span>
+                            </td>
+
+                            <td className="py-3 px-2 font-medium text-slate-300">
+                              ₹{q.grandTotal.toLocaleString('en-IN')}
+                            </td>
+
+                            <td className="py-3 px-2">
+                              <span className="font-extrabold text-amber-400 text-sm block">
+                                ₹{due.toLocaleString('en-IN')}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-medium">{dueLabel}</span>
+                            </td>
+
+                            <td className="py-3 px-2 text-center">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                  q.paymentStatus === 'Partial'
+                                    ? 'bg-amber-950 text-amber-300 border-amber-800'
+                                    : 'bg-rose-950 text-rose-300 border-rose-800'
+                                }`}
+                              >
+                                {q.paymentStatus || 'Pending'}
+                              </span>
+                            </td>
+
+                            <td className="py-3 px-3 text-right">
+                              <button
+                                onClick={() => setReminderQuotation(q)}
+                                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition-all hover:scale-105"
+                                title="Send pre-formatted WhatsApp reminder with quotation link"
+                              >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                <span>Payment Reminder</span>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="bg-slate-900/80 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -1329,6 +1530,7 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
       {activeTab === 'projects' && (
         <ProjectsTab
           projects={projects}
+          milestones={milestones}
           onCreateProject={onCreateProject || (() => {})}
           onUpdateProject={onUpdateProject || (() => {})}
         />
@@ -1350,6 +1552,9 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
           projects={projects}
           onSelectCustomerToMessage={() => {
             setActiveTab('messages');
+          }}
+          onOpenPaymentReminder={(quote) => {
+            setReminderQuotation(quote);
           }}
         />
       )}
@@ -1786,6 +1991,21 @@ export const DeveloperPortal: React.FC<DeveloperPortalProps> = ({
           </div>
         </div>
       )}
+
+      {/* MODAL: WhatsApp Payment Reminder */}
+      <PaymentReminderModal
+        isOpen={!!reminderQuotation}
+        quotation={reminderQuotation}
+        companyInfo={companyInfo}
+        onClose={() => setReminderQuotation(null)}
+        onSentReminder={(quoteId, reminderType) => {
+          onBroadcastPush?.(
+            'WhatsApp Payment Reminder Dispatched',
+            `Payment reminder (${reminderType}) sent for quote #${reminderQuotation?.quotationNumber} to ${reminderQuotation?.customer.name}.`,
+            'payment'
+          );
+        }}
+      />
     </div>
   );
 };

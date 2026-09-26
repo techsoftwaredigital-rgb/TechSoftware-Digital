@@ -66,8 +66,12 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // Client Profiles
+    // Client Profiles & Clients
     match /clientProfiles/{profileId} {
+      allow read, write: if true;
+    }
+
+    match /clients/{clientId} {
       allow read, write: if true;
     }
 

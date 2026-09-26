@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Layers,
   Clock,
@@ -8,14 +8,22 @@ import {
   Activity,
   ArrowRight,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Sparkles,
+  RotateCcw,
+  Smartphone,
+  BarChart3
 } from 'lucide-react';
 import { Project, ProjectMilestone, UserAccount } from '../../types';
+import { ProjectWeeklySummaryModal } from '../common/ProjectWeeklySummaryModal';
+import { SwipeableProjectCard } from './SwipeableProjectCard';
+import { ProjectGanttChart } from './ProjectGanttChart';
 
 interface CustomerProjectsViewProps {
   currentUser?: UserAccount | null;
   projects: Project[];
   milestones: ProjectMilestone[];
+  isMobileDeviceView?: boolean;
   onNavigateToMessages: () => void;
 }
 
@@ -32,8 +40,16 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
   currentUser,
   projects,
   milestones,
+  isMobileDeviceView = false,
   onNavigateToMessages
 }) => {
+  const [selectedProjectForSummary, setSelectedProjectForSummary] = useState<Project | null>(null);
+  const [showGlobalGantt, setShowGlobalGantt] = useState(false);
+
+  // Track dismissed projects locally during the session (swipe-to-dismiss)
+  const [dismissedProjectIds, setDismissedProjectIds] = useState<string[]>([]);
+  const [lastDismissedProject, setLastDismissedProject] = useState<{ id: string; title: string } | null>(null);
+
   // Filter for user
   const userProjects = projects.filter((p) => {
     if (!currentUser) return true;
@@ -43,6 +59,26 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
       p.customerName.toLowerCase().includes(currentUser.displayName.toLowerCase())
     );
   });
+
+  // Visible projects (excluding dismissed ones)
+  const visibleProjects = userProjects.filter((p) => !dismissedProjectIds.includes(p.id));
+
+  const handleDismissProject = (projectId: string, projectTitle: string) => {
+    setDismissedProjectIds((prev) => [...prev, projectId]);
+    setLastDismissedProject({ id: projectId, title: projectTitle });
+  };
+
+  const handleUndoDismiss = () => {
+    if (lastDismissedProject) {
+      setDismissedProjectIds((prev) => prev.filter((id) => id !== lastDismissedProject.id));
+      setLastDismissedProject(null);
+    }
+  };
+
+  const handleResetDismissed = () => {
+    setDismissedProjectIds([]);
+    setLastDismissedProject(null);
+  };
 
   const getStatusBadge = (status: Project['status']) => {
     switch (status) {
@@ -89,17 +125,46 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Banner */}
-      <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-700/50 text-cyan-300 text-xs font-semibold">
-          <Layers className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Live Project Health & Milestones</span>
+      <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-700/50 text-cyan-300 text-xs font-semibold">
+              <Layers className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Live Project Health & Milestones</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white">
+              Active Development Projects
+            </h1>
+            <p className="text-xs text-slate-300">
+              Track sprint stages, milestone completions, delivery schedules, and live staging URLs.
+            </p>
+          </div>
+
+          {userProjects.length > 0 && (
+            <button
+              onClick={() => setShowGlobalGantt(!showGlobalGantt)}
+              className={`self-start sm:self-auto px-4 py-2.5 rounded-xl border text-xs font-black flex items-center gap-2 transition-all shadow-sm ${
+                showGlobalGantt
+                  ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-lg shadow-cyan-500/25'
+                  : 'bg-slate-950 hover:bg-slate-800 text-cyan-400 border-cyan-500/30'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>{showGlobalGantt ? 'Hide Gantt Timeline' : 'View Gantt Timeline Chart'}</span>
+            </button>
+          )}
         </div>
-        <h1 className="text-xl sm:text-2xl font-black text-white">
-          Active Development Projects
-        </h1>
-        <p className="text-xs text-slate-300">
-          Track sprint stages, milestone completions, delivery schedules, and live staging URLs.
-        </p>
+
+        {/* Global Gantt Chart Section when toggled from header */}
+        {showGlobalGantt && userProjects.length > 0 && (
+          <div className="pt-2 border-t border-slate-800/80 animate-in fade-in slide-in-from-top-2 duration-200">
+            <ProjectGanttChart
+              project={userProjects[0]}
+              milestones={milestones}
+              isMobileDeviceView={isMobileDeviceView}
+            />
+          </div>
+        )}
       </div>
 
       {userProjects.length === 0 ? (
@@ -117,154 +182,93 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
           </button>
         </div>
       ) : (
-        <div className="space-y-6">
-          {userProjects.map((project) => {
-            const projectMilestones = milestones.filter(
-              (m) => m.quotationId === project.quotationId || m.projectName === project.title
-            );
-
-            return (
-              <div
-                key={project.id}
-                className="p-6 sm:p-7 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6"
-              >
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                  <div>
-                    <div className="flex items-center gap-2.5">
-                      <h2 className="text-lg sm:text-xl font-black text-white">
-                        {project.title}
-                      </h2>
-                      {getStatusBadge(project.status)}
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {project.description || 'Full-Stack Software Architecture & Implementation'}
-                    </p>
-                  </div>
-
-                  <div className="sm:text-right shrink-0">
-                    <span className="text-[11px] text-slate-400 block">Project Investment:</span>
-                    <span className="text-lg font-black text-cyan-400">
-                      ₹{project.amount.toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-[11px] text-slate-400 block">
-                      Target Completion: {project.expectedCompletionDate || '4 Weeks'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Stage Progression Bar */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
-                      Overall Delivery Progress:
-                    </span>
-                    <span className="font-extrabold text-cyan-400 font-mono">
-                      {project.progressPercent}%
-                    </span>
-                  </div>
-
-                  <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800 p-0.5">
-                    <div
-                      className="bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-400 h-full rounded-full transition-all duration-500 shadow-md shadow-cyan-500/20"
-                      style={{ width: `${project.progressPercent}%` }}
-                    />
-                  </div>
-
-                  {/* Stage checkpoints */}
-                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 pt-2">
-                    {STAGE_ORDER.map((stage, idx) => {
-                      const currentStageIdx = STAGE_ORDER.indexOf(project.status);
-                      const isPast = idx < currentStageIdx;
-                      const isCurrent = idx === currentStageIdx;
-
-                      return (
-                        <div
-                          key={stage}
-                          className={`p-2 rounded-xl border text-center text-[10px] font-bold ${
-                            isCurrent
-                              ? 'bg-cyan-950/80 border-cyan-500 text-cyan-300 shadow-sm'
-                              : isPast
-                              ? 'bg-slate-950/80 border-emerald-900/60 text-emerald-400'
-                              : 'bg-slate-950/40 border-slate-800 text-slate-600'
-                          }`}
-                        >
-                          <div className="flex items-center justify-center gap-1 mb-0.5">
-                            {isPast ? (
-                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                            ) : (
-                              <span>Step {idx + 1}</span>
-                            )}
-                          </div>
-                          <span>{stage}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Milestones Checklist */}
-                {projectMilestones.length > 0 && (
-                  <div className="space-y-2.5 pt-2">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                      Project Milestones & Deliverables ({projectMilestones.length})
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {projectMilestones.map((m) => (
-                        <div
-                          key={m.id}
-                          className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-1.5 text-xs"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold text-white truncate">{m.title}</span>
-                            <span
-                              className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                                m.status === 'completed'
-                                  ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                                  : m.status === 'in_progress'
-                                  ? 'bg-cyan-950 text-cyan-400 border border-cyan-800'
-                                  : 'bg-slate-900 text-slate-400 border border-slate-800'
-                              }`}
-                            >
-                              {m.status.replace('_', ' ').toUpperCase()}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-400">{m.description}</p>
-                          <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-900">
-                            <span>Target: {m.targetDate}</span>
-                            {m.deliverables && (
-                              <span>{m.deliverables.length} Deliverables</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+        <div className="space-y-4">
+          {/* Mobile swipe gesture guide banner & Reset banner */}
+          <div className="flex items-center justify-between gap-3 px-1 text-xs">
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
+              <span>
+                {isMobileDeviceView ? (
+                  <span><strong>Mobile Mode:</strong> Swipe cards left or right to dismiss</span>
+                ) : (
+                  <span>Touch-ready: Supports swipe gestures on mobile screens</span>
                 )}
+              </span>
+            </div>
 
-                {/* Footer notes & quick actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs">
-                  {project.notes ? (
-                    <p className="text-slate-400 italic">
-                      <strong>Architect Note:</strong> {project.notes}
-                    </p>
-                  ) : (
-                    <span className="text-slate-500">Staging branch deployed to Firebase Hosting preview.</span>
-                  )}
+            {dismissedProjectIds.length > 0 && (
+              <button
+                onClick={handleResetDismissed}
+                className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-bold text-xs transition-colors"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Restore All ({dismissedProjectIds.length})</span>
+              </button>
+            )}
+          </div>
 
-                  <button
-                    onClick={onNavigateToMessages}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-all self-start sm:self-auto"
-                  >
-                    <span>Message Assigned Developer</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+          {/* Last Dismissed Undo Toast */}
+          {lastDismissedProject && (
+            <div className="p-3.5 rounded-2xl bg-slate-900/95 border border-cyan-500/40 shadow-xl flex items-center justify-between gap-3 text-xs animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center gap-2 truncate">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0" />
+                <span className="text-slate-300 truncate">
+                  Dismissed: <strong className="text-white font-medium">{lastDismissedProject.title}</strong>
+                </span>
               </div>
-            );
-          })}
+              <button
+                onClick={handleUndoDismiss}
+                className="px-3 py-1 rounded-xl bg-cyan-500 text-slate-950 font-bold hover:bg-cyan-400 transition-colors shrink-0 flex items-center gap-1"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Undo</span>
+              </button>
+            </div>
+          )}
+
+          {/* If all visible projects are dismissed */}
+          {visibleProjects.length === 0 && dismissedProjectIds.length > 0 ? (
+            <div className="p-10 text-center rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+              <RotateCcw className="w-8 h-8 text-cyan-400 mx-auto animate-spin-slow" />
+              <h3 className="text-base font-bold text-slate-200">All Live Project Cards Dismissed</h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                You have swiped away all project cards in this mobile session. Tap below to restore them to view.
+              </p>
+              <button
+                onClick={handleResetDismissed}
+                className="mt-1 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-lg shadow-cyan-500/20"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Restore All {userProjects.length} Projects</span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {visibleProjects.map((project) => (
+                <SwipeableProjectCard
+                  key={project.id}
+                  project={project}
+                  milestones={milestones}
+                  isMobileDeviceView={isMobileDeviceView}
+                  onDismiss={handleDismissProject}
+                  onOpenSummary={(p) => setSelectedProjectForSummary(p)}
+                  onNavigateToMessages={onNavigateToMessages}
+                  getStatusBadge={getStatusBadge}
+                  STAGE_ORDER={STAGE_ORDER}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
+
+      {/* Weekly Project Summary Modal Powered by Gemini 3.8 Flash */}
+      <ProjectWeeklySummaryModal
+        isOpen={!!selectedProjectForSummary}
+        project={selectedProjectForSummary}
+        milestones={milestones}
+        onClose={() => setSelectedProjectForSummary(null)}
+      />
     </div>
   );
 };

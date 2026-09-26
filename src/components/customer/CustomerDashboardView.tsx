@@ -149,8 +149,9 @@ export const CustomerDashboardView: React.FC<CustomerDashboardViewProps> = ({
             <Layers className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-2xl font-black text-white">{activeProjects.length}</div>
-          <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
-            <span>Sprint tracking</span>
+          <span className="text-[10px] text-cyan-400 font-medium flex items-center gap-1 mt-1">
+            <Sparkles className="w-3 h-3 text-cyan-400" />
+            <span>Weekly AI Status Brief</span>
             <ArrowRight className="w-2.5 h-2.5" />
           </span>
         </div>

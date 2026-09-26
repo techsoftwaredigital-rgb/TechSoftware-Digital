@@ -254,11 +254,13 @@ export const QuotationBuilder: React.FC<QuotationBuilderProps> = ({
       />
 
       {/* Interactive AMC Calculator Component */}
-      <AmcCalculator
-        selectedTier={amcPlanDetails?.tier || 'silver'}
-        onTierChange={(details) => setAmcPlanDetails(details)}
-        devSubtotalTaxable={devTaxable}
-      />
+      <div id="amc-calculator-container">
+        <AmcCalculator
+          selectedTier={amcPlanDetails?.tier || 'silver'}
+          onTierChange={(details) => setAmcPlanDetails(details)}
+          devSubtotalTaxable={devTaxable}
+        />
+      </div>
 
       {/* Comprehensive Pricing Summary & Advance Breakdown Box */}
       <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-xl space-y-3">
@@ -536,7 +538,7 @@ export const QuotationBuilder: React.FC<QuotationBuilderProps> = ({
         </div>
 
         {/* Mandatory Terms & Conditions Banner */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+        <div id="commercial-terms-box" className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 space-y-1">
           <p className="font-bold text-slate-300 flex items-center gap-1.5">
             <AlertCircle className="w-3.5 h-3.5 text-cyan-400" />
             <span>TechSoftware.digital Commercial & Payment Terms:</span>
