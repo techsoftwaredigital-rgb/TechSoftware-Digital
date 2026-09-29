@@ -85,37 +85,37 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
       case 'Live':
       case 'Completed':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-bold">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             <span>{status}</span>
           </span>
         );
       case 'Development':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-xs font-bold animate-pulse">
-            <Activity className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 text-xs font-bold animate-pulse">
+            <Activity className="w-3.5 h-3.5 text-cyan-600" />
             <span>Active Sprint in Progress</span>
           </span>
         );
       case 'Testing':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 text-xs font-bold">
-            <Clock className="w-3.5 h-3.5 text-indigo-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
+            <Clock className="w-3.5 h-3.5 text-indigo-600" />
             <span>QA & Security Testing</span>
           </span>
         );
       case 'On Hold':
       case 'Cancelled':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-950 text-red-300 border border-red-800 text-xs font-bold">
-            <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold">
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
             <span>{status}</span>
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-950 text-amber-300 border border-amber-800 text-xs font-bold">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold">
+            <Clock className="w-3.5 h-3.5 text-amber-600" />
             <span>{status}</span>
           </span>
         );
@@ -125,17 +125,17 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Banner */}
-      <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-4">
+      <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-700/50 text-cyan-300 text-xs font-semibold">
-              <Layers className="w-3.5 h-3.5 text-cyan-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-semibold">
+              <Layers className="w-3.5 h-3.5 text-cyan-600" />
               <span>Live Project Health & Milestones</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900">
               Active Development Projects
             </h1>
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-slate-500">
               Track sprint stages, milestone completions, delivery schedules, and live staging URLs.
             </p>
           </div>
@@ -143,13 +143,13 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
           {userProjects.length > 0 && (
             <button
               onClick={() => setShowGlobalGantt(!showGlobalGantt)}
-              className={`self-start sm:self-auto px-4 py-2.5 rounded-xl border text-xs font-black flex items-center gap-2 transition-all shadow-sm ${
+              className={`self-start sm:self-auto px-4 py-2.5 rounded-xl border text-xs font-black flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
                 showGlobalGantt
-                  ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-lg shadow-cyan-500/25'
-                  : 'bg-slate-950 hover:bg-slate-800 text-cyan-400 border-cyan-500/30'
+                  ? 'bg-cyan-600 text-white border-cyan-600'
+                  : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
               }`}
             >
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-4 h-4 text-cyan-600" />
               <span>{showGlobalGantt ? 'Hide Gantt Timeline' : 'View Gantt Timeline Chart'}</span>
             </button>
           )}
@@ -157,7 +157,7 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
 
         {/* Global Gantt Chart Section when toggled from header */}
         {showGlobalGantt && userProjects.length > 0 && (
-          <div className="pt-2 border-t border-slate-800/80 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="pt-2 border-t border-slate-200 animate-in fade-in slide-in-from-top-2 duration-200">
             <ProjectGanttChart
               project={userProjects[0]}
               milestones={milestones}
@@ -168,15 +168,15 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
       </div>
 
       {userProjects.length === 0 ? (
-        <div className="p-12 text-center rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-          <Layers className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-base font-bold text-slate-300">No Active Projects Yet</h3>
+        <div className="p-12 text-center rounded-3xl bg-white border border-slate-200 space-y-3 shadow-xs">
+          <Layers className="w-10 h-10 text-slate-400 mx-auto" />
+          <h3 className="text-base font-bold text-slate-800">No Active Projects Yet</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             Once you accept a quotation and kickoff advance is received, our developer team initializes your active project dashboard.
           </p>
           <button
             onClick={onNavigateToMessages}
-            className="mt-2 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all"
+            className="mt-2 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             Connect with Lead Developer
           </button>
@@ -185,8 +185,8 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
         <div className="space-y-4">
           {/* Mobile swipe gesture guide banner & Reset banner */}
           <div className="flex items-center justify-between gap-3 px-1 text-xs">
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
+            <div className="flex items-center gap-1.5 text-slate-500">
+              <Smartphone className="w-3.5 h-3.5 text-cyan-600" />
               <span>
                 {isMobileDeviceView ? (
                   <span><strong>Mobile Mode:</strong> Swipe cards left or right to dismiss</span>
@@ -199,7 +199,7 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
             {dismissedProjectIds.length > 0 && (
               <button
                 onClick={handleResetDismissed}
-                className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-bold text-xs transition-colors"
+                className="text-cyan-700 hover:text-cyan-800 flex items-center gap-1 font-bold text-xs transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Restore All ({dismissedProjectIds.length})</span>
@@ -209,16 +209,16 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
 
           {/* Last Dismissed Undo Toast */}
           {lastDismissedProject && (
-            <div className="p-3.5 rounded-2xl bg-slate-900/95 border border-cyan-500/40 shadow-xl flex items-center justify-between gap-3 text-xs animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between gap-3 text-xs animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-center gap-2 truncate">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0" />
-                <span className="text-slate-300 truncate">
-                  Dismissed: <strong className="text-white font-medium">{lastDismissedProject.title}</strong>
+                <span className="w-2 h-2 rounded-full bg-cyan-500 shrink-0" />
+                <span className="text-slate-600 truncate">
+                  Dismissed: <strong className="text-slate-900 font-medium">{lastDismissedProject.title}</strong>
                 </span>
               </div>
               <button
                 onClick={handleUndoDismiss}
-                className="px-3 py-1 rounded-xl bg-cyan-500 text-slate-950 font-bold hover:bg-cyan-400 transition-colors shrink-0 flex items-center gap-1"
+                className="px-3 py-1 rounded-xl bg-cyan-600 text-white font-bold hover:bg-cyan-700 transition-colors shrink-0 flex items-center gap-1 shadow-xs cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Undo</span>
@@ -228,15 +228,15 @@ export const CustomerProjectsView: React.FC<CustomerProjectsViewProps> = ({
 
           {/* If all visible projects are dismissed */}
           {visibleProjects.length === 0 && dismissedProjectIds.length > 0 ? (
-            <div className="p-10 text-center rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-              <RotateCcw className="w-8 h-8 text-cyan-400 mx-auto animate-spin-slow" />
-              <h3 className="text-base font-bold text-slate-200">All Live Project Cards Dismissed</h3>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            <div className="p-10 text-center rounded-3xl bg-white border border-slate-200 space-y-3 shadow-xs">
+              <RotateCcw className="w-8 h-8 text-cyan-600 mx-auto" />
+              <h3 className="text-base font-bold text-slate-900">All Live Project Cards Dismissed</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 You have swiped away all project cards in this mobile session. Tap below to restore them to view.
               </p>
               <button
                 onClick={handleResetDismissed}
-                className="mt-1 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-lg shadow-cyan-500/20"
+                className="mt-1 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Restore All {userProjects.length} Projects</span>

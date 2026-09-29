@@ -209,25 +209,25 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
   };
 
   return (
-    <div className="print-modal-container fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
-      <div className={`print-modal-card relative w-full max-w-4xl bg-white text-slate-900 rounded-2xl shadow-2xl overflow-hidden my-6 border ${
+    <div className="print-modal-container fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
+      <div className={`print-modal-card relative w-full max-w-4xl bg-white text-slate-900 rounded-2xl shadow-xl overflow-hidden my-6 border ${
         isPrintFriendly ? 'border-slate-300' : 'border-slate-200'
       }`}>
         
         {/* Top Control Bar (Hidden when printing) */}
-        <div className="no-print bg-slate-900 text-white p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
+        <div className="no-print bg-slate-50 text-slate-800 p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-bold text-xs sm:text-sm text-slate-100">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-bold text-xs sm:text-sm text-slate-900">
               Official Quotation Preview: {quotation.quotationNumber}
             </span>
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border ${
                 (quotation.paymentStatus || 'Pending') === 'Paid'
-                  ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                   : (quotation.paymentStatus || 'Pending') === 'Partial'
-                  ? 'bg-amber-950 text-amber-300 border-amber-600'
-                  : 'bg-rose-950 text-rose-300 border-rose-600'
+                  ? 'bg-amber-50 text-amber-700 border-amber-300'
+                  : 'bg-rose-50 text-rose-700 border-rose-300'
               }`}
             >
               Payment: {quotation.paymentStatus || 'Pending'}
@@ -236,35 +236,35 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
 
           <div className="flex items-center gap-2 flex-wrap">
             {/* Print-Friendly Minimalist Toggle */}
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 select-none">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs select-none">
               <button
                 type="button"
                 id="print-friendly-toggle"
                 onClick={() => setIsPrintFriendly(!isPrintFriendly)}
-                className="flex items-center gap-2 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
                 title="Toggle minimalist high-contrast print design without background patterns"
               >
                 <div
                   className={`relative inline-flex h-4.5 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                    isPrintFriendly ? 'bg-cyan-500' : 'bg-slate-600'
+                    isPrintFriendly ? 'bg-cyan-600' : 'bg-slate-300'
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
                       isPrintFriendly ? 'translate-x-3.5' : 'translate-x-0'
                     }`}
                   />
                 </div>
-                <span className="flex items-center gap-1 text-[11px] sm:text-xs">
-                  <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="flex items-center gap-1 text-[11px] sm:text-xs text-slate-700">
+                  <FileText className="w-3.5 h-3.5 text-cyan-600" />
                   <span>Print-Friendly</span>
                 </span>
               </button>
               <span
                 className={`text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider transition-all ${
                   isPrintFriendly
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'bg-slate-700/60 text-slate-400'
+                    ? 'bg-cyan-50 text-cyan-800 border border-cyan-200'
+                    : 'bg-slate-100 text-slate-500'
                 }`}
               >
                 {isPrintFriendly ? 'Minimalist' : 'Standard'}
@@ -276,7 +276,7 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
               onClick={handleDownloadPDF}
               disabled={isGeneratingPdf}
               id="download-pdf-button"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 disabled:opacity-75 text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 disabled:opacity-75 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
               title="One-click PDF download formatted consistently with official print specifications"
             >
               {isGeneratingPdf ? (
@@ -300,16 +300,16 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
             <button
               onClick={handlePrint}
               id="print-pdf-button"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold transition-colors border border-slate-700 shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-xs font-semibold transition-colors border border-slate-200 shadow-2xs cursor-pointer"
               title="Open browser print dialog / Save as PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-cyan-400" />
+              <Printer className="w-3.5 h-3.5 text-cyan-600" />
               <span>Print Dialog</span>
             </button>
 
             <button
               onClick={handleShareWhatsApp}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors shadow-xs cursor-pointer"
             >
               <MessageCircle className="w-3.5 h-3.5 fill-white" />
               <span className="hidden sm:inline">WhatsApp</span>
@@ -318,9 +318,9 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
             <button
               onClick={handleSendEmail}
               disabled={emailStatus === 'sending' || emailStatus === 'sent'}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:bg-slate-700 text-white text-xs font-semibold transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
             >
-              <Mail className="w-3.5 h-3.5" />
+              <Mail className="w-3.5 h-3.5 text-cyan-600" />
               <span>
                 {emailStatus === 'sending'
                   ? 'Dispatching...'
@@ -332,7 +332,7 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
 
             <button
               onClick={handleCopySummary}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-medium shadow-2xs cursor-pointer"
               title="Copy summary to clipboard"
             >
               <Share2 className="w-3.5 h-3.5" />
@@ -341,7 +341,7 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               title="Close modal"
             >
               <X className="w-4 h-4" />
@@ -402,7 +402,7 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
                 <div className={`flex items-center justify-center p-1 ${
                   isPrintFriendly
                     ? 'w-12 h-12 rounded-lg border-2 border-slate-900 bg-white shadow-none'
-                    : 'w-14 h-14 rounded-full bg-slate-950 shadow'
+                    : 'w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs'
                 }`}>
                   <Logo size="sm" showText={false} />
                 </div>
@@ -505,14 +505,14 @@ export const QuotationViewModal: React.FC<QuotationViewModalProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border border-slate-300">
               <thead>
-                <tr className={isPrintFriendly ? 'bg-slate-100 text-slate-900 font-bold border-y-2 border-slate-900' : 'bg-slate-900 text-white font-bold'}>
-                  <th className={`py-2.5 px-3 border ${isPrintFriendly ? 'border-slate-300' : 'border-slate-800'}`}>#</th>
-                  <th className={`py-2.5 px-3 border ${isPrintFriendly ? 'border-slate-300' : 'border-slate-800'}`}>Service / Module Description</th>
-                  <th className={`py-2.5 px-2 text-right border ${isPrintFriendly ? 'border-slate-300' : 'border-slate-800'}`}>Rate (₹)</th>
-                  <th className={`py-2.5 px-2 text-center border ${isPrintFriendly ? 'border-slate-300' : 'border-slate-800'}`}>Qty</th>
-                  <th className={`py-2.5 px-2 text-right border ${isPrintFriendly ? 'border-slate-300' : 'border-slate-800'}`}>Taxable (₹)</th>
-                  <th className={`py-2.5 px-2 text-right border ${isPrintFriendly ? 'border-slate-300' : 'border-slate-800'}`}>GST (18%)</th>
-                  <th className={`py-2.5 px-3 text-right border ${isPrintFriendly ? 'border-slate-300' : 'border-slate-800'}`}>Total (₹)</th>
+                <tr className="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
+                  <th className="py-2.5 px-3 border border-slate-300">#</th>
+                  <th className="py-2.5 px-3 border border-slate-300">Service / Module Description</th>
+                  <th className="py-2.5 px-2 text-right border border-slate-300">Rate (₹)</th>
+                  <th className="py-2.5 px-2 text-center border border-slate-300">Qty</th>
+                  <th className="py-2.5 px-2 text-right border border-slate-300">Taxable (₹)</th>
+                  <th className="py-2.5 px-2 text-right border border-slate-300">GST (18%)</th>
+                  <th className="py-2.5 px-3 text-right border border-slate-300">Total (₹)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">

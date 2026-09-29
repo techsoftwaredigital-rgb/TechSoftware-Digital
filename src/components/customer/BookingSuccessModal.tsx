@@ -40,70 +40,68 @@ export const BookingSuccessModal: React.FC<BookingSuccessModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-cyan-500/50 rounded-2xl p-6 text-white shadow-2xl shadow-cyan-500/20 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs">
+      <div className="relative w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 text-slate-800 shadow-xl overflow-hidden">
         
-        {/* Glowing background halo */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        {/* Soft background tint */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-50 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-50 rounded-full blur-3xl pointer-events-none" />
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-400 p-0.5 mx-auto shadow-lg shadow-emerald-500/30">
-            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-emerald-400" />
-            </div>
+          <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 p-0.5 mx-auto shadow-xs flex items-center justify-center">
+            <CheckCircle className="w-8 h-8 text-emerald-600" />
           </div>
 
-          <h3 className="text-xl font-black text-white tracking-tight">
+          <h3 className="text-xl font-black text-slate-900 tracking-tight">
             Quotation & Booking Created!
           </h3>
-          <p className="text-xs text-slate-300 max-w-xs mx-auto">
+          <p className="text-xs text-slate-500 max-w-xs mx-auto">
             Reference Number:{' '}
-            <span className="font-mono font-bold text-cyan-400">
+            <span className="font-mono font-bold text-cyan-700">
               {quotation.quotationNumber}
             </span>
           </p>
         </div>
 
         {/* Automated Dispatch Indicators */}
-        <div className="my-5 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2.5 text-xs">
-          <div className="flex items-center gap-2.5 text-emerald-400 font-semibold">
-            <Mail className="w-4 h-4 shrink-0" />
+        <div className="my-5 p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5 text-xs text-slate-700">
+          <div className="flex items-center gap-2.5 text-emerald-700 font-semibold">
+            <Mail className="w-4 h-4 shrink-0 text-emerald-600" />
             <span>Automated Email Invoice sent to:</span>
-            <span className="text-slate-200 font-normal truncate">{quotation.customer.email}</span>
+            <span className="text-slate-800 font-normal truncate">{quotation.customer.email}</span>
           </div>
 
-          <div className="flex items-center gap-2.5 text-cyan-400 font-semibold">
-            <MessageCircle className="w-4 h-4 shrink-0" />
+          <div className="flex items-center gap-2.5 text-cyan-800 font-semibold">
+            <MessageCircle className="w-4 h-4 shrink-0 text-cyan-600" />
             <span>WhatsApp Dispatch Trigger:</span>
-            <span className="text-slate-200 font-normal truncate">{quotation.customer.phone}</span>
+            <span className="text-slate-800 font-normal truncate">{quotation.customer.phone}</span>
           </div>
 
-          <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+          <div className="pt-2 border-t border-slate-200 space-y-1.5">
             {quotation.amcDetails && quotation.amcDetails.tier !== 'none' && (
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">AMC Plan Tier:</span>
-                <span className="font-semibold text-cyan-300">
+                <span className="text-slate-500">AMC Plan Tier:</span>
+                <span className="font-semibold text-cyan-700">
                   {quotation.amcDetails.tierName} {quotation.amcDetails.isAppendedToTotal ? '(Appended)' : '(Separate)'}
                 </span>
               </div>
             )}
             <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400">Quotation Grand Total:</span>
-              <span className="font-bold text-white">
+              <span className="text-slate-500">Quotation Grand Total:</span>
+              <span className="font-bold text-slate-900">
                 ₹{quotation.grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
             </div>
-            <div className="flex justify-between items-baseline pt-1 border-t border-slate-800/60">
-              <span className="text-slate-400 font-medium">50% Advance Required:</span>
-              <span className="text-sm font-black text-amber-400">
+            <div className="flex justify-between items-baseline pt-1 border-t border-slate-200">
+              <span className="text-slate-500 font-medium">50% Advance Required:</span>
+              <span className="text-sm font-black text-amber-700">
                 ₹{quotation.advancePayable50.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -111,12 +109,12 @@ export const BookingSuccessModal: React.FC<BookingSuccessModalProps> = ({
         </div>
 
         {/* Remittance & Non-Refundable Notice */}
-        <div className="mb-5 p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-200/90 space-y-1">
-          <div className="flex items-center gap-1.5 font-bold text-amber-300">
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
+        <div className="mb-5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 space-y-1">
+          <div className="flex items-center gap-1.5 font-bold text-amber-800">
+            <ShieldCheck className="w-4 h-4 text-amber-600" />
             <span>Commercial Policy Acknowledged:</span>
           </div>
-          <p className="text-slate-300 text-[11px] leading-relaxed">
+          <p className="text-slate-600 text-[11px] leading-relaxed">
             • 50% advance payment required to initiate architecture & repository sprint.<br />
             • All amounts paid are strictly non-refundable.<br />
             • AMC charges are billed separately per selected support plan.
@@ -127,7 +125,7 @@ export const BookingSuccessModal: React.FC<BookingSuccessModalProps> = ({
         <div className="space-y-2.5">
           <button
             onClick={handleOpenWhatsApp}
-            className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all"
+            className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <MessageCircle className="w-4 h-4 fill-white" />
             <span>Connect on WhatsApp (+91 8169401877)</span>
@@ -137,15 +135,15 @@ export const BookingSuccessModal: React.FC<BookingSuccessModalProps> = ({
           <div className="flex gap-2">
             <button
               onClick={onViewQuotation}
-              className="flex-1 py-2.5 px-4 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
+              className="flex-1 py-2.5 px-4 rounded-xl font-semibold text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-4 h-4 text-cyan-600" />
               <span>View / Print PDF Quotation</span>
             </button>
 
             <button
               onClick={onClose}
-              className="py-2.5 px-4 rounded-xl font-medium text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+              className="py-2.5 px-4 rounded-xl font-medium text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
             >
               Done
             </button>
@@ -158,9 +156,9 @@ export const BookingSuccessModal: React.FC<BookingSuccessModalProps> = ({
                 onClose();
                 onViewClientProfile();
               }}
-              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-800 text-cyan-300 flex items-center justify-center gap-1.5 transition-colors"
+              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 text-cyan-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
-              <FolderArchive className="w-3.5 h-3.5 text-cyan-400" />
+              <FolderArchive className="w-3.5 h-3.5 text-cyan-600" />
               <span>Track in Client Profile (Previous Quotes & Files)</span>
             </button>
           )}

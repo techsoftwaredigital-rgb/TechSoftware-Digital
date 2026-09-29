@@ -51,45 +51,45 @@ export const MilestoneProgressBar: React.FC<MilestoneProgressBarProps> = ({
   );
 
   // Status-driven styling variables
-  let barGradient = 'from-cyan-500 via-sky-400 to-blue-500';
-  let barGlow = 'shadow-cyan-500/20';
-  let badgeBorder = 'border-cyan-800/80';
-  let badgeBg = 'bg-cyan-950/80';
-  let badgeText = 'text-cyan-300';
+  let barGradient = 'from-cyan-600 via-sky-500 to-blue-600';
+  let barGlow = 'shadow-xs';
+  let badgeBorder = 'border-cyan-200';
+  let badgeBg = 'bg-cyan-50';
+  let badgeText = 'text-cyan-700';
   let statusText = 'In Progress';
-  let statusIcon = <Clock className="w-3 h-3 text-cyan-400 animate-spin-slow" />;
+  let statusIcon = <Clock className="w-3 h-3 text-cyan-600 animate-spin-slow" />;
 
   if (status === 'completed' || clampedProgress >= 100) {
-    barGradient = 'from-emerald-500 via-teal-400 to-emerald-400';
-    barGlow = 'shadow-emerald-500/30';
-    badgeBorder = 'border-emerald-800/80';
-    badgeBg = 'bg-emerald-950/80';
-    badgeText = 'text-emerald-300';
+    barGradient = 'from-emerald-600 via-teal-500 to-emerald-500';
+    barGlow = 'shadow-xs';
+    badgeBorder = 'border-emerald-200';
+    badgeBg = 'bg-emerald-50';
+    badgeText = 'text-emerald-700';
     statusText = 'Completed';
-    statusIcon = <CheckCircle2 className="w-3 h-3 text-emerald-400" />;
+    statusIcon = <CheckCircle2 className="w-3 h-3 text-emerald-600" />;
   } else if (status === 'delayed') {
     barGradient = 'from-rose-500 via-amber-500 to-rose-600';
-    barGlow = 'shadow-rose-500/30';
-    badgeBorder = 'border-rose-800/80';
-    badgeBg = 'bg-rose-950/80';
-    badgeText = 'text-rose-300';
+    barGlow = 'shadow-xs';
+    badgeBorder = 'border-rose-200';
+    badgeBg = 'bg-rose-50';
+    badgeText = 'text-rose-700';
     statusText = 'Delayed / Slippage';
-    statusIcon = <AlertTriangle className="w-3 h-3 text-rose-400 animate-pulse" />;
+    statusIcon = <AlertTriangle className="w-3 h-3 text-rose-600 animate-pulse" />;
   } else if (status === 'in_progress' || clampedProgress > 0) {
-    barGradient = 'from-cyan-500 via-sky-400 to-blue-500';
-    barGlow = 'shadow-cyan-500/25';
-    badgeBorder = 'border-cyan-800/80';
-    badgeBg = 'bg-cyan-950/80';
-    badgeText = 'text-cyan-300';
+    barGradient = 'from-cyan-600 via-sky-500 to-blue-600';
+    barGlow = 'shadow-xs';
+    badgeBorder = 'border-cyan-200';
+    badgeBg = 'bg-cyan-50';
+    badgeText = 'text-cyan-700';
     statusText = clampedProgress > 0 ? `In Progress (${clampedProgress}%)` : 'In Progress';
-    statusIcon = <Clock className="w-3 h-3 text-cyan-400" />;
+    statusIcon = <Clock className="w-3 h-3 text-cyan-600" />;
   } else {
     // upcoming / 0%
-    barGradient = 'from-slate-600 to-slate-500';
+    barGradient = 'from-slate-400 to-slate-300';
     barGlow = 'shadow-none';
-    badgeBorder = 'border-slate-800';
-    badgeBg = 'bg-slate-950';
-    badgeText = 'text-slate-400';
+    badgeBorder = 'border-slate-200';
+    badgeBg = 'bg-slate-100';
+    badgeText = 'text-slate-600';
     statusText = 'Upcoming / Pending';
     statusIcon = <Clock className="w-3 h-3 text-slate-500" />;
   }
@@ -135,7 +135,7 @@ export const MilestoneProgressBar: React.FC<MilestoneProgressBarProps> = ({
 
             {/* Deliverables ratio if applicable */}
             {totalDeliverables > 0 && (
-              <span className="text-[10px] text-slate-400 font-mono hidden sm:inline-block">
+              <span className="text-[10px] text-slate-500 font-mono hidden sm:inline-block">
                 • {completedDeliverablesCount}/{totalDeliverables} Tasks Done
               </span>
             )}
@@ -146,12 +146,12 @@ export const MilestoneProgressBar: React.FC<MilestoneProgressBarProps> = ({
             <span
               className={`text-xs font-bold font-mono ${
                 clampedProgress >= 100
-                  ? 'text-emerald-400'
+                  ? 'text-emerald-700'
                   : clampedProgress >= 50
-                  ? 'text-cyan-400'
+                  ? 'text-cyan-700'
                   : clampedProgress > 0
-                  ? 'text-indigo-300'
-                  : 'text-slate-400'
+                  ? 'text-indigo-700'
+                  : 'text-slate-500'
               }`}
             >
               {clampedProgress}%
@@ -169,7 +169,7 @@ export const MilestoneProgressBar: React.FC<MilestoneProgressBarProps> = ({
       {/* Progress Track & Animated Fill Bar */}
       <div className="relative w-full">
         {/* Background Track */}
-        <div className={`w-full ${trackHeight} rounded-full bg-slate-950 border border-slate-800/90 overflow-hidden relative shadow-inner`}>
+        <div className={`w-full ${trackHeight} rounded-full bg-slate-100 border border-slate-200 overflow-hidden relative shadow-inner`}>
           {/* Fill Bar */}
           <div
             className={`h-full rounded-full bg-gradient-to-r ${barGradient} transition-all duration-500 ease-out relative ${barGlow}`}
@@ -204,15 +204,15 @@ export const MilestoneProgressBar: React.FC<MilestoneProgressBarProps> = ({
                     className={`w-2.5 h-2.5 rounded-full border transition-all duration-300 flex items-center justify-center ${
                       isPassed
                         ? status === 'completed' || step === 100
-                          ? 'bg-emerald-400 border-emerald-300 shadow-sm shadow-emerald-500/50'
+                          ? 'bg-emerald-600 border-emerald-500 shadow-xs'
                           : status === 'delayed'
-                          ? 'bg-rose-400 border-rose-300 shadow-sm shadow-rose-500/50'
-                          : 'bg-cyan-400 border-cyan-200 shadow-sm shadow-cyan-500/50'
-                        : 'bg-slate-900 border-slate-700'
+                          ? 'bg-rose-600 border-rose-500 shadow-xs'
+                          : 'bg-cyan-600 border-cyan-500 shadow-xs'
+                        : 'bg-white border-slate-300'
                     } ${interactive ? 'hover:scale-125' : ''}`}
                   >
                     {step === 100 && isPassed && (
-                      <Check className="w-1.5 h-1.5 text-slate-950 stroke-[3]" />
+                      <Check className="w-1.5 h-1.5 text-white stroke-[3]" />
                     )}
                   </div>
                 </div>
@@ -236,8 +236,8 @@ export const MilestoneProgressBar: React.FC<MilestoneProgressBarProps> = ({
               key={item.pct}
               type="button"
               onClick={(e) => handleCheckpointClick(item.pct, e)}
-              className={`hover:text-cyan-300 transition-colors py-0.5 px-1 rounded ${
-                clampedProgress === item.pct ? 'text-cyan-400 font-bold bg-slate-800/80' : ''
+              className={`hover:text-cyan-700 transition-colors py-0.5 px-1 rounded ${
+                clampedProgress === item.pct ? 'text-cyan-700 font-bold bg-slate-100' : ''
               }`}
             >
               {item.label}

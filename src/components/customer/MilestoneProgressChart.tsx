@@ -127,30 +127,30 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-slate-950/95 border border-cyan-500/40 p-3 rounded-xl shadow-2xl backdrop-blur-md text-xs space-y-2 max-w-xs text-white">
-          <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-1.5">
-            <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">
+        <div className="bg-white/95 border border-slate-200 p-3 rounded-xl shadow-xl backdrop-blur-md text-xs space-y-2 max-w-xs text-slate-800">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5">
+            <span className="text-[10px] font-mono font-bold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
               {data.phase}
             </span>
-            <span className="text-[10px] font-mono text-slate-400">
+            <span className="text-[10px] font-mono text-slate-500">
               #{data.quotationNumber}
             </span>
           </div>
 
           <div>
-            <p className="font-bold text-slate-100 text-sm">{data.fullTitle}</p>
+            <p className="font-bold text-slate-900 text-sm">{data.fullTitle}</p>
             {data.moduleName && (
-              <p className="text-[11px] text-indigo-300 flex items-center gap-1 mt-0.5">
-                <Cpu className="w-3 h-3 text-indigo-400" />
+              <p className="text-[11px] text-indigo-700 flex items-center gap-1 mt-0.5">
+                <Cpu className="w-3 h-3 text-indigo-600" />
                 <span>{data.moduleName}</span>
               </p>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px]">
+          <div className="grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200 text-[11px]">
             <div>
               <span className="text-slate-500 block text-[9px] uppercase">Completion</span>
-              <span className="font-extrabold text-cyan-400 text-sm">
+              <span className="font-extrabold text-cyan-700 text-sm">
                 {data.completionPercent}%
               </span>
             </div>
@@ -159,10 +159,10 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
               <span
                 className={`font-semibold capitalize ${
                   data.status === 'completed'
-                    ? 'text-emerald-400'
+                    ? 'text-emerald-700'
                     : data.status === 'in_progress'
-                    ? 'text-cyan-400'
-                    : 'text-amber-400'
+                    ? 'text-cyan-700'
+                    : 'text-amber-700'
                 }`}
               >
                 {data.status.replace('_', ' ')}
@@ -170,22 +170,22 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
             </div>
             <div>
               <span className="text-slate-500 block text-[9px] uppercase">Target Date</span>
-              <span className="font-mono text-slate-300">{data.targetDate}</span>
+              <span className="font-mono text-slate-700">{data.targetDate}</span>
             </div>
             <div>
               <span className="text-slate-500 block text-[9px] uppercase">Est. Delivery</span>
-              <span className="font-mono text-cyan-300 font-bold">{data.estimatedCompletionDate}</span>
+              <span className="font-mono text-cyan-700 font-bold">{data.estimatedCompletionDate}</span>
             </div>
           </div>
 
           {chartType === 'area' && (
-            <div className="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-800">
+            <div className="text-[10px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
               <span>Cumulative Project Velocity:</span>
-              <span className="text-cyan-300 font-bold">{data.cumulativeProgress}%</span>
+              <span className="text-cyan-700 font-bold">{data.cumulativeProgress}%</span>
             </div>
           )}
 
-          <div className="text-[10px] text-slate-400 italic text-center pt-0.5">
+          <div className="text-[10px] text-slate-500 italic text-center pt-0.5">
             Click bar to inspect milestone details
           </div>
         </div>
@@ -195,22 +195,22 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+    <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-4">
       {/* Header and Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <span className="p-2 rounded-xl bg-cyan-50 text-cyan-700 border border-cyan-200">
               <TrendingUp className="w-5 h-5" />
             </span>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>Milestone Completion % Progress</span>
-                <span className="text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-800">
+                <span className="text-[10px] font-mono font-bold bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded-full border border-cyan-200">
                   Recharts Analytics
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Visualizing completion velocity across deliverables and scoped software modules
               </p>
             </div>
@@ -220,17 +220,17 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
         {/* Action Controls & Selectors */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Project Quotation Filter */}
-          <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs">
-            <Filter className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700">
+            <Filter className="w-3.5 h-3.5 text-slate-500" />
             <select
               value={selectedQuoteId}
               onChange={(e) => setSelectedQuoteId(e.target.value)}
-              className="bg-transparent text-slate-200 focus:outline-none cursor-pointer max-w-[170px] truncate text-xs"
+              className="bg-transparent text-slate-800 focus:outline-none cursor-pointer max-w-[170px] truncate text-xs"
               title="Filter by active project quotation"
             >
-              <option value="all" className="bg-slate-900">All Active Projects ({activeQuotations.length})</option>
+              <option value="all" className="bg-white">All Active Projects ({activeQuotations.length})</option>
               {activeQuotations.map((q) => (
-                <option key={q.id} value={q.id} className="bg-slate-900">
+                <option key={q.id} value={q.id} className="bg-white">
                   {q.quotationNumber} - {q.customer.companyName || q.customer.name}
                 </option>
               ))}
@@ -238,14 +238,14 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
           </div>
 
           {/* Chart Type Toggle: Bar vs Area */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
             <button
               id="chart-type-bar-btn"
               onClick={() => setChartType('bar')}
               className={`px-3 py-1 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
                 chartType === 'bar'
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-cyan-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <BarChart3 className="w-3.5 h-3.5" />
@@ -256,8 +256,8 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
               onClick={() => setChartType('area')}
               className={`px-3 py-1 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
                 chartType === 'area'
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-cyan-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
@@ -269,46 +269,46 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
 
       {/* 4 Summary Metric Indicators */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-2xl">
-          <span className="text-[10px] uppercase font-bold text-slate-400 block">Overall Velocity</span>
+        <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl">
+          <span className="text-[10px] uppercase font-bold text-slate-500 block">Overall Velocity</span>
           <div className="flex items-center justify-between mt-1">
-            <span className="text-xl font-extrabold text-cyan-400 font-mono">
+            <span className="text-xl font-extrabold text-cyan-700 font-mono">
               {overallAvgCompletion}%
             </span>
-            <Sparkles className="w-4 h-4 text-cyan-400" />
+            <Sparkles className="w-4 h-4 text-cyan-600" />
           </div>
           <span className="text-[10px] text-slate-500">Average completion rate</span>
         </div>
 
-        <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-2xl">
-          <span className="text-[10px] uppercase font-bold text-emerald-400 block">Completed</span>
+        <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl">
+          <span className="text-[10px] uppercase font-bold text-emerald-700 block">Completed</span>
           <div className="flex items-center justify-between mt-1">
-            <span className="text-xl font-extrabold text-emerald-400 font-mono">
+            <span className="text-xl font-extrabold text-emerald-700 font-mono">
               {completedMilestones} / {totalMilestones}
             </span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
           <span className="text-[10px] text-slate-500">Milestones fully signed off</span>
         </div>
 
-        <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-2xl">
-          <span className="text-[10px] uppercase font-bold text-cyan-400 block">Active Sprints</span>
+        <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl">
+          <span className="text-[10px] uppercase font-bold text-cyan-700 block">Active Sprints</span>
           <div className="flex items-center justify-between mt-1">
-            <span className="text-xl font-extrabold text-cyan-300 font-mono">
+            <span className="text-xl font-extrabold text-cyan-800 font-mono">
               {inProgressMilestones}
             </span>
-            <Clock className="w-4 h-4 text-cyan-400 animate-pulse" />
+            <Clock className="w-4 h-4 text-cyan-600 animate-pulse" />
           </div>
           <span className="text-[10px] text-slate-500">In development now</span>
         </div>
 
-        <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-2xl">
-          <span className="text-[10px] uppercase font-bold text-indigo-400 block">Target Threshold</span>
+        <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl">
+          <span className="text-[10px] uppercase font-bold text-indigo-700 block">Target Threshold</span>
           <div className="flex items-center justify-between mt-1">
-            <span className="text-xl font-extrabold text-white font-mono">
+            <span className="text-xl font-extrabold text-slate-900 font-mono">
               100%
             </span>
-            <ArrowUpRight className="w-4 h-4 text-indigo-400" />
+            <ArrowUpRight className="w-4 h-4 text-indigo-600" />
           </div>
           <span className="text-[10px] text-slate-500">Client acceptance baseline</span>
         </div>
@@ -317,9 +317,9 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
       {/* Main Recharts Visualization Canvas */}
       <div className="w-full h-72 sm:h-80 pt-2">
         {chartData.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
-            <BarChart3 className="w-8 h-8 text-slate-600 mb-2" />
-            <p className="text-sm font-semibold text-slate-400">No active milestones found to chart.</p>
+          <div className="h-full flex flex-col items-center justify-center text-slate-500 border border-dashed border-slate-200 rounded-2xl">
+            <BarChart3 className="w-8 h-8 text-slate-400 mb-2" />
+            <p className="text-sm font-semibold text-slate-600">No active milestones found to chart.</p>
           </div>
         ) : chartType === 'bar' ? (
           <ResponsiveContainer width="100%" height="100%">
@@ -338,24 +338,24 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
               <defs>
                 <linearGradient id="barGradCompleted" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#10b981" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#059669" stopOpacity={0.6} />
+                  <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
                 </linearGradient>
                 <linearGradient id="barGradInProgress" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#0284c7" stopOpacity={0.6} />
+                  <stop offset="100%" stopColor="#0284c7" stopOpacity={0.7} />
                 </linearGradient>
                 <linearGradient id="barGradUpcoming" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.7} />
-                  <stop offset="100%" stopColor="#4338ca" stopOpacity={0.4} />
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.8} />
+                  <stop offset="100%" stopColor="#4338ca" stopOpacity={0.5} />
                 </linearGradient>
               </defs>
 
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
 
               <XAxis
                 dataKey="name"
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: '#64748b', fontSize: 11 }}
                 interval={0}
                 angle={-20}
                 textAnchor="end"
@@ -363,8 +363,8 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
               />
 
               <YAxis
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: '#64748b', fontSize: 11 }}
                 domain={[0, 100]}
                 ticks={[0, 25, 50, 75, 100]}
                 unit="%"
@@ -379,7 +379,7 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
                 strokeDasharray="4 4"
                 label={{
                   value: '100% Target Delivery',
-                  fill: '#10b981',
+                  fill: '#059669',
                   fontSize: 10,
                   position: 'top'
                 }}
@@ -403,7 +403,7 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
                     <Cell
                       key={`bar-cell-${index}`}
                       fill={fillColor}
-                      stroke={entry.status === 'completed' ? '#34d399' : entry.status === 'in_progress' ? '#38bdf8' : '#818cf8'}
+                      stroke={entry.status === 'completed' ? '#059669' : entry.status === 'in_progress' ? '#0284c7' : '#4f46e5'}
                       strokeWidth={1}
                     />
                   );
@@ -427,7 +427,7 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
             >
               <defs>
                 <linearGradient id="areaGradVelocity" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.6} />
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.5} />
                   <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.05} />
                 </linearGradient>
                 <linearGradient id="areaGradCumulative" x1="0" y1="0" x2="0" y2="1">
@@ -436,12 +436,12 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
                 </linearGradient>
               </defs>
 
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
 
               <XAxis
                 dataKey="name"
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: '#64748b', fontSize: 11 }}
                 interval={0}
                 angle={-20}
                 textAnchor="end"
@@ -449,8 +449,8 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
               />
 
               <YAxis
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: '#64748b', fontSize: 11 }}
                 domain={[0, 100]}
                 ticks={[0, 25, 50, 75, 100]}
                 unit="%"
@@ -464,7 +464,7 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
                 strokeDasharray="4 4"
                 label={{
                   value: '100% Target Delivery',
-                  fill: '#10b981',
+                  fill: '#059669',
                   fontSize: 10,
                   position: 'top'
                 }}
@@ -474,7 +474,7 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
                 type="monotone"
                 dataKey="cumulativeProgress"
                 name="Cumulative Velocity %"
-                stroke="#10b981"
+                stroke="#059669"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#areaGradCumulative)"
@@ -484,7 +484,7 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
                 type="monotone"
                 dataKey="completionPercent"
                 name="Milestone Completion %"
-                stroke="#06b6d4"
+                stroke="#0891b2"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#areaGradVelocity)"
@@ -495,30 +495,30 @@ export const MilestoneProgressChart: React.FC<MilestoneProgressChartProps> = ({
       </div>
 
       {/* Chart Footer with Color Legend and Timeline Guidance */}
-      <div className="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+      <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-emerald-500 inline-block" />
-            <span>100% Completed</span>
+            <span className="w-3 h-3 rounded bg-emerald-600 inline-block" />
+            <span className="text-slate-700">100% Completed</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-cyan-500 inline-block" />
-            <span>In Progress (50%)</span>
+            <span className="w-3 h-3 rounded bg-cyan-600 inline-block" />
+            <span className="text-slate-700">In Progress (50%)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-indigo-500 inline-block" />
-            <span>Scheduled (0%)</span>
+            <span className="w-3 h-3 rounded bg-indigo-600 inline-block" />
+            <span className="text-slate-700">Scheduled (0%)</span>
           </div>
           {chartType === 'area' && (
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-0.5 bg-emerald-400 inline-block" />
-              <span>Cumulative Project Velocity</span>
+              <span className="w-3 h-0.5 bg-emerald-600 inline-block" />
+              <span className="text-slate-700">Cumulative Project Velocity</span>
             </div>
           )}
         </div>
 
         <div className="text-[11px] text-slate-500 flex items-center gap-1">
-          <Info className="w-3.5 h-3.5 text-cyan-400" />
+          <Info className="w-3.5 h-3.5 text-cyan-600" />
           <span>Click any milestone bar or node to view details or adjust dates</span>
         </div>
       </div>

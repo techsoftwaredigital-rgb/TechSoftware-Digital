@@ -159,24 +159,24 @@ export const SwipeableProjectCard: React.FC<SwipeableProjectCardProps> = ({
       <div
         className={`absolute inset-0 rounded-3xl flex items-center justify-between px-6 transition-colors duration-200 ${
           isSwipePastThreshold
-            ? 'bg-rose-900/90 border border-rose-500'
-            : 'bg-slate-900/90 border border-slate-800'
+            ? 'bg-rose-100 border border-rose-300'
+            : 'bg-slate-100 border border-slate-200'
         }`}
       >
         {/* Left Indicator (revealed on right swipe) */}
         <div
           className={`flex items-center gap-2 font-bold text-xs transition-transform ${
             offsetX > 20 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-          } ${isSwipePastThreshold ? 'text-white' : 'text-rose-400'}`}
+          } ${isSwipePastThreshold ? 'text-rose-900' : 'text-rose-600'}`}
         >
-          <div className="w-9 h-9 rounded-full bg-rose-600/30 border border-rose-500/50 flex items-center justify-center">
-            <Trash2 className="w-5 h-5 text-rose-300 animate-pulse" />
+          <div className="w-9 h-9 rounded-full bg-rose-200 border border-rose-300 flex items-center justify-center">
+            <Trash2 className="w-5 h-5 text-rose-600 animate-pulse" />
           </div>
           <div>
             <span className="block font-black">
               {isSwipePastThreshold ? 'Release to Dismiss' : 'Swipe to Dismiss'}
             </span>
-            <span className="text-[10px] text-rose-300/80">Hide from mobile live view</span>
+            <span className="text-[10px] text-rose-600/80">Hide from mobile live view</span>
           </div>
         </div>
 
@@ -184,16 +184,16 @@ export const SwipeableProjectCard: React.FC<SwipeableProjectCardProps> = ({
         <div
           className={`flex items-center gap-2 font-bold text-xs text-right transition-transform ml-auto ${
             offsetX < -20 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-          } ${isSwipePastThreshold ? 'text-white' : 'text-rose-400'}`}
+          } ${isSwipePastThreshold ? 'text-rose-900' : 'text-rose-600'}`}
         >
           <div>
             <span className="block font-black">
               {isSwipePastThreshold ? 'Release to Dismiss' : 'Swipe to Dismiss'}
             </span>
-            <span className="text-[10px] text-rose-300/80">Hide from mobile live view</span>
+            <span className="text-[10px] text-rose-600/80">Hide from mobile live view</span>
           </div>
-          <div className="w-9 h-9 rounded-full bg-rose-600/30 border border-rose-500/50 flex items-center justify-center">
-            <Trash2 className="w-5 h-5 text-rose-300 animate-pulse" />
+          <div className="w-9 h-9 rounded-full bg-rose-200 border border-rose-300 flex items-center justify-center">
+            <Trash2 className="w-5 h-5 text-rose-600 animate-pulse" />
           </div>
         </div>
       </div>
@@ -213,41 +213,41 @@ export const SwipeableProjectCard: React.FC<SwipeableProjectCardProps> = ({
           transition: isSwiping ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease',
           opacity: 1 - Math.min(0.6, (Math.abs(offsetX) / 400))
         }}
-        className={`relative z-10 p-5 sm:p-7 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-5 select-none touch-pan-y ${
-          isMobileDeviceView ? 'cursor-grab active:cursor-grabbing ring-1 ring-slate-800' : ''
+        className={`relative z-10 p-5 sm:p-7 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-5 select-none touch-pan-y ${
+          isMobileDeviceView ? 'cursor-grab active:cursor-grabbing ring-1 ring-slate-200' : ''
         }`}
       >
         {/* Mobile Swipe Hint Banner inside card */}
-        <div className="flex items-center justify-between gap-2 -mt-1 pb-1 border-b border-slate-800/60 text-[10px] text-slate-500">
+        <div className="flex items-center justify-between gap-2 -mt-1 pb-1 border-b border-slate-200 text-[10px] text-slate-500">
           <div className="flex items-center gap-1">
-            <Smartphone className="w-3 h-3 text-cyan-400" />
+            <Smartphone className="w-3 h-3 text-cyan-600" />
             <span>Mobile Gesture:</span>
-            <span className="text-slate-400 font-medium">Swipe card left or right to dismiss</span>
+            <span className="text-slate-600 font-medium">Swipe card left or right to dismiss</span>
           </div>
-          <div className="flex items-center gap-1 text-slate-400">
-            <ChevronLeft className="w-3 h-3 animate-pulse text-cyan-400" />
+          <div className="flex items-center gap-1 text-slate-500">
+            <ChevronLeft className="w-3 h-3 animate-pulse text-cyan-600" />
             <span>Swipe</span>
-            <ChevronRight className="w-3 h-3 animate-pulse text-cyan-400" />
+            <ChevronRight className="w-3 h-3 animate-pulse text-cyan-600" />
           </div>
         </div>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base sm:text-lg font-black text-white">
+              <h2 className="text-base sm:text-lg font-black text-slate-900">
                 {project.title}
               </h2>
               {getStatusBadge(project.status)}
             </div>
-            <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+            <p className="text-xs text-slate-500 mt-1 line-clamp-2">
               {project.description || 'Full-Stack Software Architecture & Implementation'}
             </p>
           </div>
 
-          <div className="sm:text-right shrink-0 flex items-center sm:block justify-between pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-800/40">
-            <span className="text-[11px] text-slate-400 block">Project Investment:</span>
-            <span className="text-base sm:text-lg font-black text-cyan-400">
+          <div className="sm:text-right shrink-0 flex items-center sm:block justify-between pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200">
+            <span className="text-[11px] text-slate-500 block">Project Investment:</span>
+            <span className="text-base sm:text-lg font-black text-cyan-700">
               ₹{project.amount.toLocaleString('en-IN')}
             </span>
           </div>
@@ -256,17 +256,17 @@ export const SwipeableProjectCard: React.FC<SwipeableProjectCardProps> = ({
         {/* Stage Progression Bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+            <span className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
               Delivery Progress:
             </span>
-            <span className="font-extrabold text-cyan-400 font-mono">
+            <span className="font-extrabold text-cyan-700 font-mono">
               {project.progressPercent}%
             </span>
           </div>
 
-          <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800 p-0.5">
+          <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200 p-0.5">
             <div
-              className="bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-400 h-full rounded-full transition-all duration-500 shadow-md shadow-cyan-500/20"
+              className="bg-gradient-to-r from-cyan-600 via-blue-600 to-emerald-500 h-full rounded-full transition-all duration-500 shadow-xs"
               style={{ width: `${project.progressPercent}%` }}
             />
           </div>
@@ -283,15 +283,15 @@ export const SwipeableProjectCard: React.FC<SwipeableProjectCardProps> = ({
                   key={stage}
                   className={`p-1.5 rounded-xl border text-center text-[9px] sm:text-[10px] font-bold ${
                     isCurrent
-                      ? 'bg-cyan-950/80 border-cyan-500 text-cyan-300 shadow-sm'
+                      ? 'bg-cyan-50 border-cyan-300 text-cyan-900 shadow-2xs'
                       : isPast
-                      ? 'bg-slate-950/80 border-emerald-900/60 text-emerald-400'
-                      : 'bg-slate-950/40 border-slate-800 text-slate-600'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-0.5 mb-0.5">
                     {isPast ? (
-                      <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                      <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
                     ) : (
                       <span>Step {idx + 1}</span>
                     )}
@@ -306,31 +306,31 @@ export const SwipeableProjectCard: React.FC<SwipeableProjectCardProps> = ({
         {/* Milestones Checklist */}
         {projectMilestones.length > 0 && (
           <div className="space-y-2 pt-1">
-            <h4 className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+            <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
               Project Milestones ({projectMilestones.length})
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {projectMilestones.slice(0, 2).map((m) => (
                 <div
                   key={m.id}
-                  className="p-3 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-1 text-xs"
+                  className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1 text-xs"
                 >
                   <div className="flex items-center justify-between gap-1.5">
-                    <span className="font-bold text-white truncate text-xs">{m.title}</span>
+                    <span className="font-bold text-slate-800 truncate text-xs">{m.title}</span>
                     <span
                       className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase ${
                         m.status === 'completed'
-                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                           : m.status === 'in_progress'
-                          ? 'bg-cyan-950 text-cyan-400 border border-cyan-800'
-                          : 'bg-slate-900 text-slate-400 border border-slate-800'
+                          ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}
                     >
                       {m.status.replace('_', ' ')}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-400 line-clamp-1">{m.description}</p>
-                  <div className="text-[9px] text-slate-500 pt-1 border-t border-slate-900/60">
+                  <p className="text-[10px] text-slate-500 line-clamp-1">{m.description}</p>
+                  <div className="text-[9px] text-slate-500 pt-1 border-t border-slate-200">
                     Target: {m.targetDate}
                   </div>
                 </div>
@@ -346,34 +346,34 @@ export const SwipeableProjectCard: React.FC<SwipeableProjectCardProps> = ({
 
         {/* Footer notes & quick actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 text-xs">
-          <div className="text-slate-400 text-[11px]">
-            Target Completion: <strong className="text-slate-200">{project.expectedCompletionDate || '4 Weeks'}</strong>
+          <div className="text-slate-500 text-[11px]">
+            Target Completion: <strong className="text-slate-800">{project.expectedCompletionDate || '4 Weeks'}</strong>
           </div>
 
           <div className="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end flex-wrap">
             <button
               onClick={() => setShowGanttTimeline(!showGanttTimeline)}
-              className={`px-3 py-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+              className={`px-3 py-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer ${
                 showGanttTimeline
-                  ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-black shadow-md shadow-cyan-500/20'
-                  : 'bg-slate-950 hover:bg-slate-800 text-cyan-400 border-cyan-500/30'
+                  ? 'bg-cyan-600 text-white border-cyan-600 font-bold shadow-xs'
+                  : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
               }`}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
+              <BarChart3 className="w-3.5 h-3.5 text-cyan-600" />
               <span>{showGanttTimeline ? 'Hide Gantt Chart' : 'Gantt Timeline'}</span>
             </button>
 
             <button
               onClick={() => onOpenSummary(project)}
-              className="px-3 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+              className="px-3 py-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-600" />
               <span>AI Summary</span>
             </button>
 
             <button
               onClick={onNavigateToMessages}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
+              className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
             >
               <span>Message</span>
               <ArrowRight className="w-3.5 h-3.5" />

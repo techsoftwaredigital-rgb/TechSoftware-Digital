@@ -133,19 +133,19 @@ export const FaqAndTerms: React.FC = () => {
   return (
     <section
       id="faq-and-terms-section"
-      className="mt-12 pt-8 border-t border-slate-800/80 space-y-6"
+      className="mt-12 pt-8 border-t border-slate-200 space-y-6"
     >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-800/50 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-semibold uppercase tracking-wider mb-2">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Transparency & Compliance</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Frequently Asked Questions & Commercial Terms
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mt-1">
             Clear guidelines on our mandatory 50% non-refundable advance policy, Annual Maintenance
             Contracts (AMC), milestone disbursements, and source code ownership.
           </p>
@@ -155,7 +155,7 @@ export const FaqAndTerms: React.FC = () => {
           <button
             type="button"
             onClick={handleExpandAll}
-            className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors flex items-center gap-1.5"
+            className="text-xs font-semibold text-cyan-700 hover:text-cyan-800 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
           >
             {expandedId === 'all' ? (
               <>
@@ -174,7 +174,7 @@ export const FaqAndTerms: React.FC = () => {
             href="https://wa.me/918169401877?text=Hi%20TechSoftware%20team,%20I%20have%20a%20question%20regarding%20commercial%20terms"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-800/50 hover:bg-emerald-950/60 transition-colors flex items-center gap-1.5"
+            className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center gap-1.5 shadow-2xs"
           >
             <MessageCircle className="w-3.5 h-3.5 fill-current" />
             <span>Ask on WhatsApp</span>
@@ -183,14 +183,14 @@ export const FaqAndTerms: React.FC = () => {
       </div>
 
       {/* Category Pills Filter */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-900 scrollbar-none text-xs">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 scrollbar-none text-xs">
         <button
           type="button"
           onClick={() => setSelectedCategory('all')}
-          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap ${
+          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap cursor-pointer ${
             selectedCategory === 'all'
-              ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-cyan-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 shadow-2xs'
           }`}
         >
           All Topics ({FAQ_ITEMS.length})
@@ -199,52 +199,52 @@ export const FaqAndTerms: React.FC = () => {
         <button
           type="button"
           onClick={() => setSelectedCategory('policy')}
-          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'policy'
-              ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-amber-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 shadow-2xs'
           }`}
         >
-          <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+          <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
           <span>Non-Refundable Policy</span>
         </button>
 
         <button
           type="button"
           onClick={() => setSelectedCategory('amc')}
-          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'amc'
-              ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-cyan-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 shadow-2xs'
           }`}
         >
-          <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+          <ShieldCheck className="w-3.5 h-3.5 text-cyan-600" />
           <span>AMC & Maintenance</span>
         </button>
 
         <button
           type="button"
           onClick={() => setSelectedCategory('payments')}
-          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'payments'
-              ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 shadow-2xs'
           }`}
         >
-          <CreditCard className="w-3.5 h-3.5 text-blue-400" />
+          <CreditCard className="w-3.5 h-3.5 text-blue-500" />
           <span>Milestones & GST</span>
         </button>
 
         <button
           type="button"
           onClick={() => setSelectedCategory('delivery')}
-          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'delivery'
-              ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 shadow-2xs'
           }`}
         >
-          <Code2 className="w-3.5 h-3.5 text-indigo-400" />
+          <Code2 className="w-3.5 h-3.5 text-indigo-500" />
           <span>Delivery & IP Ownership</span>
         </button>
       </div>
@@ -262,11 +262,11 @@ export const FaqAndTerms: React.FC = () => {
               className={`rounded-2xl border transition-all overflow-hidden ${
                 isOpen
                   ? isPolicy
-                    ? 'bg-slate-900/90 border-amber-500/50 shadow-lg shadow-amber-950/20'
+                    ? 'bg-white border-amber-300 shadow-xs'
                     : isAmc
-                    ? 'bg-slate-900/90 border-cyan-500/40 shadow-lg shadow-cyan-950/20'
-                    : 'bg-slate-900/90 border-slate-700 shadow-lg'
-                  : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                    ? 'bg-white border-cyan-300 shadow-xs'
+                    : 'bg-white border-slate-300 shadow-xs'
+                  : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
               }`}
             >
               {/* Question Header Button */}
@@ -274,7 +274,7 @@ export const FaqAndTerms: React.FC = () => {
                 type="button"
                 id={`faq-btn-${item.id}`}
                 onClick={() => toggleItem(item.id)}
-                className="w-full p-4 sm:p-5 text-left flex items-start justify-between gap-4 transition-colors"
+                className="w-full p-4 sm:p-5 text-left flex items-start justify-between gap-4 transition-colors cursor-pointer"
                 aria-expanded={isOpen}
               >
                 <div className="space-y-1 pr-2">
@@ -283,34 +283,34 @@ export const FaqAndTerms: React.FC = () => {
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                           isPolicy
-                            ? 'bg-amber-950 text-amber-300 border border-amber-800/60'
+                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
                             : isAmc
-                            ? 'bg-cyan-950 text-cyan-300 border border-cyan-800/60'
-                            : 'bg-slate-800 text-slate-300 border border-slate-700'
+                            ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
+                            : 'bg-slate-100 text-slate-700 border border-slate-200'
                         }`}
                       >
                         {item.badge}
                       </span>
                     )}
-                    <span className="text-xs text-slate-500 hidden sm:inline">
+                    <span className="text-xs text-slate-400 hidden sm:inline">
                       • {item.category.toUpperCase()}
                     </span>
                   </div>
 
-                  <h3 className="text-sm sm:text-base font-bold text-slate-100 leading-snug">
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
                     {item.question}
                   </h3>
 
                   {!isOpen && (
-                    <p className="text-xs text-slate-400 line-clamp-1">{item.summary}</p>
+                    <p className="text-xs text-slate-500 line-clamp-1">{item.summary}</p>
                   )}
                 </div>
 
                 <div
                   className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-200 ${
                     isOpen
-                      ? 'bg-slate-800 border-slate-700 rotate-180 text-white'
-                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                      ? 'bg-slate-100 border-slate-200 rotate-180 text-slate-800'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
                   <ChevronDown className="w-4 h-4" />
@@ -319,22 +319,22 @@ export const FaqAndTerms: React.FC = () => {
 
               {/* Accordion Expandable Answer */}
               {isOpen && (
-                <div className="px-4 pb-5 sm:px-5 sm:pb-6 text-xs text-slate-300 space-y-3 border-t border-slate-800/60 pt-4">
+                <div className="px-4 pb-5 sm:px-5 sm:pb-6 text-xs text-slate-600 space-y-3 border-t border-slate-100 pt-4">
                   {item.highlight && (
                     <div
                       className={`p-3 rounded-xl border flex items-center gap-2.5 font-semibold ${
                         isPolicy
-                          ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
-                          : 'bg-cyan-950/40 border-cyan-500/40 text-cyan-300'
+                          ? 'bg-amber-50 border-amber-200 text-amber-800'
+                          : 'bg-cyan-50 border-cyan-200 text-cyan-800'
                       }`}
                     >
-                      <Sparkles className="w-4 h-4 shrink-0" />
+                      <Sparkles className="w-4 h-4 shrink-0 text-cyan-600" />
                       <span>{item.highlight}</span>
                     </div>
                   )}
 
                   {item.answer.map((paragraph, pIdx) => (
-                    <p key={pIdx} className="leading-relaxed text-slate-300 text-xs sm:text-[13px]">
+                    <p key={pIdx} className="leading-relaxed text-slate-600 text-xs sm:text-[13px]">
                       {paragraph}
                     </p>
                   ))}
@@ -346,14 +346,14 @@ export const FaqAndTerms: React.FC = () => {
       </div>
 
       {/* Commercial Summary Banner */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-800/60 flex items-center justify-center text-cyan-400 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-700 shrink-0">
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="font-bold text-white text-sm">Need a custom contract or bespoke SLA?</h4>
-            <p className="text-slate-400 mt-0.5">
+            <h4 className="font-bold text-slate-900 text-sm">Need a custom contract or bespoke SLA?</h4>
+            <p className="text-slate-500 mt-0.5">
               We provide formal non-disclosure agreements (NDAs) and custom enterprise service level
               agreements upon request.
             </p>
@@ -362,7 +362,7 @@ export const FaqAndTerms: React.FC = () => {
 
         <a
           href="tel:8169401877"
-          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold text-xs transition-colors shrink-0 flex items-center gap-1.5"
+          className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs"
         >
           <span>Call Legal / Tech: +91 8169401877</span>
         </a>

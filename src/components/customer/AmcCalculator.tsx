@@ -54,12 +54,12 @@ const AMC_TIERS: TierDefinition[] = [
     slaHours: 48,
     monthlyDevHours: 3,
     colorScheme: {
-      border: 'border-amber-900/40',
-      activeBorder: 'border-amber-500 ring-1 ring-amber-500/80',
-      bgActive: 'bg-amber-950/30',
-      badgeBg: 'bg-amber-950/80',
-      badgeText: 'text-amber-300 border-amber-700/50',
-      accentText: 'text-amber-400',
+      border: 'border-amber-200',
+      activeBorder: 'border-amber-500 ring-2 ring-amber-500/20',
+      bgActive: 'bg-amber-50/40',
+      badgeBg: 'bg-amber-100 text-amber-800 border border-amber-300',
+      badgeText: 'text-amber-800',
+      accentText: 'text-amber-700',
       accentGradient: 'from-amber-600 to-amber-800'
     },
     highlights: ['48h Bug Fix SLA', '3 Dev Hours/Mo', 'Weekly Cloud Backups'],
@@ -82,12 +82,12 @@ const AMC_TIERS: TierDefinition[] = [
     slaHours: 12,
     monthlyDevHours: 10,
     colorScheme: {
-      border: 'border-slate-700',
-      activeBorder: 'border-cyan-400 ring-2 ring-cyan-500/50',
-      bgActive: 'bg-cyan-950/30',
-      badgeBg: 'bg-cyan-500 text-slate-950 font-black',
-      badgeText: 'text-slate-950',
-      accentText: 'text-cyan-400',
+      border: 'border-slate-200',
+      activeBorder: 'border-cyan-500 ring-2 ring-cyan-500/20',
+      bgActive: 'bg-cyan-50/40',
+      badgeBg: 'bg-cyan-600 text-white font-bold',
+      badgeText: 'text-white',
+      accentText: 'text-cyan-700',
       accentGradient: 'from-cyan-500 to-blue-600'
     },
     highlights: ['12h Priority SLA', '10 Dev Hours/Mo', 'Daily Database Backups'],
@@ -111,12 +111,12 @@ const AMC_TIERS: TierDefinition[] = [
     slaHours: 2,
     monthlyDevHours: 25,
     colorScheme: {
-      border: 'border-yellow-700/50',
-      activeBorder: 'border-yellow-400 ring-2 ring-yellow-400/70',
-      bgActive: 'bg-yellow-950/25',
-      badgeBg: 'bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 font-black',
-      badgeText: 'text-slate-950',
-      accentText: 'text-yellow-400',
+      border: 'border-amber-200',
+      activeBorder: 'border-amber-500 ring-2 ring-amber-500/20',
+      bgActive: 'bg-amber-50/30',
+      badgeBg: 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-bold',
+      badgeText: 'text-white',
+      accentText: 'text-amber-700',
       accentGradient: 'from-amber-400 via-yellow-500 to-amber-600'
     },
     highlights: ['2h Emergency SLA', '25 Dev Hours/Mo', '24/7 On-Call Lead'],
@@ -214,41 +214,39 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
   const activePlan = calculateAmcPlan(tier, billingCycle, isAppendedToTotal, additionalHours);
 
   return (
-    <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-6 shadow-xl space-y-5">
+    <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-5">
       {/* Header & Overview */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
         <div className="flex items-start sm:items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-0.5 shrink-0 shadow-md shadow-cyan-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-cyan-400" />
-            </div>
+          <div className="w-10 h-10 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-700 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-5 h-5 text-cyan-600" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-white tracking-tight">
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">
                 AMC Calculator (Annual Maintenance Contract)
               </h3>
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800/60">
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
                 Interactive Planner
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Select maintenance tier to automatically append annual upkeep, server uptime SLA & dedicated developer support to quote total.
             </p>
           </div>
         </div>
 
         {/* Append to Total Status Toggle */}
-        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto bg-slate-950/80 px-3.5 py-2 rounded-xl border border-slate-800">
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer select-none">
+        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs">
+          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={isAppendedToTotal}
               onChange={(e) => setIsAppendedToTotal(e.target.checked)}
               disabled={tier === 'none'}
-              className="w-4 h-4 rounded text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-500 focus:ring-offset-slate-950 cursor-pointer"
+              className="w-4 h-4 rounded text-cyan-600 bg-white border-slate-300 focus:ring-cyan-500 cursor-pointer"
             />
-            <span className={tier === 'none' ? 'text-slate-500' : 'text-slate-200'}>
+            <span className={tier === 'none' ? 'text-slate-400' : 'text-slate-700'}>
               Append to Quotation Total
             </span>
           </label>
@@ -256,24 +254,24 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
       </div>
 
       {/* Billing Cycle Frequency Switcher */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <Clock className="w-4 h-4 text-cyan-400 shrink-0" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <Clock className="w-4 h-4 text-cyan-600 shrink-0" />
           <span>Select AMC Billing Cycle & Terms:</span>
         </div>
 
-        <div className="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+        <div className="inline-flex p-1 rounded-xl bg-white border border-slate-200 text-xs shadow-2xs">
           <button
             type="button"
             onClick={() => setBillingCycle('annual')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               billingCycle === 'annual'
-                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-cyan-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <span>Annual (1 Year)</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 font-extrabold">
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold">
               Save 15%
             </span>
           </button>
@@ -281,10 +279,10 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
           <button
             type="button"
             onClick={() => setBillingCycle('quarterly')}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
               billingCycle === 'quarterly'
-                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-cyan-600 text-white shadow-xs font-bold'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Quarterly (Every 3 Months)
@@ -308,15 +306,15 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
               onClick={() => setTier(tierDef.id)}
               className={`relative cursor-pointer rounded-2xl p-4 sm:p-5 transition-all flex flex-col justify-between border ${
                 isSelected
-                  ? `${tierDef.colorScheme.activeBorder} ${tierDef.colorScheme.bgActive} shadow-lg shadow-cyan-950/40`
-                  : `${tierDef.colorScheme.border} bg-slate-950/70 hover:border-slate-600 hover:bg-slate-950`
+                  ? `${tierDef.colorScheme.activeBorder} ${tierDef.colorScheme.bgActive} shadow-xs`
+                  : `${tierDef.colorScheme.border} bg-white hover:border-slate-300 hover:shadow-xs shadow-2xs`
               }`}
             >
               {/* Badge if available */}
               {tierDef.badge && (
                 <div className="absolute -top-3 right-4">
                   <span
-                    className={`text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md ${tierDef.colorScheme.badgeBg}`}
+                    className={`text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs ${tierDef.colorScheme.badgeBg}`}
                   >
                     {tierDef.badge}
                   </span>
@@ -330,36 +328,36 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
                     <div
                       className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
                         isSelected
-                          ? 'border-cyan-400 bg-cyan-400'
-                          : 'border-slate-600 bg-transparent'
+                          ? 'border-cyan-600 bg-cyan-600'
+                          : 'border-slate-300 bg-transparent'
                       }`}
                     >
-                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
-                    <h4 className="text-base font-black text-white">{tierDef.name}</h4>
+                    <h4 className="text-base font-black text-slate-900">{tierDef.name}</h4>
                   </div>
                 </div>
 
-                <p className="text-[11px] text-slate-400 min-h-[30px] leading-snug">
+                <p className="text-[11px] text-slate-500 min-h-[30px] leading-snug">
                   {tierDef.tagline}
                 </p>
 
                 {/* Price Display */}
-                <div className="my-3.5 p-3 rounded-xl bg-slate-950/90 border border-slate-800/80">
+                <div className="my-3.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
                   <div className="flex items-baseline justify-between">
                     <div>
-                      <span className="text-xl sm:text-2xl font-black text-white">
+                      <span className="text-xl sm:text-2xl font-black text-slate-900">
                         ₹{displayPrice.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xs text-slate-400">/year</span>
+                      <span className="text-xs text-slate-500">/year</span>
                     </div>
-                    <span className="text-[11px] font-bold text-slate-400">
+                    <span className="text-[11px] font-bold text-slate-500">
                       ₹{monthlyEquiv.toLocaleString('en-IN')}/mo
                     </span>
                   </div>
 
                   {billingCycle === 'quarterly' && (
-                    <p className="text-[10px] text-cyan-400 mt-1">
+                    <p className="text-[10px] text-cyan-700 font-semibold mt-1">
                       Billed quarterly: ₹{tierDef.quarterlyFee.toLocaleString('en-IN')} every 3 months
                     </p>
                   )}
@@ -367,29 +365,29 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
 
                 {/* Key Metrics Chips */}
                 <div className="grid grid-cols-2 gap-2 mb-4 text-[11px]">
-                  <div className="p-2 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center gap-1.5 text-slate-300">
+                  <div className="p-2 rounded-lg bg-white border border-slate-200 flex items-center gap-1.5 text-slate-700 shadow-2xs">
                     <Zap className={`w-3.5 h-3.5 ${tierDef.colorScheme.accentText} shrink-0`} />
                     <div>
-                      <span className="text-[10px] text-slate-500 block">Response SLA</span>
-                      <strong className="text-white">{tierDef.slaHours} Hours</strong>
+                      <span className="text-[10px] text-slate-400 block">Response SLA</span>
+                      <strong className="text-slate-900">{tierDef.slaHours} Hours</strong>
                     </div>
                   </div>
 
-                  <div className="p-2 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center gap-1.5 text-slate-300">
+                  <div className="p-2 rounded-lg bg-white border border-slate-200 flex items-center gap-1.5 text-slate-700 shadow-2xs">
                     <Code2 className={`w-3.5 h-3.5 ${tierDef.colorScheme.accentText} shrink-0`} />
                     <div>
-                      <span className="text-[10px] text-slate-500 block">Included Dev</span>
-                      <strong className="text-white">{tierDef.monthlyDevHours} hrs/mo</strong>
+                      <span className="text-[10px] text-slate-400 block">Included Dev</span>
+                      <strong className="text-slate-900">{tierDef.monthlyDevHours} hrs/mo</strong>
                     </div>
                   </div>
                 </div>
 
                 {/* Features List */}
-                <div className="space-y-2 border-t border-slate-800/80 pt-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+                <div className="space-y-2 border-t border-slate-100 pt-3">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">
                     Included Coverage:
                   </span>
-                  <ul className="space-y-1.5 text-[11px] text-slate-300">
+                  <ul className="space-y-1.5 text-[11px] text-slate-600">
                     {tierDef.features.map((feat, i) => (
                       <li key={i} className="flex items-start gap-1.5 leading-snug">
                         <Check className={`w-3.5 h-3.5 ${tierDef.colorScheme.accentText} shrink-0 mt-0.5`} />
@@ -401,13 +399,13 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
               </div>
 
               {/* Bottom selection button */}
-              <div className="mt-4 pt-3 border-t border-slate-800/60">
+              <div className="mt-4 pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  className={`w-full py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  className={`w-full py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     isSelected
-                      ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300'
+                      ? 'bg-cyan-600 text-white shadow-xs'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                   }`}
                 >
                   {isSelected ? (
@@ -430,20 +428,20 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
         onClick={() => setTier('none')}
         className={`cursor-pointer p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
           tier === 'none'
-            ? 'bg-slate-800/80 border-slate-500 text-white ring-1 ring-slate-400'
-            : 'bg-slate-950/60 border-slate-800/80 text-slate-400 hover:border-slate-700'
+            ? 'bg-slate-100 border-slate-300 text-slate-900 ring-1 ring-slate-300'
+            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-2xs'
         }`}
       >
         <div className="flex items-center gap-3">
           <div
             className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-              tier === 'none' ? 'border-cyan-400 bg-cyan-400' : 'border-slate-600'
+              tier === 'none' ? 'border-cyan-600 bg-cyan-600' : 'border-slate-300'
             }`}
           >
-            {tier === 'none' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+            {tier === 'none' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
           </div>
           <div>
-            <span className="text-xs font-bold text-slate-200 block">
+            <span className="text-xs font-bold text-slate-900 block">
               No AMC (Self Managed / Standalone Delivery)
             </span>
             <span className="text-[11px] text-slate-500">
@@ -453,54 +451,54 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
         </div>
 
         <div className="text-right shrink-0">
-          <span className="text-xs font-bold text-slate-300">₹0</span>
+          <span className="text-xs font-bold text-slate-700">₹0</span>
         </div>
       </div>
 
       {/* Live Calculation & Total Impact Box */}
       {tier !== 'none' && (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-slate-950 via-slate-900 to-cyan-950/40 border border-cyan-500/30 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-cyan-400" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+              <TrendingUp className="w-4 h-4 text-cyan-600" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
                 Calculated AMC Annual Impact: {activePlan.tierName}
               </h4>
             </div>
 
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-400">Total AMC (inc. 18% GST):</span>
-              <strong className="text-cyan-300 font-mono font-bold text-sm">
+              <span className="text-slate-500">Total AMC (inc. 18% GST):</span>
+              <strong className="text-cyan-700 font-mono font-bold text-sm">
                 ₹{activePlan.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </strong>
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-              <span className="text-[10px] text-slate-400 block">Base AMC Taxable:</span>
-              <span className="font-bold text-slate-200">
+            <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+              <span className="text-[10px] text-slate-500 block">Base AMC Taxable:</span>
+              <span className="font-bold text-slate-900">
                 ₹{activePlan.annualFee.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
             </div>
 
-            <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-              <span className="text-[10px] text-slate-400 block">GST 18% on AMC:</span>
-              <span className="font-bold text-slate-200">
+            <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+              <span className="text-[10px] text-slate-500 block">GST 18% on AMC:</span>
+              <span className="font-bold text-slate-900">
                 ₹{activePlan.gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
             </div>
 
-            <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-              <span className="text-[10px] text-slate-400 block">Guaranteed SLA:</span>
-              <span className="font-bold text-cyan-300">
+            <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+              <span className="text-[10px] text-slate-500 block">Guaranteed SLA:</span>
+              <span className="font-bold text-cyan-700">
                 {activePlan.slaResponseHours} Hours
               </span>
             </div>
 
-            <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-              <span className="text-[10px] text-slate-400 block">Included Dev Hours:</span>
-              <span className="font-bold text-emerald-400">
+            <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+              <span className="text-[10px] text-slate-500 block">Included Dev Hours:</span>
+              <span className="font-bold text-emerald-700">
                 {activePlan.monthlyDevHours} hrs / month
               </span>
             </div>
@@ -509,15 +507,15 @@ export const AmcCalculator: React.FC<AmcCalculatorProps> = ({
           {/* Quotation Total Status Notification */}
           <div className="flex items-center gap-2 pt-1 text-[11px]">
             {isAppendedToTotal ? (
-              <span className="inline-flex items-center gap-1.5 text-emerald-400 font-semibold">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="inline-flex items-center gap-1.5 text-emerald-700 font-semibold">
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
                 <span>
                   AMC Annual fee of ₹{activePlan.totalAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })} is automatically appended to the quotation grand total below.
                 </span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-amber-400 font-semibold">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+              <span className="inline-flex items-center gap-1.5 text-amber-800 font-semibold">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
                 <span>
                   AMC is currently set as an optional reference add-on and excluded from the quotation total.
                 </span>

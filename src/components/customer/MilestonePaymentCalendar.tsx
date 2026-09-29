@@ -274,21 +274,21 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
   return (
     <div id="milestone-payment-calendar-root" className="space-y-5">
       {/* 1. TOP SUMMARY KPI BANNER: Next Milestone, Next Payment & Outstanding Total */}
-      <div className="p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 shadow-xl relative overflow-hidden">
+      <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+              <span className="p-2 rounded-2xl bg-cyan-50 border border-cyan-200 text-cyan-700">
                 <CalendarIcon className="w-5 h-5" />
               </span>
               <div>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <span>Project Milestones & Payment Calendar</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-cyan-300 font-mono font-semibold">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 font-mono font-semibold">
                     Live Schedule
                   </span>
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Comprehensive delivery roadmap synced with 50% advance, sprint deliverables, and final balance due dates.
                 </p>
               </div>
@@ -298,45 +298,45 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
           {/* Quick Metrics Ticker */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Next Milestone */}
-            <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-cyan-950 text-cyan-400 border border-cyan-800/80 shrink-0">
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-cyan-50 text-cyan-700 border border-cyan-200 shrink-0">
                 <Clock className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Next Milestone</span>
-                <span className="text-xs font-bold text-white truncate block">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Next Milestone</span>
+                <span className="text-xs font-bold text-slate-900 truncate block">
                   {nextMilestone ? nextMilestone.title : 'All Milestones Completed'}
                 </span>
-                <span className="text-[10px] text-cyan-300 font-mono">
+                <span className="text-[10px] text-cyan-700 font-mono">
                   {nextMilestone ? nextMilestone.date : '—'}
                 </span>
               </div>
             </div>
 
             {/* Next Payment Due */}
-            <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-amber-950 text-amber-400 border border-amber-800/80 shrink-0">
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
                 <CreditCard className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Next Payment Due</span>
-                <span className="text-xs font-bold text-amber-300 truncate block">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Next Payment Due</span>
+                <span className="text-xs font-bold text-amber-700 truncate block">
                   {nextPayment ? `₹${nextPayment.amount?.toLocaleString('en-IN')} (${nextPayment.paymentStage})` : 'All Payments Settled'}
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono">
+                <span className="text-[10px] text-slate-500 font-mono">
                   {nextPayment ? nextPayment.date : '—'}
                 </span>
               </div>
             </div>
 
             {/* Total Balance Outstanding */}
-            <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-indigo-950 text-indigo-400 border border-indigo-800/80 shrink-0">
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Pending Balance Due</span>
-                <span className="text-base font-black text-white font-mono block">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Pending Balance Due</span>
+                <span className="text-base font-black text-slate-900 font-mono block">
                   ₹{totalOutstandingBalance.toLocaleString('en-IN')}
                 </span>
                 <span className="text-[10px] text-slate-500">Across active quotes</span>
@@ -347,16 +347,16 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
       </div>
 
       {/* 2. CONTROL TOOLBAR: View Switcher, Type Filter, Quote Filter & Status Filter */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900 border border-slate-800 shadow-md">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-xs">
         {/* View Switcher Tabs */}
-        <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 gap-1 flex-wrap">
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1 flex-wrap">
           <button
             type="button"
             onClick={() => setViewMode('month')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
               viewMode === 'month'
-                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <CalendarIcon className="w-3.5 h-3.5" />
@@ -368,8 +368,8 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
             onClick={() => setViewMode('agenda')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
               viewMode === 'agenda'
-                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -381,8 +381,8 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
             onClick={() => setViewMode('payments')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
               viewMode === 'payments'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-amber-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <CreditCard className="w-3.5 h-3.5" />
@@ -393,30 +393,30 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Event Type Filter */}
-          <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
+          <div className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700">
             <span className="text-slate-500 text-[10px] font-bold uppercase">Show:</span>
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as any)}
-              className="bg-transparent text-slate-200 focus:outline-none cursor-pointer text-xs"
+              className="bg-transparent text-slate-800 focus:outline-none cursor-pointer text-xs"
             >
-              <option value="all" className="bg-slate-900">Milestones & Payments</option>
-              <option value="milestone" className="bg-slate-900">Milestones Only</option>
-              <option value="payment" className="bg-slate-900">Payment Dues Only</option>
+              <option value="all" className="bg-white">Milestones & Payments</option>
+              <option value="milestone" className="bg-white">Milestones Only</option>
+              <option value="payment" className="bg-white">Payment Dues Only</option>
             </select>
           </div>
 
           {/* Quotation Selector */}
-          <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
-            <Filter className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700">
+            <Filter className="w-3.5 h-3.5 text-cyan-600" />
             <select
               value={selectedQuoteFilter}
               onChange={(e) => setSelectedQuoteFilter(e.target.value)}
-              className="bg-transparent text-slate-200 focus:outline-none cursor-pointer text-xs max-w-[140px] truncate"
+              className="bg-transparent text-slate-800 focus:outline-none cursor-pointer text-xs max-w-[140px] truncate"
             >
-              <option value="all" className="bg-slate-900">All Projects</option>
+              <option value="all" className="bg-white">All Projects</option>
               {activeQuotations.map((q) => (
-                <option key={q.id} value={q.quotationNumber} className="bg-slate-900">
+                <option key={q.id} value={q.quotationNumber} className="bg-white">
                   {q.quotationNumber} ({q.customer.companyName || q.customer.name})
                 </option>
               ))}
@@ -424,15 +424,15 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
+          <div className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="bg-transparent text-slate-200 focus:outline-none cursor-pointer text-xs"
+              className="bg-transparent text-slate-800 focus:outline-none cursor-pointer text-xs"
             >
-              <option value="all" className="bg-slate-900">All Statuses</option>
-              <option value="pending" className="bg-slate-900">Upcoming / Pending</option>
-              <option value="completed" className="bg-slate-900">Completed / Paid</option>
+              <option value="all" className="bg-white">All Statuses</option>
+              <option value="pending" className="bg-white">Upcoming / Pending</option>
+              <option value="completed" className="bg-white">Completed / Paid</option>
             </select>
           </div>
         </div>
@@ -440,12 +440,12 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
       {/* 3. VIEW MODE A: INTERACTIVE MONTH CALENDAR GRID */}
       {viewMode === 'month' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs">
           {/* Calendar Month Header & Month Navigation */}
-          <div className="p-4 sm:p-5 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+          <div className="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h4 className="text-base sm:text-lg font-bold text-white">{monthName}</h4>
-              <span className="text-xs text-slate-400 font-mono hidden sm:inline-block">
+              <h4 className="text-base sm:text-lg font-bold text-slate-900">{monthName}</h4>
+              <span className="text-xs text-slate-500 font-mono hidden sm:inline-block">
                 ({filteredEvents.length} events scheduled)
               </span>
             </div>
@@ -454,7 +454,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
               <button
                 type="button"
                 onClick={handleJumpToToday}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all"
+                className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all"
               >
                 Today
               </button>
@@ -462,7 +462,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all"
                 title="Previous Month"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -471,7 +471,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all"
                 title="Next Month"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -480,17 +480,17 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
           </div>
 
           {/* Day of Week Header */}
-          <div className="grid grid-cols-7 bg-slate-950/50 border-b border-slate-800 text-center text-xs font-bold text-slate-400 py-2.5">
+          <div className="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-xs font-bold text-slate-500 py-2.5">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
               <div key={d} className="uppercase tracking-wider text-[11px]">{d}</div>
             ))}
           </div>
 
           {/* 7-Column Monthly Grid */}
-          <div className="grid grid-cols-7 auto-rows-fr bg-slate-900/60 divide-x divide-y divide-slate-800/60">
+          <div className="grid grid-cols-7 auto-rows-fr bg-white divide-x divide-y divide-slate-100">
             {/* Blank offset days */}
             {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
-              <div key={`blank-${idx}`} className="min-h-[90px] sm:min-h-[110px] p-2 bg-slate-950/20" />
+              <div key={`blank-${idx}`} className="min-h-[90px] sm:min-h-[110px] p-2 bg-slate-50/40" />
             ))}
 
             {/* Month Day Cells */}
@@ -510,17 +510,17 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                     }
                   }}
                   className={`min-h-[90px] sm:min-h-[115px] p-1.5 sm:p-2 transition-all flex flex-col justify-between ${
-                    dayEvents.length > 0 ? 'cursor-pointer hover:bg-slate-800/40' : ''
-                  } ${isToday ? 'bg-cyan-950/20 ring-1 ring-inset ring-cyan-500/40' : ''} ${
-                    isSelected ? 'bg-cyan-950/40 ring-2 ring-inset ring-cyan-400' : ''
+                    dayEvents.length > 0 ? 'cursor-pointer hover:bg-slate-50' : ''
+                  } ${isToday ? 'bg-cyan-50/50 ring-1 ring-inset ring-cyan-500/40' : ''} ${
+                    isSelected ? 'bg-cyan-50 ring-2 ring-inset ring-cyan-500' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span
                       className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center font-mono ${
                         isToday
-                          ? 'bg-cyan-500 text-slate-950 font-black shadow-sm shadow-cyan-500/40'
-                          : 'text-slate-300'
+                          ? 'bg-cyan-600 text-white font-black shadow-xs'
+                          : 'text-slate-700'
                       }`}
                     >
                       {dayNum}
@@ -550,15 +550,15 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                           className={`px-1.5 py-0.5 rounded-lg text-[10px] font-semibold truncate flex items-center gap-1 border transition-all ${
                             isMilestone
                               ? isCompleted
-                                ? 'bg-emerald-950/80 border-emerald-800 text-emerald-300'
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                                 : isDelayed
-                                ? 'bg-rose-950/90 border-rose-800 text-rose-300'
-                                : 'bg-cyan-950/80 border-cyan-800 text-cyan-300 hover:border-cyan-600'
+                                ? 'bg-rose-50 border-rose-200 text-rose-700'
+                                : 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:border-cyan-400'
                               : isCompleted
-                              ? 'bg-emerald-950/80 border-emerald-800 text-emerald-300'
+                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                               : isDelayed
-                              ? 'bg-rose-950/90 border-rose-800 text-rose-300'
-                              : 'bg-amber-950/80 border-amber-800 text-amber-300 hover:border-amber-600'
+                              ? 'bg-rose-50 border-rose-200 text-rose-700'
+                              : 'bg-amber-50 border-amber-200 text-amber-700 hover:border-amber-400'
                           }`}
                           title={`${isMilestone ? 'Milestone' : 'Payment Due'}: ${ev.title}`}
                         >
@@ -575,7 +575,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                     })}
 
                     {dayEvents.length > 2 && (
-                      <div className="text-[9px] font-mono text-cyan-400 font-bold px-1">
+                      <div className="text-[9px] font-mono text-cyan-700 font-bold px-1">
                         +{dayEvents.length - 2} more items
                       </div>
                     )}
@@ -587,16 +587,16 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
           {/* Selected Day Drawer / Highlights */}
           {selectedDayEvents && (
-            <div className="p-4 sm:p-5 bg-slate-950/90 border-t border-slate-800">
+            <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200">
               <div className="flex items-center justify-between mb-3">
-                <h5 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4 text-cyan-400" />
+                <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4 text-cyan-600" />
                   <span>Events on {selectedDayEvents.date}</span>
                 </h5>
                 <button
                   type="button"
                   onClick={() => setSelectedDayEvents(null)}
-                  className="text-slate-400 hover:text-white text-xs flex items-center gap-1"
+                  className="text-slate-500 hover:text-slate-900 text-xs flex items-center gap-1"
                 >
                   <X className="w-3.5 h-3.5" />
                   <span>Close Drawer</span>
@@ -608,51 +608,51 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                   <div
                     key={ev.id}
                     onClick={() => setActiveModalEvent(ev)}
-                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
+                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] bg-white shadow-xs ${
                       ev.type === 'milestone'
-                        ? 'bg-slate-900 border-cyan-800/60 hover:border-cyan-500'
-                        : 'bg-slate-900 border-amber-800/60 hover:border-amber-500'
+                        ? 'border-cyan-200 hover:border-cyan-400'
+                        : 'border-amber-200 hover:border-amber-400'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <span
                         className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border flex items-center gap-1 ${
                           ev.type === 'milestone'
-                            ? 'bg-cyan-950 border-cyan-800 text-cyan-300'
-                            : 'bg-amber-950 border-amber-800 text-amber-300'
+                            ? 'bg-cyan-50 border-cyan-200 text-cyan-700'
+                            : 'bg-amber-50 border-amber-200 text-amber-700'
                         }`}
                       >
                         {ev.type === 'milestone' ? (
                           <>
-                            <Clock className="w-3 h-3 text-cyan-400" />
+                            <Clock className="w-3 h-3 text-cyan-600" />
                             <span>Milestone: {ev.phase}</span>
                           </>
                         ) : (
                           <>
-                            <CreditCard className="w-3 h-3 text-amber-400" />
+                            <CreditCard className="w-3 h-3 text-amber-600" />
                             <span>Payment Due: {ev.paymentStage}</span>
                           </>
                         )}
                       </span>
 
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ${
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono border ${
                           ev.status === 'completed' || ev.status === 'paid'
-                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : ev.status === 'delayed' || ev.status === 'overdue'
-                            ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                            : 'bg-slate-800 text-slate-300'
+                            ? 'bg-rose-50 text-rose-700 border-rose-200'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
                         }`}
                       >
                         {ev.status.toUpperCase()}
                       </span>
                     </div>
 
-                    <h6 className="text-xs font-bold text-white mb-1 leading-snug">{ev.title}</h6>
-                    <p className="text-[11px] text-slate-400">Quote #{ev.quotationNumber} • {ev.projectName}</p>
+                    <h6 className="text-xs font-bold text-slate-900 mb-1 leading-snug">{ev.title}</h6>
+                    <p className="text-[11px] text-slate-500">Quote #{ev.quotationNumber} • {ev.projectName}</p>
 
                     {ev.type === 'milestone' && (
-                      <div className="mt-2 pt-2 border-t border-slate-800">
+                      <div className="mt-2 pt-2 border-t border-slate-100">
                         <MilestoneProgressBar
                           progress={ev.milestone?.progressPercent ?? (ev.status === 'completed' ? 100 : ev.status === 'in_progress' ? 50 : 0)}
                           status={(ev.milestone?.status || (ev.status === 'completed' ? 'completed' : ev.status === 'delayed' ? 'delayed' : ev.status === 'in_progress' ? 'in_progress' : 'upcoming')) as MilestoneStatus}
@@ -666,7 +666,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                     )}
 
                     {ev.amount && (
-                      <div className="mt-2 text-sm font-extrabold font-mono text-amber-400">
+                      <div className="mt-2 text-sm font-extrabold font-mono text-amber-700">
                         ₹{ev.amount.toLocaleString('en-IN')}
                       </div>
                     )}
@@ -682,13 +682,13 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
       {viewMode === 'agenda' && (
         <div className="space-y-4">
           {filteredEvents.length === 0 ? (
-            <div className="p-12 text-center bg-slate-900/60 border border-slate-800 rounded-3xl text-slate-400">
-              <CalendarIcon className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <h5 className="text-base font-bold text-white">No Scheduled Items Found</h5>
+            <div className="p-12 text-center bg-white border border-slate-200 rounded-3xl text-slate-500 shadow-xs">
+              <CalendarIcon className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+              <h5 className="text-base font-bold text-slate-900">No Scheduled Items Found</h5>
               <p className="text-xs text-slate-500 mt-1">Try changing the filters above to inspect past or other project deliverables.</p>
             </div>
           ) : (
-            <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-gradient-to-b before:from-cyan-500 before:via-amber-500 before:to-slate-800">
+            <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-gradient-to-b before:from-cyan-500 before:via-amber-500 before:to-slate-300">
               {filteredEvents.map((item) => {
                 const isMilestone = item.type === 'milestone';
                 const isCompleted = item.status === 'completed' || item.status === 'paid';
@@ -701,15 +701,15 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                       className={`absolute -left-6 sm:-left-8 top-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                         isMilestone
                           ? isCompleted
-                            ? 'bg-emerald-950 border-emerald-400 text-emerald-400 shadow-md shadow-emerald-500/20'
+                            ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-xs'
                             : isOverdue
-                            ? 'bg-rose-950 border-rose-500 text-rose-400'
-                            : 'bg-cyan-950 border-cyan-400 text-cyan-400'
+                            ? 'bg-rose-50 border-rose-500 text-rose-700'
+                            : 'bg-cyan-50 border-cyan-500 text-cyan-700'
                           : isCompleted
-                          ? 'bg-emerald-950 border-emerald-400 text-emerald-400 shadow-md shadow-emerald-500/20'
+                          ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-xs'
                           : isOverdue
-                          ? 'bg-rose-950 border-rose-500 text-rose-400'
-                          : 'bg-amber-950 border-amber-400 text-amber-400'
+                          ? 'bg-rose-50 border-rose-500 text-rose-700'
+                          : 'bg-amber-50 border-amber-500 text-amber-700'
                       }`}
                     >
                       {isMilestone ? (
@@ -722,31 +722,27 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                     {/* Card Body */}
                     <div
                       onClick={() => setActiveModalEvent(item)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer hover:border-slate-700 bg-slate-900/90 ${
-                        isMilestone
-                          ? 'hover:shadow-cyan-950/20'
-                          : 'hover:shadow-amber-950/20'
-                      }`}
+                      className="p-4 rounded-2xl border border-slate-200 transition-all cursor-pointer hover:border-slate-300 bg-white shadow-xs"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
                             className={`text-[10px] font-bold font-mono px-2.5 py-0.5 rounded-full border ${
                               isMilestone
-                                ? 'bg-cyan-950/80 border-cyan-800 text-cyan-300'
-                                : 'bg-amber-950/80 border-amber-800 text-amber-300'
+                                ? 'bg-cyan-50 border-cyan-200 text-cyan-700'
+                                : 'bg-amber-50 border-amber-200 text-amber-700'
                             }`}
                           >
                             {isMilestone ? `Milestone • ${item.phase}` : `Payment Due • ${item.paymentStage}`}
                           </span>
 
-                          <span className="text-xs font-mono text-slate-400">
+                          <span className="text-xs font-mono text-slate-500">
                             Quote #{item.quotationNumber}
                           </span>
 
                           {item.moduleName && (
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-indigo-950/80 border border-indigo-700/60 text-indigo-300 flex items-center gap-1">
-                              <Cpu className="w-3 h-3 text-indigo-400" />
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center gap-1">
+                              <Cpu className="w-3 h-3 text-indigo-600" />
                               <span>{item.moduleName}</span>
                             </span>
                           )}
@@ -754,16 +750,16 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
                         {/* Due Date Badge */}
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono font-bold text-slate-200">
+                          <span className="text-xs font-mono font-bold text-slate-800">
                             {item.date}
                           </span>
                           <span
-                            className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${
+                            className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${
                               isCompleted
-                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : isOverdue
-                                ? 'bg-rose-950 text-rose-300 border border-rose-800 animate-pulse'
-                                : 'bg-slate-800 text-slate-300'
+                                ? 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+                                : 'bg-slate-100 text-slate-700 border-slate-200'
                             }`}
                           >
                             {isCompleted ? 'COMPLETED' : isOverdue ? 'OVERDUE' : 'SCHEDULED'}
@@ -773,14 +769,14 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
-                          <h4 className="text-sm font-bold text-white">{item.title}</h4>
-                          <p className="text-xs text-slate-400 mt-0.5">{item.projectName}</p>
+                          <h4 className="text-sm font-bold text-slate-900">{item.title}</h4>
+                          <p className="text-xs text-slate-500 mt-0.5">{item.projectName}</p>
                         </div>
 
                         {item.amount && (
                           <div className="text-left sm:text-right shrink-0">
                             <span className="text-[10px] uppercase font-bold text-slate-500 block">Amount Payable</span>
-                            <span className="text-base font-black text-amber-400 font-mono">
+                            <span className="text-base font-black text-amber-700 font-mono">
                               ₹{item.amount.toLocaleString('en-IN')}
                             </span>
                           </div>
@@ -788,7 +784,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                       </div>
 
                       {item.type === 'milestone' && (
-                        <div className="mt-3 pt-3 border-t border-slate-800/80">
+                        <div className="mt-3 pt-3 border-t border-slate-100">
                           <MilestoneProgressBar
                             progress={item.milestone?.progressPercent ?? (item.status === 'completed' ? 100 : item.status === 'in_progress' ? 50 : 0)}
                             status={(item.milestone?.status || (item.status === 'completed' ? 'completed' : item.status === 'delayed' ? 'delayed' : item.status === 'in_progress' ? 'in_progress' : 'upcoming')) as MilestoneStatus}
@@ -812,21 +808,21 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
       {/* 5. VIEW MODE C: DEDICATED FINANCIAL PAYMENT DUE SCHEDULE */}
       {viewMode === 'payments' && (
         <div className="space-y-4">
-          <div className="p-4 sm:p-5 rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+          <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200 overflow-hidden shadow-xs">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-amber-400" />
+                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-amber-600" />
                   <span>Client Payment Due Roadmap & Milestone Schedule</span>
                 </h4>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Scheduled payment milestones tied to 50% advance kickoff and final project acceptance.
                 </p>
               </div>
 
               <div className="text-right">
                 <span className="text-[10px] font-bold text-slate-500 uppercase block">Pending Settlement</span>
-                <span className="text-base sm:text-lg font-black text-amber-400 font-mono">
+                <span className="text-base sm:text-lg font-black text-amber-700 font-mono">
                   ₹{totalOutstandingBalance.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -834,8 +830,8 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
             {/* Table of Payment Dues */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950/80 text-slate-400 font-semibold border-b border-slate-800 text-[11px] uppercase tracking-wider">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 text-[11px] uppercase tracking-wider">
                   <tr>
                     <th className="py-3 px-4">Payment Stage & Description</th>
                     <th className="py-3 px-4">Quotation #</th>
@@ -845,7 +841,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-slate-100 font-medium">
                   {allEvents
                     .filter((e) => e.type === 'payment')
                     .map((item) => {
@@ -855,11 +851,11 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                       return (
                         <tr
                           key={item.id}
-                          className="hover:bg-slate-800/40 transition-colors"
+                          className="hover:bg-slate-50 transition-colors"
                         >
                           <td className="py-3 px-4">
-                            <div className="font-bold text-white flex items-center gap-2">
-                              <span className="p-1 rounded-lg bg-amber-950 text-amber-400 border border-amber-800/80">
+                            <div className="font-bold text-slate-900 flex items-center gap-2">
+                              <span className="p-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
                                 <CreditCard className="w-3.5 h-3.5" />
                               </span>
                               <span>{item.title}</span>
@@ -867,26 +863,26 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                             <span className="text-[11px] text-slate-500 block mt-0.5">{item.notes}</span>
                           </td>
 
-                          <td className="py-3 px-4 font-mono text-cyan-300">
+                          <td className="py-3 px-4 font-mono text-cyan-700">
                             #{item.quotationNumber}
                           </td>
 
-                          <td className="py-3 px-4 font-mono text-slate-300">
+                          <td className="py-3 px-4 font-mono text-slate-700">
                             {item.date}
                           </td>
 
-                          <td className="py-3 px-4 text-right font-mono font-bold text-sm text-amber-300">
+                          <td className="py-3 px-4 text-right font-mono font-bold text-sm text-amber-700">
                             ₹{item.amount?.toLocaleString('en-IN')}
                           </td>
 
                           <td className="py-3 px-4 text-center">
                             <span
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono inline-flex items-center gap-1 ${
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono inline-flex items-center gap-1 border ${
                                 isPaid
-                                  ? 'bg-emerald-950 border border-emerald-800 text-emerald-300'
+                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                                   : isOverdue
-                                  ? 'bg-rose-950 border border-rose-800 text-rose-300'
-                                  : 'bg-amber-950 border border-amber-800 text-amber-300'
+                                  ? 'bg-rose-50 border-rose-200 text-rose-700'
+                                  : 'bg-amber-50 border-amber-200 text-amber-700'
                               }`}
                             >
                               {isPaid ? (
@@ -913,7 +909,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                               <button
                                 type="button"
                                 onClick={() => setActiveModalEvent(item)}
-                                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all"
+                                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all"
                               >
                                 View Details
                               </button>
@@ -924,7 +920,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                                 )})%20of%20INR%20${item.amount}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-1 rounded-lg bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300"
+                                className="p-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700"
                                 title="Chat on WhatsApp"
                               >
                                 <MessageCircle className="w-3.5 h-3.5" />
@@ -943,15 +939,15 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
       {/* 6. EVENT DETAIL MODAL (Milestone or Payment Due) */}
       {activeModalEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
                 <span
                   className={`p-2 rounded-xl border ${
                     activeModalEvent.type === 'milestone'
-                      ? 'bg-cyan-950 border-cyan-800 text-cyan-400'
-                      : 'bg-amber-950 border-amber-800 text-amber-400'
+                      ? 'bg-cyan-50 border-cyan-200 text-cyan-700'
+                      : 'bg-amber-50 border-amber-200 text-amber-700'
                   }`}
                 >
                   {activeModalEvent.type === 'milestone' ? (
@@ -961,27 +957,27 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                   )}
                 </span>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">
                     {activeModalEvent.type === 'milestone' ? 'Project Milestone Checkpoint' : 'Payment Due Checkpoint'}
                   </span>
-                  <h4 className="text-base font-bold text-white leading-tight">{activeModalEvent.title}</h4>
+                  <h4 className="text-base font-bold text-slate-900 leading-tight">{activeModalEvent.title}</h4>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setActiveModalEvent(null)}
-                className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
+                className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Event Key Data Grid */}
-            <div className="grid grid-cols-2 gap-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 text-xs">
+            <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
               <div>
                 <span className="text-[10px] text-slate-500 uppercase block font-semibold">Scheduled Date</span>
-                <span className="font-bold font-mono text-cyan-300 text-sm">{activeModalEvent.date}</span>
+                <span className="font-bold font-mono text-cyan-700 text-sm">{activeModalEvent.date}</span>
               </div>
 
               <div>
@@ -989,10 +985,10 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                 <span
                   className={`font-bold uppercase font-mono ${
                     activeModalEvent.status === 'completed' || activeModalEvent.status === 'paid'
-                      ? 'text-emerald-400'
+                      ? 'text-emerald-600'
                       : activeModalEvent.status === 'delayed' || activeModalEvent.status === 'overdue'
-                      ? 'text-rose-400'
-                      : 'text-amber-400'
+                      ? 'text-rose-600'
+                      : 'text-amber-600'
                   }`}
                 >
                   {activeModalEvent.status}
@@ -1001,18 +997,18 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
               <div>
                 <span className="text-[10px] text-slate-500 uppercase block font-semibold">Quotation</span>
-                <span className="font-mono text-slate-200">#{activeModalEvent.quotationNumber}</span>
+                <span className="font-mono text-slate-700 font-medium">#{activeModalEvent.quotationNumber}</span>
               </div>
 
               <div>
                 <span className="text-[10px] text-slate-500 uppercase block font-semibold">Project</span>
-                <span className="text-slate-200 truncate block">{activeModalEvent.projectName}</span>
+                <span className="text-slate-700 font-medium truncate block">{activeModalEvent.projectName}</span>
               </div>
 
               {activeModalEvent.amount && (
-                <div className="col-span-2 pt-2 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400 uppercase font-bold">Total Amount Due</span>
-                  <span className="text-lg font-black text-amber-400 font-mono">
+                <div className="col-span-2 pt-2 border-t border-slate-200 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Amount Due</span>
+                  <span className="text-lg font-black text-amber-600 font-mono">
                     ₹{activeModalEvent.amount.toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -1021,7 +1017,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
 
             {/* Visual Progress Bar if event is a milestone */}
             {activeModalEvent.type === 'milestone' && (
-              <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
                 <MilestoneProgressBar
                   progress={activeModalEvent.milestone?.progressPercent ?? (activeModalEvent.status === 'completed' ? 100 : activeModalEvent.status === 'in_progress' ? 50 : 0)}
                   status={(activeModalEvent.milestone?.status || (activeModalEvent.status === 'completed' ? 'completed' : activeModalEvent.status === 'delayed' ? 'delayed' : activeModalEvent.status === 'in_progress' ? 'in_progress' : 'upcoming')) as MilestoneStatus}
@@ -1037,13 +1033,13 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
             {/* Deliverables or Payment Instructions */}
             {activeModalEvent.type === 'milestone' && activeModalEvent.deliverables && (
               <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
                   Deliverables & Verification Criteria:
                 </span>
                 <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                   {activeModalEvent.deliverables.map((d, i) => (
-                    <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                    <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
                       <span>{d}</span>
                     </div>
                   ))}
@@ -1052,23 +1048,23 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
             )}
 
             {activeModalEvent.type === 'payment' && (
-              <div className="p-3.5 rounded-2xl bg-amber-950/20 border border-amber-800/60 space-y-2 text-xs text-slate-300">
-                <span className="font-bold text-amber-300 flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-amber-400" />
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2 text-xs text-slate-700">
+                <span className="font-bold text-amber-800 flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-amber-600" />
                   <span>Payment Settlement Instructions:</span>
                 </span>
-                <p className="text-slate-400 text-[11px] leading-relaxed">
+                <p className="text-slate-600 text-[11px] leading-relaxed">
                   Payments are accepted via UPI, NEFT/RTGS, or Razorpay. Please reference quotation #{activeModalEvent.quotationNumber} during transfer to ensure automated receipt generation.
                 </p>
-                <div className="pt-1 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                <div className="pt-1 flex items-center justify-between text-[11px] font-mono text-slate-500">
                   <span>GST Invoice: Available upon verification</span>
-                  <span className="text-emerald-400 font-bold">50% Advance Model</span>
+                  <span className="text-emerald-700 font-bold">50% Advance Model</span>
                 </div>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
               <a
                 href={
                   activeModalEvent.type === 'milestone' && activeModalEvent.milestone
@@ -1077,9 +1073,9 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                 }
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all"
               >
-                <CalendarPlus className="w-3.5 h-3.5 text-cyan-400" />
+                <CalendarPlus className="w-3.5 h-3.5 text-cyan-600" />
                 <span>Add to Google Calendar</span>
               </a>
 
@@ -1091,7 +1087,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                       onSelectMilestone(activeModalEvent.milestone!);
                       setActiveModalEvent(null);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md shadow-cyan-600/20"
+                    className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-xs"
                   >
                     Open in Gantt
                   </button>
@@ -1107,7 +1103,7 @@ export const MilestonePaymentCalendar: React.FC<MilestonePaymentCalendarProps> =
                         setActiveModalEvent(null);
                       }
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all"
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all"
                   >
                     View Quote
                   </button>

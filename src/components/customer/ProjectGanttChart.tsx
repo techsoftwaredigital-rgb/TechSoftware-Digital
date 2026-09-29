@@ -285,46 +285,46 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
           bar: 'bg-emerald-500',
           fill: 'from-emerald-500 to-teal-400',
           border: 'border-emerald-400/50',
-          badge: 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
+          badge: 'bg-emerald-50 text-emerald-700 border-emerald-200'
         };
       case 'in_progress':
         return {
           bar: 'bg-cyan-500',
           fill: 'from-cyan-500 via-blue-500 to-indigo-500',
           border: 'border-cyan-400/60',
-          badge: 'bg-cyan-950/80 text-cyan-300 border-cyan-800'
+          badge: 'bg-cyan-50 text-cyan-700 border-cyan-200'
         };
       case 'delayed':
         return {
           bar: 'bg-rose-500',
           fill: 'from-rose-500 to-amber-500',
           border: 'border-rose-400/60',
-          badge: 'bg-rose-950/80 text-rose-300 border-rose-800'
+          badge: 'bg-rose-50 text-rose-700 border-rose-200'
         };
       default:
         return {
-          bar: 'bg-slate-600',
-          fill: 'from-slate-600 to-slate-700',
-          border: 'border-slate-600/50',
-          badge: 'bg-slate-900 text-slate-400 border-slate-800'
+          bar: 'bg-slate-400',
+          fill: 'from-slate-400 to-slate-500',
+          border: 'border-slate-300',
+          badge: 'bg-slate-100 text-slate-600 border-slate-200'
         };
     }
   };
 
   return (
-    <div className="rounded-3xl bg-slate-950/90 border border-slate-800 p-4 sm:p-6 space-y-4 shadow-xl">
+    <div className="rounded-3xl bg-white border border-slate-200 p-4 sm:p-6 space-y-4 shadow-xs">
       {/* Chart Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-400">
+            <span className="p-1.5 rounded-lg bg-cyan-50 border border-cyan-200 text-cyan-700">
               <Calendar className="w-4 h-4" />
             </span>
-            <h3 className="text-sm sm:text-base font-black text-white">
+            <h3 className="text-sm sm:text-base font-black text-slate-900">
               Gantt-Style Project Phase Timeline
             </h3>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Visual milestone breakdown mapping sprint start dates, durations, and projected deliverables.
           </p>
         </div>
@@ -332,7 +332,7 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none shrink-0">
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1 mr-1">
-            <Filter className="w-3 h-3 text-cyan-400" />
+            <Filter className="w-3 h-3 text-cyan-600" />
             Filter:
           </span>
           {[
@@ -348,8 +348,8 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
                 onClick={() => setSelectedPhaseFilter(tab.value)}
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all ${
                   isSelected
-                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
-                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'bg-cyan-600 text-white shadow-xs'
+                    : 'bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900'
                 }`}
               >
                 {tab.label}
@@ -361,50 +361,50 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
 
       {/* Date Range Summary Banner */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-        <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/80">
+        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
           <span className="text-[10px] text-slate-500 block uppercase font-bold">Sprint Kickoff</span>
-          <span className="text-xs font-bold text-white font-mono">
+          <span className="text-xs font-bold text-slate-800 font-mono">
             {effectiveProject.startDate || chartData[0]?.startDate || '2026-09-18'}
           </span>
         </div>
 
-        <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/80">
+        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
           <span className="text-[10px] text-slate-500 block uppercase font-bold">Target Live Date</span>
-          <span className="text-xs font-bold text-cyan-400 font-mono">
+          <span className="text-xs font-bold text-cyan-700 font-mono">
             {effectiveProject.expectedCompletionDate || chartData[chartData.length - 1]?.targetDate || '2026-10-25'}
           </span>
         </div>
 
-        <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/80">
+        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
           <span className="text-[10px] text-slate-500 block uppercase font-bold">Total Span</span>
-          <span className="text-xs font-bold text-emerald-400 font-mono">
+          <span className="text-xs font-bold text-emerald-700 font-mono">
             {totalTimelineDays} Days ({Math.ceil(totalTimelineDays / 7)} Weeks)
           </span>
         </div>
 
-        <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/80">
+        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
           <span className="text-[10px] text-slate-500 block uppercase font-bold">Milestones</span>
-          <span className="text-xs font-bold text-slate-200">
+          <span className="text-xs font-bold text-slate-800">
             {chartData.filter((b) => b.status === 'completed').length} / {chartData.length} Completed
           </span>
         </div>
       </div>
 
       {/* Gantt Canvas Chart Container */}
-      <div className="overflow-x-auto pb-3 pt-1 scrollbar-thin scrollbar-thumb-slate-800">
+      <div className="overflow-x-auto pb-3 pt-1 scrollbar-thin scrollbar-thumb-slate-200">
         <div className="min-w-[640px] space-y-3">
           {/* Timeline Header Ruler */}
-          <div className="relative h-7 border-b border-slate-800 pl-44 pr-4">
+          <div className="relative h-7 border-b border-slate-200 pl-44 pr-4">
             {timelineWeeks.map((week, idx) => (
               <div
                 key={idx}
                 style={{ left: `${week.percent}%` }}
                 className="absolute top-0 -translate-x-1/2 flex flex-col items-center"
               >
-                <span className="text-[10px] text-slate-400 font-mono font-medium whitespace-nowrap">
+                <span className="text-[10px] text-slate-500 font-mono font-medium whitespace-nowrap">
                   {week.label}
                 </span>
-                <div className="w-px h-2 bg-slate-800 mt-0.5" />
+                <div className="w-px h-2 bg-slate-200 mt-0.5" />
               </div>
             ))}
           </div>
@@ -415,9 +415,9 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
             {todayPercent !== null && (
               <div
                 style={{ left: `calc(11rem + (100% - 12rem) * ${todayPercent / 100})` }}
-                className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-400 via-cyan-500 to-transparent z-20 pointer-events-none"
+                className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500 via-cyan-600 to-transparent z-20 pointer-events-none"
               >
-                <div className="absolute -top-3.5 -translate-x-1/2 px-1.5 py-0.5 rounded bg-cyan-500 text-slate-950 font-mono text-[9px] font-black shadow-lg">
+                <div className="absolute -top-3.5 -translate-x-1/2 px-1.5 py-0.5 rounded bg-cyan-600 text-white font-mono text-[9px] font-black shadow-xs">
                   TODAY
                 </div>
               </div>
@@ -438,22 +438,22 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
                   onMouseEnter={() => setHoveredBarId(item.id)}
                   onMouseLeave={() => setHoveredBarId(null)}
                   className={`flex items-center group transition-colors rounded-xl p-1.5 ${
-                    isHovered ? 'bg-slate-900/90 ring-1 ring-slate-800' : 'hover:bg-slate-900/40'
+                    isHovered ? 'bg-slate-50 ring-1 ring-slate-200' : 'hover:bg-slate-50/60'
                   }`}
                 >
                   {/* Left Label & Metadata */}
                   <div className="w-44 shrink-0 pr-3 space-y-0.5">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-white truncate" title={item.title}>
+                      <span className="text-xs font-bold text-slate-800 truncate" title={item.title}>
                         {item.title}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[10px] text-slate-500 truncate">
-                      <span className={`px-1.5 py-0.2 rounded font-bold uppercase ${colors.badge}`}>
+                      <span className={`px-1.5 py-0.5 rounded font-bold uppercase border ${colors.badge}`}>
                         {item.status.replace('_', ' ')}
                       </span>
                       {item.moduleName && (
-                        <span className="truncate text-slate-400" title={item.moduleName}>
+                        <span className="truncate text-slate-500" title={item.moduleName}>
                           • {item.moduleName}
                         </span>
                       )}
@@ -461,13 +461,13 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
                   </div>
 
                   {/* Right Timeline Bar Track */}
-                  <div className="flex-1 relative h-9 bg-slate-950/60 rounded-xl border border-slate-900 overflow-hidden flex items-center">
+                  <div className="flex-1 relative h-9 bg-slate-100 rounded-xl border border-slate-200 overflow-hidden flex items-center">
                     {/* Vertical grid lines matching ruler */}
                     {timelineWeeks.map((week, wIdx) => (
                       <div
                         key={wIdx}
                         style={{ left: `${week.percent}%` }}
-                        className="absolute inset-y-0 w-px bg-slate-900/60 pointer-events-none"
+                        className="absolute inset-y-0 w-px bg-slate-200 pointer-events-none"
                       />
                     ))}
 
@@ -482,12 +482,12 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
                         left: `${leftPercent}%`,
                         width: `${widthPercent}%`
                       }}
-                      className={`absolute h-7 rounded-lg border ${colors.border} bg-gradient-to-r ${colors.fill} shadow-md flex items-center justify-between px-2 text-white transition-all cursor-pointer ${
-                        isHovered ? 'scale-y-110 shadow-lg shadow-cyan-950/60 ring-1 ring-white/30' : ''
+                      className={`absolute h-7 rounded-lg border ${colors.border} bg-gradient-to-r ${colors.fill} shadow-xs flex items-center justify-between px-2 text-white transition-all cursor-pointer ${
+                        isHovered ? 'scale-y-110 shadow-md ring-1 ring-white/30' : ''
                       }`}
                     >
                       {/* Bar Content */}
-                      <div className="flex items-center gap-1 min-w-0 overflow-hidden text-[10px] font-bold drop-shadow-sm">
+                      <div className="flex items-center gap-1 min-w-0 overflow-hidden text-[10px] font-bold drop-shadow-xs">
                         {item.status === 'completed' ? (
                           <CheckCircle2 className="w-3 h-3 text-white shrink-0" />
                         ) : item.status === 'in_progress' ? (
@@ -496,7 +496,7 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
                         <span className="truncate">{item.phase}</span>
                       </div>
 
-                      <span className="font-mono text-[9px] font-black shrink-0 ml-1 bg-black/30 px-1 py-0.5 rounded">
+                      <span className="font-mono text-[9px] font-black shrink-0 ml-1 bg-black/20 px-1 py-0.5 rounded">
                         {item.progressPercent}%
                       </span>
                     </div>
@@ -510,7 +510,7 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
 
       {/* Interactive Detail Box when hovered */}
       {hoveredBarId && (
-        <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs animate-in fade-in duration-150">
+        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs animate-in fade-in duration-150">
           {(() => {
             const active = chartData.find((b) => b.id === hoveredBarId);
             if (!active) return null;
@@ -518,23 +518,23 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <strong className="text-white text-sm">{active.title}</strong>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold uppercase">
+                    <strong className="text-slate-900 text-sm">{active.title}</strong>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold uppercase">
                       {active.phase}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400">
-                    Module: <strong className="text-slate-200">{active.moduleName || 'Core Feature'}</strong> •{' '}
+                  <p className="text-[11px] text-slate-600">
+                    Module: <strong className="text-slate-800">{active.moduleName || 'Core Feature'}</strong> •{' '}
                     {active.deliverablesCount} Deliverables in scope
                   </p>
                 </div>
 
                 <div className="text-right shrink-0 flex sm:block items-center justify-between">
-                  <div className="text-[11px] text-slate-400 font-mono">
-                    <span>{active.startDate}</span> → <strong className="text-cyan-400">{active.targetDate}</strong>
+                  <div className="text-[11px] text-slate-500 font-mono">
+                    <span>{active.startDate}</span> → <strong className="text-cyan-700">{active.targetDate}</strong>
                   </div>
                   <div className="text-[10px] text-slate-500">
-                    Duration: <strong className="text-slate-300">{active.durationDays} calendar days</strong>
+                    Duration: <strong className="text-slate-700">{active.durationDays} calendar days</strong>
                   </div>
                 </div>
               </div>
@@ -544,24 +544,24 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
       )}
 
       {/* Gantt Legend */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
             <span>Completed Phase</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
             <span>Active Sprint in Progress</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
             <span>Upcoming / Scheduled</span>
           </div>
         </div>
 
         <div className="flex items-center gap-1 text-[10px] text-slate-500">
-          <Info className="w-3 h-3 text-cyan-400" />
+          <Info className="w-3 h-3 text-cyan-600" />
           <span>Hover over any milestone bar to view duration & scope details</span>
         </div>
       </div>

@@ -201,30 +201,30 @@ Warm regards,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-emerald-500/50 rounded-2xl shadow-2xl overflow-hidden my-4 flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden my-4 flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-950/80 via-slate-900 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-              <MessageSquare className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-xs">
+              <MessageSquare className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-white">Send WhatsApp Payment Reminder</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <h3 className="text-base font-black text-slate-900">Send WhatsApp Payment Reminder</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   Direct Link Included
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Pre-formatted reminder for <strong className="text-slate-200">{quotation.customer.name}</strong> ({quotation.quotationNumber})
+              <p className="text-xs text-slate-500">
+                Pre-formatted reminder for <strong className="text-slate-700">{quotation.customer.name}</strong> ({quotation.quotationNumber})
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -234,9 +234,9 @@ Warm regards,
         <div className="p-4 sm:p-5 space-y-4 overflow-y-auto text-xs">
           {/* Success Toast */}
           {sentSuccessToast && (
-            <div className="p-3 rounded-xl bg-emerald-950 border border-emerald-500/60 text-emerald-300 flex items-center justify-between animate-fadeIn">
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between animate-fadeIn">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 <span className="font-semibold">WhatsApp chat opened! Reminder dispatched to client.</span>
               </div>
               <span className="text-[10px] opacity-80 font-mono">Status updated</span>
@@ -244,30 +244,30 @@ Warm regards,
           )}
 
           {/* Quotation & Balance Overview Card */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200">
             <div>
               <span className="text-slate-500 block text-[10px]">Client</span>
-              <span className="font-bold text-white truncate block">{quotation.customer.name}</span>
-              <span className="text-[10px] text-slate-400 truncate block">{quotation.customer.companyName || 'Individual'}</span>
+              <span className="font-bold text-slate-900 truncate block">{quotation.customer.name}</span>
+              <span className="text-[10px] text-slate-500 truncate block">{quotation.customer.companyName || 'Individual'}</span>
             </div>
 
             <div>
               <span className="text-slate-500 block text-[10px]">Grand Total</span>
-              <span className="font-bold text-white text-sm">
+              <span className="font-bold text-slate-900 text-sm">
                 ₹{totalAmount.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-cyan-400 block font-mono">{quotation.quotationNumber}</span>
+              <span className="text-[10px] text-cyan-700 block font-mono font-medium">{quotation.quotationNumber}</span>
             </div>
 
             <div>
               <span className="text-slate-500 block text-[10px]">Payment Status</span>
               <span
-                className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold border mt-0.5 ${
+                className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border mt-0.5 ${
                   quotation.paymentStatus === 'Paid'
-                    ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                     : quotation.paymentStatus === 'Partial'
-                    ? 'bg-amber-950 text-amber-400 border-amber-800'
-                    : 'bg-rose-950 text-rose-400 border-rose-800'
+                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                    : 'bg-rose-50 text-rose-700 border-rose-200'
                 }`}
               >
                 {quotation.paymentStatus || 'Pending'}
@@ -276,10 +276,10 @@ Warm regards,
 
             <div>
               <span className="text-slate-500 block text-[10px]">Outstanding Balance</span>
-              <span className="font-black text-amber-400 text-sm block">
+              <span className="font-black text-amber-600 text-sm block">
                 ₹{outstandingAmount.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-slate-400">
+              <span className="text-[10px] text-slate-500">
                 {reminderType === 'advance' ? '50% Advance' : reminderType === 'balance' ? 'Milestone Bal.' : 'Full Due'}
               </span>
             </div>
@@ -287,9 +287,9 @@ Warm regards,
 
           {/* Reminder Stage Tabs */}
           <div>
-            <label className="block font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+            <label className="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
               <span>Select Reminder Template Stage:</span>
-              <span className="text-[10px] text-cyan-400 font-normal">Pre-configured message tone</span>
+              <span className="text-[10px] text-cyan-700 font-normal">Pre-configured message tone</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
@@ -298,10 +298,10 @@ Warm regards,
                   setReminderType('advance');
                   setIsEditingMessage(false);
                 }}
-                className={`p-2 rounded-xl text-left border transition-all ${
+                className={`p-2.5 rounded-2xl text-left border transition-all ${
                   reminderType === 'advance'
-                    ? 'bg-amber-500/15 border-amber-500 text-amber-300 font-bold shadow-sm'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-amber-50 border-amber-300 text-amber-900 font-bold shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-1.5 text-xs">
@@ -316,10 +316,10 @@ Warm regards,
                   setReminderType('balance');
                   setIsEditingMessage(false);
                 }}
-                className={`p-2 rounded-xl text-left border transition-all ${
+                className={`p-2.5 rounded-2xl text-left border transition-all ${
                   reminderType === 'balance'
-                    ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 font-bold shadow-sm'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-cyan-50 border-cyan-300 text-cyan-900 font-bold shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-1.5 text-xs">
@@ -334,10 +334,10 @@ Warm regards,
                   setReminderType('full');
                   setIsEditingMessage(false);
                 }}
-                className={`p-2 rounded-xl text-left border transition-all ${
+                className={`p-2.5 rounded-2xl text-left border transition-all ${
                   reminderType === 'full'
-                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-300 font-bold shadow-sm'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-1.5 text-xs">
@@ -352,10 +352,10 @@ Warm regards,
                   setReminderType('followup');
                   setIsEditingMessage(false);
                 }}
-                className={`p-2 rounded-xl text-left border transition-all ${
+                className={`p-2.5 rounded-2xl text-left border transition-all ${
                   reminderType === 'followup'
-                    ? 'bg-purple-500/15 border-purple-500 text-purple-300 font-bold shadow-sm'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-purple-50 border-purple-300 text-purple-900 font-bold shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-1.5 text-xs">
@@ -369,8 +369,8 @@ Warm regards,
           {/* Client WhatsApp Number & Direct Link Box */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-emerald-400" />
+              <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                <Phone className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Client WhatsApp Mobile Number</span>
               </label>
               <div className="relative">
@@ -379,36 +379,36 @@ Warm regards,
                   value={recipientPhone}
                   onChange={(e) => setRecipientPhone(e.target.value)}
                   placeholder="+91 9820112233"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono focus:outline-none focus:border-emerald-500 text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-mono focus:outline-none focus:border-emerald-500 text-xs"
                 />
               </div>
               <span className="text-[10px] text-slate-500 mt-1 block">
-                Normalized target: <span className="text-emerald-400 font-mono">+{normalizePhoneNumber(recipientPhone) || 'None'}</span>
+                Normalized target: <span className="text-emerald-700 font-mono font-semibold">+{normalizePhoneNumber(recipientPhone) || 'None'}</span>
               </span>
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-300 mb-1 flex items-center justify-between">
+              <label className="block font-semibold text-slate-700 mb-1 flex items-center justify-between">
                 <span className="flex items-center gap-1">
-                  <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                  <ExternalLink className="w-3.5 h-3.5 text-cyan-600" />
                   <span>Direct Quotation Web Link</span>
                 </span>
-                <span className="text-[10px] text-emerald-400 font-medium">Auto-embedded</span>
+                <span className="text-[10px] text-emerald-700 font-medium">Auto-embedded</span>
               </label>
               <div className="flex gap-1.5">
                 <input
                   type="text"
                   readOnly
                   value={quotationDirectUrl}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-cyan-300 font-mono text-[11px] select-all truncate"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-cyan-700 font-mono text-[11px] select-all truncate"
                 />
                 <button
                   type="button"
                   onClick={handleCopyLink}
                   title="Copy direct quotation link"
-                  className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1 transition-colors flex-shrink-0"
+                  className="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors flex-shrink-0"
                 >
-                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedLink ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
@@ -421,24 +421,24 @@ Warm regards,
           {/* Pre-formatted Message Live Preview */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="font-semibold text-slate-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <label className="font-semibold text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Pre-formatted WhatsApp Message Preview</span>
               </label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setIsEditingMessage(!isEditingMessage)}
-                  className="text-[11px] text-cyan-400 hover:underline"
+                  className="text-[11px] text-cyan-600 hover:underline font-semibold"
                 >
                   {isEditingMessage ? 'Done Editing' : 'Customize Text'}
                 </button>
                 <button
                   type="button"
                   onClick={handleCopyMessage}
-                  className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 bg-slate-800 px-2 py-0.5 rounded-lg"
+                  className="text-[11px] text-slate-600 hover:text-slate-900 flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-lg transition-colors"
                 >
-                  {copiedMessage ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                  {copiedMessage ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                   <span>{copiedMessage ? 'Copied' : 'Copy Message'}</span>
                 </button>
               </div>
@@ -449,31 +449,31 @@ Warm regards,
                 rows={9}
                 value={customMessage}
                 onChange={(e) => setCustomMessage(e.target.value)}
-                className="w-full p-3 rounded-xl bg-slate-950 border border-emerald-500/50 text-slate-200 font-mono text-[11px] leading-relaxed focus:outline-none"
+                className="w-full p-3 rounded-2xl bg-white border border-emerald-300 text-slate-800 font-mono text-[11px] leading-relaxed focus:outline-none"
               />
             ) : (
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap select-all selection:bg-emerald-500/30">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap select-all selection:bg-emerald-100">
                 {customMessage}
               </div>
             )}
           </div>
 
           {/* Bank & Payment Information Quick Check */}
-          <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
             <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-cyan-400" />
-              <span>Receiving UPI: <strong className="text-white font-mono">{companyInfo.bankDetails.upiId}</strong></span>
+              <CreditCard className="w-4 h-4 text-cyan-600" />
+              <span>Receiving UPI: <strong className="text-slate-800 font-mono">{companyInfo.bankDetails.upiId}</strong></span>
               <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline">Bank: <strong className="text-slate-300">{companyInfo.bankDetails.bankName}</strong></span>
+              <span className="hidden sm:inline">Bank: <strong className="text-slate-700">{companyInfo.bankDetails.bankName}</strong></span>
             </div>
-            <span className="text-emerald-400 font-medium">Ready to dispatch</span>
+            <span className="text-emerald-700 font-medium">Ready to dispatch</span>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="p-4 sm:p-5 bg-slate-50/80 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Opens WhatsApp Web or mobile app with pre-filled message</span>
           </div>
 
@@ -481,7 +481,7 @@ Warm regards,
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
             >
               Cancel
             </button>
@@ -489,7 +489,7 @@ Warm regards,
             <button
               type="button"
               onClick={handleSendWhatsApp}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 transition-all"
+              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all"
             >
               <Send className="w-4 h-4" />
               <span>Send via WhatsApp</span>
